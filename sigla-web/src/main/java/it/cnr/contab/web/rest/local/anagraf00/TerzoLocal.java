@@ -24,7 +24,7 @@ import it.cnr.contab.anagraf00.core.bulk.RapportoBulk;
 import it.cnr.contab.anagraf00.core.bulk.TerzoBulk;
 import it.cnr.contab.web.rest.config.SIGLARoles;
 import it.cnr.contab.web.rest.model.AnagraficaInfoDTO;
-
+import it.cnr.contab.web.rest.model.ModalitaPagamentoDto;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -61,7 +61,7 @@ public interface TerzoLocal {
 
     @GET
     @Path("/query")
-    @ApiOperation(value = "Ritorna i terzo associati all'angrafico con il codice fiscale passato in input ",
+    @ApiOperation(value = "Ritorna i terzi associati all'angrafico con il codice fiscale passato in input ",
             notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
             response = TerzoBulk.class,
             responseContainer = "List",
@@ -95,5 +95,15 @@ public interface TerzoLocal {
             authorizations = @Authorization(value = "BASIC")
     )
     Response anagraficaInfoByCdTerzo(@PathParam("cd_terzo") Integer cd_terzo) throws Exception;
+
+    @GET
+    @Path("/modalitapagamento/{cd_terzo}")
+    @ApiOperation(value = "Ritorna le modalità di pagamento attive per il codice del terzo passato in input ",
+            notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
+            response = ModalitaPagamentoDto.class,
+            responseContainer = "List",
+            authorizations = @Authorization(value = "BASIC")
+    )
+    Response modalitaPagamentoByCdTerzo(@PathParam("cd_terzo") Integer cdTerzo) throws Exception;
 
 }
