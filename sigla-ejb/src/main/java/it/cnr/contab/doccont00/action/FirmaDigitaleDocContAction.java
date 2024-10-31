@@ -19,6 +19,7 @@ package it.cnr.contab.doccont00.action;
 
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
 import it.cnr.contab.doccont00.bp.AbstractFirmaDigitaleDocContBP;
+import it.cnr.contab.doccont00.bp.AllegaMandatoFirmatoBP;
 import it.cnr.contab.doccont00.bp.AllegatiDocContBP;
 import it.cnr.contab.doccont00.bp.AllegatiMultipliDocContBP;
 import it.cnr.contab.doccont00.core.bulk.Numerazione_doc_contBulk;
@@ -152,6 +153,31 @@ public class FirmaDigitaleDocContAction extends SelezionatoreListaAction {
 				throw new ApplicationException("Selezionare almeno un elemento!");
 			AllegatiMultipliDocContBP allegatiMultipliDocContBP =
 					(AllegatiMultipliDocContBP) context.createBusinessProcess("AllegatiMultipliDocContBP", new Object[] {"M", selectedElements});
+
+			return context.addBusinessProcess(allegatiMultipliDocContBP);
+		} catch(Exception e) {
+			return handleException(context,e);
+		}
+
+	}
+
+	public Forward doAllegaMandatoFirmato(ActionContext context) {
+		AbstractFirmaDigitaleDocContBP bp = (AbstractFirmaDigitaleDocContBP)context.getBusinessProcess();
+		OggettoBulk bulk = bp.getModel();
+		StatoTrasmissione statoTrasmissioneBulk = ((StatoTrasmissione)bulk);
+		try {
+			fillModel(context);
+			String statoTrasmissione = statoTrasmissioneBulk.getStato_trasmissione();
+			bulk = (OggettoBulk)bp.getBulkInfo().getBulkClass().newInstance();
+			statoTrasmissioneBulk = ((StatoTrasmissione)bulk);
+			statoTrasmissioneBulk.setStato_trasmissione(statoTrasmissione);
+			bp.setModel(context, bulk);
+			bp.setSelection(context);
+			List<StatoTrasmissione> selectedElements = bp.getSelectedElements(context);
+			if (selectedElements == null || selectedElements.isEmpty())
+				throw new ApplicationException("Selezionare almeno un elemento!");
+			AllegaMandatoFirmatoBP allegatiMultipliDocContBP =
+					(AllegaMandatoFirmatoBP) context.createBusinessProcess("AllegaMandatoFirmatoBP", new Object[] {"M", selectedElements});
 
 			return context.addBusinessProcess(allegatiMultipliDocContBP);
 		} catch(Exception e) {
