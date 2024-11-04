@@ -44,6 +44,9 @@ public class StorePath {
     @Value("${cnr.storage.path.ordini}")
     private String pathOrdini;
 
+    @Value("${cnr.storage.filesystem.directory}")
+    private String baseDirectory;
+
     public String getPathComunicazioniDal() {
         return pathComunicazioniDal;
     }
@@ -114,5 +117,13 @@ public class StorePath {
 
     public void setPathOrdini(String pathOrdini) {
         this.pathOrdini = pathOrdini;
+    }
+
+    public String getBaseDirectory() {
+        return baseDirectory;
+    }
+
+    public void setBaseDirectory(String baseDirectory) {
+        this.baseDirectory = baseDirectory;
     }
 }

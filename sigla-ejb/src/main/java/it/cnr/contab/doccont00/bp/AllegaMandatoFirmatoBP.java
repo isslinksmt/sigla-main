@@ -17,35 +17,50 @@
 
 package it.cnr.contab.doccont00.bp;
 
+import it.cnr.contab.doccont00.core.bulk.MandatoBulk;
+import it.cnr.contab.doccont00.core.bulk.MandatoIBulk;
+import it.cnr.contab.doccont00.core.bulk.Numerazione_doc_contBulk;
+import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
 import it.cnr.contab.doccont00.intcass.bulk.StatoTrasmissione;
 import it.cnr.contab.service.SpringUtil;
+import it.cnr.contab.spring.service.StorePath;
+import it.cnr.contab.util.Utility;
 import it.cnr.contab.util00.bulk.storage.AllegatoGenericoBulk;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.bulk.OggettoBulk;
 import it.cnr.jada.bulk.ValidationException;
 import it.cnr.jada.comp.ApplicationException;
+import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.ejb.CRUDComponentSession;
 import it.cnr.jada.persistency.sql.CompoundFindClause;
 import it.cnr.jada.util.RemoteIterator;
 import it.cnr.jada.util.action.FormBP;
 import it.cnr.jada.util.action.SimpleCRUDBP;
+import it.cnr.jada.util.ejb.EJBCommonServices;
 import it.cnr.jada.util.upload.UploadedFile;
-import it.cnr.si.spring.storage.StorageException;
-import it.cnr.si.spring.storage.StorageObject;
-import it.cnr.si.spring.storage.StoreService;
+import it.cnr.si.spring.storage.*;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     private final List<StatoTrasmissione> documents;
     protected StoreService storeService;
+    private String directory;
 
     public AllegaMandatoFirmatoBP(List<StatoTrasmissione> documents) {
         this.documents = documents;
@@ -60,6 +75,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     protected void initialize(ActionContext actioncontext)
             throws BusinessProcessException {
         storeService = SpringUtil.getBean("storeService", StoreService.class);
+        directory = SpringUtil.getBean("storePath", StorePath.class).getBaseDirectory();
         super.initialize(actioncontext);
     }
 
@@ -85,6 +101,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     @Override
     public void save(ActionContext actioncontext) throws ValidationException, BusinessProcessException {
         AllegatoGenericoBulk allegato = (AllegatoGenericoBulk) getModel();
+
         List<UploadedFile> uploadedFiles = ((it.cnr.jada.action.HttpActionContext) actioncontext)
                 .getMultipartParameters("main.file");
         for (UploadedFile uploadedFile : uploadedFiles) {
@@ -106,7 +123,19 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
             );
             try {
                 for (StatoTrasmissione statoTrasmissione : documents) {
-                    final Optional<StorageObject> parentFolder =
+                    if(!Objects.equals(allegato.getNome(), statoTrasmissione.getCMISName())){
+                        allegato.setNome(statoTrasmissione.getCMISName());
+                    }
+                    Path destinationDir = Paths.get(directory.concat("/").concat(statoTrasmissione.getStorePath()));
+                    String fileName = StringUtils.cleanPath(Objects.requireNonNull(allegato.getNome()));
+                    Path targetLocation = destinationDir.resolve(fileName);
+                    if (Files.exists(targetLocation)) {
+                        Path backupFile = destinationDir.resolve(fileName.replace(".pdf", "_backup.pdf"));
+                        Files.move(targetLocation, backupFile, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    Files.copy(new FileInputStream(allegato.getFile()), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                    aggiornaStato(actioncontext, MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA, statoTrasmissione);
+                    /*final Optional<StorageObject> parentFolder =
                             Optional.ofNullable(storeService.getStorageObjectByPath(statoTrasmissione.getStorePath()));
                     if (parentFolder.isPresent()) {
                         storeService.storeSimpleDocument(
@@ -116,7 +145,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
                                 allegato.getNome(),
                                 statoTrasmissione.getStorePath()
                         );
-                    }
+                    }*/
                 }
             } catch (FileNotFoundException e) {
                 throw handleException(e);
@@ -124,9 +153,13 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
                 if (e.getType().equals(StorageException.Type.CONSTRAINT_VIOLATED))
                     throw handleException(new ApplicationException("File [" + allegato.getNome() + "] gia' presente. Inserimento non possibile!"));
                 throw handleException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ComponentException e) {
+                throw new RuntimeException(e);
             }
         }
-        setMessage(FormBP.INFO_MESSAGE, "Allegati inseriti correttamente ai documenti.");
+        setMessage(FormBP.INFO_MESSAGE, "Mandato firmato salvato correttamente.");
     }
 
     @Override
@@ -152,5 +185,40 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     @Override
     public void openForm(PageContext context, String action, String target) throws IOException, ServletException {
         openForm(context, action, target, "multipart/form-data");
+    }
+
+    protected void aggiornaStato(ActionContext actioncontext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException, BusinessProcessException {
+        DistintaCassiereComponentSession distintaCassiereComponentSession = Utility.createDistintaCassiereComponentSession();
+        CRUDComponentSession crudComponentSession = createComponentSession();
+        for (StatoTrasmissione v_mandato_reversaleBulk : bulks) {
+            if (v_mandato_reversaleBulk.getCd_tipo_documento_cont().equalsIgnoreCase(Numerazione_doc_contBulk.TIPO_MAN)) {
+                MandatoIBulk mandato = new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
+                mandato = (MandatoIBulk) crudComponentSession.findByPrimaryKey(actioncontext.getUserContext(), mandato);
+                if(mandato.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
+                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione_annullo()))
+                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                    mandato.setStato_trasmissione_annullo(stato);
+                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                        mandato.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
+                    else
+                        mandato.setDt_firma_annullo(null);
+                }else{
+                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione()))
+                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                    mandato.setStato_trasmissione(stato);
+                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                        mandato.setDt_firma(EJBCommonServices.getServerTimestamp());
+                    else
+                        mandato.setDt_firma(null);
+                }
+                mandato.setToBeUpdated();
+                crudComponentSession.modificaConBulk(actioncontext.getUserContext(), mandato);
+                /*for (StatoTrasmissione statoTrasmissione : distintaCassiereComponentSession.findReversaliCollegate(actioncontext.getUserContext(), (V_mandato_reversaleBulk) v_mandato_reversaleBulk)) {
+                    aggiornaStatoReversale(actioncontext, statoTrasmissione, stato);
+                }*/
+            } /*else {
+                aggiornaStatoReversale(actioncontext, v_mandato_reversaleBulk, stato);
+            }*/
+        }
     }
 }

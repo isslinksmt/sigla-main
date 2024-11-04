@@ -176,6 +176,9 @@ public class FirmaDigitaleDocContAction extends SelezionatoreListaAction {
 			List<StatoTrasmissione> selectedElements = bp.getSelectedElements(context);
 			if (selectedElements == null || selectedElements.isEmpty())
 				throw new ApplicationException("Selezionare almeno un elemento!");
+			if(selectedElements.size() > 1){
+				throw new ApplicationException("Selezionare almeno un singolo elemento!");
+			}
 			AllegaMandatoFirmatoBP allegatiMultipliDocContBP =
 					(AllegaMandatoFirmatoBP) context.createBusinessProcess("AllegaMandatoFirmatoBP", new Object[] {"M", selectedElements});
 
