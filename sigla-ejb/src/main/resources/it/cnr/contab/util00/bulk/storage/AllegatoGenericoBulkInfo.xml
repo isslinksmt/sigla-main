@@ -128,6 +128,12 @@
                 multiple="true"/>
     </form>
 
+    <form name="onlymandatofirmato">
+        <formFieldProperty
+                name="file"
+                multiple="true"/>
+    </form>
+
     <columnSet
             name="archivioAllegati">
         <columnFieldProperty
