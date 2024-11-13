@@ -12,6 +12,7 @@ import it.cnr.contab.web.rest.exception.RestException;
 import it.cnr.contab.web.rest.local.doccont.MandatoLocal;
 import it.cnr.contab.web.rest.model.MandatoDto;
 import it.cnr.contab.web.rest.request.CreaMandatoRequest;
+import it.cnr.jada.bulk.BulkList;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.ejb.CRUDComponentSession;
 import org.slf4j.Logger;
@@ -83,9 +84,10 @@ public class MandatoResource implements MandatoLocal {
                 }
                 obbligazioneBulks.add(obbligazioneBulk);
                 MandatoBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
+
                 mandatoBulk.setToBeCreated();
                 MandatoBulk mandatoBulkCreato = (MandatoBulk) mandatoComponentSession.creaConBulk(userContext, mandatoBulk);
-
+                mandatoBulk.setMandato_rigaColl(new BulkList<ObbligazioneBulk>(obbligazioneBulks));
                 LOGGER.info("Mandato creato con successo. Procedo all'associazione delle righe.");
             }
         }catch (Throwable e){
