@@ -85,6 +85,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoComponentSession = Utility.createMandatoComponentSession();
         try{
             List<Documento_genericoBulk> listaDocumentiGenericipassivi = new ArrayList<>();
+            List<V_doc_passivo_obbligazioneBulk> lisaVDocPassivi = new ArrayList<>();
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
             for (Long el : mandatoRequest.getPgDocumentiPassivi()) {
                 Documento_generico_passivoBulk documentoGenericoPassivoBulk = new Documento_generico_passivoBulk(
@@ -98,7 +99,7 @@ public class MandatoResource implements MandatoLocal {
                 documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.inizializzaBulkPerModifica(userContext, documento_genericoBulk);
                 if (!Optional.ofNullable(documento_genericoBulk).isPresent())
                     throw new RestException(Response.Status.NOT_FOUND, String.format("Documento Generico non presente!"));
-                listaDocumentiGenericipassivi.add(documento_genericoBulk);
+                    lisaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
                 }
                 MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
                 mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaDocumentiGenericipassivi);

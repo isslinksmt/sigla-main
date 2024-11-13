@@ -6694,4 +6694,16 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
         MandatoHome mandatoHome = (MandatoHome) getHome(userContext, mandatoBulk.getClass());
         return mandatoHome.findMandatiReversaliBulk(userContext, mandatoBulk);
     }
+
+    public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {
+        SQLBuilder sql = getHome(userContext, V_doc_passivo_obbligazioneBulk.class)
+                .createSQLBuilder();
+        sql.addClause("AND", "cd_cds", SQLBuilder.EQUALS, cdCds);
+        sql.addSQLClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
+        sql.addSQLClause("AND", "pg_documento_amm", SQLBuilder.EQUALS, pgDocumentoGen);
+        List result = getHome(userContext, V_doc_passivo_obbligazioneBulk.class).fetchAll(sql);
+        if (result.size() == 0)
+            throw new ApplicationException("Non esiste il documento generico passivo");
+        return (V_doc_passivo_obbligazioneBulk)result.get(0);
+    }
 }

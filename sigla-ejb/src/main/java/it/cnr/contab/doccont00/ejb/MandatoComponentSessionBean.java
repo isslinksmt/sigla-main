@@ -644,4 +644,26 @@ public class MandatoComponentSessionBean extends it.cnr.jada.ejb.CRUDComponentSe
             throw new RuntimeException(e);
         }
     }
+
+	@Override
+	public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			V_doc_passivo_obbligazioneBulk  result = ((MandatoComponent)componentObj).getVDocPassiviObbligazione(userContext, pgDocumentoGen, cdCds, esercizio);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
