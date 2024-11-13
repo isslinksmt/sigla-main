@@ -42,22 +42,6 @@ public interface MandatoLocal {
                  @PathParam("esercizio") Integer esercizio,
                  @PathParam("pg_mandato") Long pgMandato ) throws Exception;
 
-    @GET
-    @Path("/second/{cd_cds}/{cd_unita_organizzativa}/{esercizio}/{pg_mandato}")
-    @ApiOperation(value = "Ritorna mandato",
-            notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.MANDATO_REST +"'",
-            response = MandatoDto.class,
-            authorizations = {
-                    @Authorization(value = "BASIC"),
-                    @Authorization(value = SIGLASecurityContext.X_SIGLA_ESERCIZIO),
-                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_CDS),
-                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_UNITA_ORGANIZZATIVA),
-                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_CDR)
-            }
-    )
-    Response getsecond(@PathParam("cd_cds") String cd_cds,@PathParam("cd_unita_organizzativa") String cd_unita_organizzativa, @PathParam("esercizio") Integer esercizio,@PathParam("pg_mandato") Long pg_mandato ) throws Exception;
-
-
     @POST
     @Path("/{cd_cds}/{cd_unita_organizzativa}/{esercizio}")
     @ApiOperation(value = "Crea mandato",

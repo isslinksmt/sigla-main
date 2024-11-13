@@ -7,7 +7,7 @@ public class CreaMandatoRequest implements Serializable {
     private String unitaOrganizzativa;
     private boolean tipoPagamento; //Pagamento o Regolamento sospeso
     private String descrizioneMandato;
-    private List<Long> pgObbligazioni;
+    private List<Long> pgDocumentiPassivi;
 
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
@@ -25,12 +25,12 @@ public class CreaMandatoRequest implements Serializable {
         this.tipoPagamento = tipoPagamento;
     }
 
-    public List<Long> getPgObbligazioni() {
-        return pgObbligazioni;
+    public List<Long> getPgDocumentiPassivi() {
+        return pgDocumentiPassivi;
     }
 
-    public void setPgObbligazioni(List<Long> pgObbligazioni) {
-        this.pgObbligazioni = pgObbligazioni;
+    public void setPgDocumentiPassivi(List<Long> pgDocumentiPassivi) {
+        this.pgDocumentiPassivi = pgDocumentiPassivi;
     }
 
     public String getDescrizioneMandato() {

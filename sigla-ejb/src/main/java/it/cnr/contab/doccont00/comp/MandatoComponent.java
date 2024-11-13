@@ -6689,4 +6689,9 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
             }
         }
     }
+
+    public V_mandato_reversaleBulk getMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws ComponentException, PersistencyException {
+        MandatoHome mandatoHome = (MandatoHome) getHome(userContext, mandatoBulk.getClass());
+        return mandatoHome.findMandatiReversaliBulk(userContext, mandatoBulk);
+    }
 }

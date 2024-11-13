@@ -17,6 +17,7 @@
 
 package it.cnr.contab.doccont00.ejb;
 
+import java.rmi.RemoteException;
 import java.util.List;
 
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
@@ -59,4 +60,5 @@ Mandato_rigaBulk inizializzaTi_fattura(UserContext userContext, Mandato_rigaBulk
 IDocumentoAmministrativoSpesaBulk getDocumentoAmministrativoSpesaBulk(UserContext userContext, Mandato_rigaBulk mandatoRiga) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 Mandato_rigaBulk setCodiciSIOPECollegabili(UserContext userContext, Mandato_rigaBulk riga) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 Ass_mandato_reversaleBulk creaAss_mandato_reversale(UserContext userContext, MandatoBulk mandato, ReversaleBulk reversale) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
+V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws RemoteException, ComponentException;
 }

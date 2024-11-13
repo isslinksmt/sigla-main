@@ -30,6 +30,8 @@ import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.pdg00.bulk.Pdg_variazioneBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.persistency.PersistencyException;
+
 @Stateless(name="CNRDOCCONT00_EJB_MandatoComponentSession")
 public class MandatoComponentSessionBean extends it.cnr.jada.ejb.CRUDComponentSessionBean implements MandatoComponentSession {
 	@PostConstruct
@@ -620,4 +622,26 @@ public class MandatoComponentSessionBean extends it.cnr.jada.ejb.CRUDComponentSe
 			throw uncaughtError(param0,componentObj,e);
 		}
 	}
+
+	@Override
+	public V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			V_mandato_reversaleBulk  result = ((MandatoComponent)componentObj).getMandatoReversaleBulk(userContext, mandatoBulk);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -588,6 +588,27 @@ public class TransactionalMandatoComponentSession extends it.cnr.jada.ejb.Transa
 			}
 		}
 	}
+
+	@Override
+	public V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws RemoteException, ComponentException {
+		try {
+			return (V_mandato_reversaleBulk)invoke("cercaVMandatoReversaleBulk",new Object[] {
+					userContext,
+					mandatoBulk,
+			});
+		} catch(java.rmi.RemoteException e) {
+			throw e;
+		} catch(java.lang.reflect.InvocationTargetException e) {
+			try {
+				throw e.getTargetException();
+			} catch(it.cnr.jada.comp.ComponentException ex) {
+				throw ex;
+			} catch(Throwable ex) {
+				throw new java.rmi.RemoteException("Uncaugth exception",ex);
+			}
+		}
+	}
+
 	public List<MandatoComunicaDatiBulk> recuperoDatiPagamenti(it.cnr.jada.UserContext param0, MandatoComunicaDatiBulk param1) throws RemoteException,it.cnr.jada.comp.ComponentException {
 		try {
 			return (List<MandatoComunicaDatiBulk>)invoke("recuperoDatiPagamenti",new Object[] {
