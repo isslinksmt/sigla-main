@@ -3,12 +3,11 @@ package it.cnr.contab.web.rest.resource.doccont;
 import it.cnr.contab.config00.sto.bulk.CdsBulk;
 import it.cnr.contab.config00.sto.bulk.Unita_organizzativaBulk;
 import it.cnr.contab.doccont00.core.bulk.MandatoBulk;
-import it.cnr.contab.doccont00.core.bulk.MandatoHome;
-import it.cnr.contab.doccont00.core.bulk.Mandato_rigaBulk;
 import it.cnr.contab.doccont00.core.bulk.ObbligazioneBulk;
 import it.cnr.contab.doccont00.ejb.MandatoComponentSession;
 import it.cnr.contab.doccont00.ejb.ObbligazioneComponentSession;
 import it.cnr.contab.utenze00.bp.CNRUserContext;
+import it.cnr.contab.util.Utility;
 import it.cnr.contab.web.rest.exception.RestException;
 import it.cnr.contab.web.rest.local.doccont.MandatoLocal;
 import it.cnr.contab.web.rest.model.MandatoDto;
@@ -42,7 +41,6 @@ public class MandatoResource implements MandatoLocal {
     @EJB
     CRUDComponentSession crudComponentSession;
 
-    @EJB
     MandatoComponentSession mandatoComponentSession;
 
     @EJB
@@ -73,6 +71,7 @@ public class MandatoResource implements MandatoLocal {
 
     @Override
     public Response insert(String cdCds, String cdUnitaOrganizzativa, Integer esercizio, HttpServletRequest request, CreaMandatoRequest mandatoRequest) throws Exception {
+        mandatoComponentSession = Utility.createMandatoComponentSession();
         try{
             List<ObbligazioneBulk> obbligazioneBulks = new ArrayList<>();
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
@@ -126,3 +125,6 @@ public class MandatoResource implements MandatoLocal {
         return mandatoBulk;
     }
 }
+
+//mandatoBulk.setMandato_rigaColl(new BulkList<ObbligazioneBulk>(obbligazioneBulks));
+//mandatoComponentSession = Utility.createMandatoComponentSession();
