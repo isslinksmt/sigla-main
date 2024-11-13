@@ -25,6 +25,7 @@ import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.persistency.PersistencyException;
 import it.cnr.jada.util.ejb.*;
 
 public class TransactionalMandatoComponentSession extends it.cnr.jada.ejb.TransactionalCRUDComponentSession implements MandatoComponentSession {
@@ -595,6 +596,28 @@ public class TransactionalMandatoComponentSession extends it.cnr.jada.ejb.Transa
 			return (V_mandato_reversaleBulk)invoke("cercaVMandatoReversaleBulk",new Object[] {
 					userContext,
 					mandatoBulk,
+			});
+		} catch(java.rmi.RemoteException e) {
+			throw e;
+		} catch(java.lang.reflect.InvocationTargetException e) {
+			try {
+				throw e.getTargetException();
+			} catch(it.cnr.jada.comp.ComponentException ex) {
+				throw ex;
+			} catch(Throwable ex) {
+				throw new java.rmi.RemoteException("Uncaugth exception",ex);
+			}
+		}
+	}
+
+	@Override
+	public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException {
+		try {
+			return (V_doc_passivo_obbligazioneBulk)invoke("getVDocPassiviObbligazione",new Object[] {
+					userContext,
+					pgDocumentoGen,
+					cdCds,
+					esercizio
 			});
 		} catch(java.rmi.RemoteException e) {
 			throw e;
