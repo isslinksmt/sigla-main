@@ -127,11 +127,9 @@ public class MandatoResource implements MandatoLocal {
 
     private MandatoIBulk mandatoDtoToBulk(CreaMandatoRequest request, String cdCds, String cdUnitaOrganizzativa, Integer esercizio, CNRUserContext userContext) throws ComponentException, RemoteException {
         MandatoIBulk mandatoBulk = new MandatoIBulk();
-        mandatoBulk.setCd_cds(cdCds);
         mandatoBulk.setCds((CdsBulk) crudComponentSession.findByPrimaryKey( userContext,new CdsBulk(cdUnitaOrganizzativa)));
         mandatoBulk.setUnita_organizzativa((Unita_organizzativaBulk) crudComponentSession.findByPrimaryKey(userContext,new Unita_organizzativaBulk(cdUnitaOrganizzativa)));
         mandatoBulk.setEsercizio(esercizio);
-        mandatoBulk.setCd_cds_origine(cdCds);
         mandatoBulk = (MandatoIBulk) mandatoComponentSession.inizializzaBulkPerInserimento(userContext, mandatoBulk);
         mandatoBulk.setCd_unita_organizzativa(cdUnitaOrganizzativa);
         mandatoBulk.setCd_uo_origine(cdUnitaOrganizzativa);
@@ -143,6 +141,8 @@ public class MandatoResource implements MandatoLocal {
         mandatoBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now()));
         mandatoBulk.setStato_trasmissione("I");
         mandatoBulk.setStato_coge("N");
+        mandatoBulk.setCd_cds_origine(cdCds);
+        mandatoBulk.setCd_cds(cdCds);
         return mandatoBulk;
     }
 

@@ -2126,7 +2126,9 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
             riga.setCd_sospeso(docPassivo.getCd_sospeso());
             ((Mandato_rigaHome) getHome(userContext, riga.getClass()))
                     .initializeElemento_voce(userContext, riga);
-
+            if(docPassivo.getCd_cds() != null){
+                riga.setCd_cds(docPassivo.getCd_cds());
+            }
             // imposto il terzo
             if (!Optional.ofNullable(terzoModalitaPagamento).isPresent()) {
                 if (docPassivo.getCodice_terzo_cedente() != null) {
