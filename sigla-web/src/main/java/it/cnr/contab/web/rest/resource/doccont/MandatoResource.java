@@ -39,6 +39,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.Format;
@@ -85,6 +86,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoComponentSession = Utility.createMandatoComponentSession();
         try{
             List<V_doc_passivo_obbligazioneBulk> listaVDocPassivi = new ArrayList<>();
+            BigDecimal importo = new BigDecimal(0);
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
             for (Long el : mandatoRequest.getPgDocumentiPassivi()) {
                 Documento_generico_passivoBulk documentoGenericoPassivoBulk = new Documento_generico_passivoBulk(
@@ -101,12 +103,18 @@ public class MandatoResource implements MandatoLocal {
                     listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
                 }
                 MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
+                for(V_doc_passivo_obbligazioneBulk vdoc : listaVDocPassivi){
+                    importo = importo.add(vdoc.getIm_totale_doc_amm());
+                }
+                mandatoBulk.setIm_mandato(importo);
                 mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
                 //Devo creare associazioni mandato riga e devo assicurarmi che sia sempro S
                 mandatoBulk.setToBeCreated();
                 MandatoIBulk mandatoBulkCreato = (MandatoIBulk) mandatoComponentSession.creaConBulk(userContext, mandatoBulk);
                 V_mandato_reversaleBulk vMandatoReversaleBulk = mandatoComponentSession.cercaVMandatoReversaleBulk(userContext, mandatoBulkCreato);
-                predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
+                if(mandatoRequest.isStampa()){
+                    predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
+                }
                 LOGGER.info("Mandato creato con successo. Procedo all'associazione delle righe.");
 
         }catch (Throwable e){

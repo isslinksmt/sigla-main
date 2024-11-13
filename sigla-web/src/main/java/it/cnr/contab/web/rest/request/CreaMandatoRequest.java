@@ -8,7 +8,7 @@ public class CreaMandatoRequest implements Serializable {
     private boolean tipoPagamento; //Pagamento o Regolamento sospeso
     private String descrizioneMandato;
     private List<Long> pgDocumentiPassivi;
-
+    private boolean stampa;
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
     }
@@ -39,5 +39,13 @@ public class CreaMandatoRequest implements Serializable {
 
     public void setDescrizioneMandato(String descrizioneMandato) {
         this.descrizioneMandato = descrizioneMandato;
+    }
+
+    public boolean isStampa() {
+        return stampa;
+    }
+
+    public void setStampa(boolean stampa) {
+        this.stampa = stampa;
     }
 }
