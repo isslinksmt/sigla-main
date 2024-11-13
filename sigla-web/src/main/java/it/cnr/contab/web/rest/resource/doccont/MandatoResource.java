@@ -67,7 +67,7 @@ public class MandatoResource implements MandatoLocal {
     public Response get(String cdCds, String cdUnitaOrganizzativa, Integer esercizio, Long pgMandato) throws Exception {
         try{
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
-            MandatoIBulk mandatoBulk = (MandatoIBulk) mandatoComponentSession.findByPrimaryKey(userContext, new MandatoBulk(cdCds, esercizio, pgMandato));
+            MandatoIBulk mandatoBulk = (MandatoIBulk) mandatoComponentSession.findByPrimaryKey(userContext, new MandatoIBulk(cdCds, esercizio, pgMandato));
             if (!Optional.ofNullable(mandatoBulk).isPresent()){
                 throw new RestException(Response.Status.NOT_FOUND,"Mandato non presente.");
             }
@@ -101,6 +101,7 @@ public class MandatoResource implements MandatoLocal {
                 listaDocumentiGenericipassivi.add(documento_genericoBulk);
                 }
                 MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
+                mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaDocumentiGenericipassivi);
                 //Devo creare associazioni mandato riga e devo assicurarmi che sia sempro S
                 mandatoBulk.setToBeCreated();
                 MandatoIBulk mandatoBulkCreato = (MandatoIBulk) mandatoComponentSession.creaConBulk(userContext, mandatoBulk);
