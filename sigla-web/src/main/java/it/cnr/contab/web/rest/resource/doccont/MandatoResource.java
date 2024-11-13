@@ -84,8 +84,7 @@ public class MandatoResource implements MandatoLocal {
     public Response insert(String cdCds, String cdUnitaOrganizzativa, Integer esercizio, HttpServletRequest request, CreaMandatoRequest mandatoRequest) throws Exception {
         mandatoComponentSession = Utility.createMandatoComponentSession();
         try{
-            List<Documento_genericoBulk> listaDocumentiGenericipassivi = new ArrayList<>();
-            List<V_doc_passivo_obbligazioneBulk> lisaVDocPassivi = new ArrayList<>();
+            List<V_doc_passivo_obbligazioneBulk> listaVDocPassivi = new ArrayList<>();
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
             for (Long el : mandatoRequest.getPgDocumentiPassivi()) {
                 Documento_generico_passivoBulk documentoGenericoPassivoBulk = new Documento_generico_passivoBulk(
@@ -99,10 +98,10 @@ public class MandatoResource implements MandatoLocal {
                 documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.inizializzaBulkPerModifica(userContext, documento_genericoBulk);
                 if (!Optional.ofNullable(documento_genericoBulk).isPresent())
                     throw new RestException(Response.Status.NOT_FOUND, String.format("Documento Generico non presente!"));
-                    lisaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
+                    listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
                 }
                 MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
-                mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaDocumentiGenericipassivi);
+                mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
                 //Devo creare associazioni mandato riga e devo assicurarmi che sia sempro S
                 mandatoBulk.setToBeCreated();
                 MandatoIBulk mandatoBulkCreato = (MandatoIBulk) mandatoComponentSession.creaConBulk(userContext, mandatoBulk);
