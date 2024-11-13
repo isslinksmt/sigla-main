@@ -107,6 +107,7 @@ public class MandatoResource implements MandatoLocal {
                     importo = importo.add(vdoc.getIm_totale_doc_amm());
                 }
                 mandatoBulk.setIm_mandato(importo);
+                mandatoBulk.setIm_pagato(importo);
                 mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
                 //Devo creare associazioni mandato riga e devo assicurarmi che sia sempro S
                 mandatoBulk.setToBeCreated();
