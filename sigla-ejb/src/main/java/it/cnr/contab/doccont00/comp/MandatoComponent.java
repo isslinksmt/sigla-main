@@ -5316,9 +5316,11 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                                     .format(lastDayOfTheYear));
 
                 if (mandato.getDt_emissione()
-                        .compareTo(mh.getServerTimestamp()) > 0)
+                        .compareTo(mh.getServerTimestamp()) > 0){
+                    logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
                     throw new ApplicationException(
                             "Non è possibile inserire un mandato con data futura");
+                }
                 Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
                         .getClass())).findDataUltimoMandatoPerCds(mandato);
                 if (dataUltMandato != null
