@@ -147,7 +147,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoBulk.setTi_competenza_residuo("C");
         mandatoBulk.setDs_mandato(request.getDescrizioneMandato());
         mandatoBulk.setStato("E");
-        mandatoBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now()));
+        mandatoBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now().minusHours(1)));
         mandatoBulk.setStato_trasmissione("I");
         mandatoBulk.setStato_coge("N");
         mandatoBulk.setCd_cds_origine(cdCds);
