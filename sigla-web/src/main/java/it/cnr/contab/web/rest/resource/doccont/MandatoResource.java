@@ -180,7 +180,7 @@ public class MandatoResource implements MandatoLocal {
                 report.getName(),
                 v_mandato_reversaleBulk.getStorePath(),
                 true);
-        aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
+        //aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
     }
 
     protected void aggiornaStato(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
