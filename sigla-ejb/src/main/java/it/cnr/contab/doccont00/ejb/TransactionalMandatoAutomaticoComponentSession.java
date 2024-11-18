@@ -732,4 +732,24 @@ public class TransactionalMandatoAutomaticoComponentSession extends it.cnr.jada.
             }
         }
     }
+
+    @Override
+    public MandatoIBulk creaMandatoWs(UserContext userContext, MandatoIBulk mandatoIBulk) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (MandatoIBulk)invoke("creaMandatoWs",new Object[] {
+                    userContext,
+                    mandatoIBulk
+            });
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
 }

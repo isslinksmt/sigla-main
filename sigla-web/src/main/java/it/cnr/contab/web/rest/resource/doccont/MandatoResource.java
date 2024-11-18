@@ -110,13 +110,21 @@ public class MandatoResource implements MandatoLocal {
                 mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
                 //Devo creare associazioni mandato riga e devo assicurarmi che sia sempro S
                 mandatoBulk.setToBeCreated();
+                MandatoIBulk mandatoBulkCreato=(MandatoIBulk) mandatoComponentSession.creaMandatoWs(userContext, mandatoBulk);
+    /*
                 MandatoIBulk mandatoBulkCreato = (MandatoIBulk) mandatoComponentSession.creaConBulk(userContext, mandatoBulk);
+                 mandatoBulkCreato = (MandatoIBulk) mandatoComponentSession.findByPrimaryKey(userContext, new MandatoIBulk(cdCds, esercizio, mandatoBulkCreato.getPg_mandato()));
+                if (!Optional.ofNullable(mandatoBulk).isPresent()){
+                    throw new RestException(Response.Status.NOT_FOUND,"Mandato non presente.");
+                }
+                mandatoBulkCreato = (MandatoIBulk)mandatoComponentSession.inizializzaBulkPerModifica(userContext, mandatoBulkCreato);
+
                 V_mandato_reversaleBulk vMandatoReversaleBulk = mandatoComponentSession.cercaVMandatoReversaleBulk(userContext, mandatoBulkCreato);
                 if(mandatoRequest.isStampa()){
                     predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
                 }
                 LOGGER.info("Mandato creato con successo. Procedo all'associazione delle righe.");
-
+*/
         }catch (Throwable e){
             if ( e instanceof RestException)
                 throw e;
@@ -147,7 +155,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoBulk.setDs_mandato(request.getDescrizioneMandato());
         mandatoBulk.setStato("E");
         mandatoBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now().minusHours(1).minusMinutes(1)));
-        mandatoBulk.setStato_trasmissione(MandatoBulk.STATO_MANDATO_EMESSO);
+        mandatoBulk.setStato_trasmissione(MandatoBulk.STATO_TRASMISSIONE_NON_INSERITO);
         mandatoBulk.setStato_coge("N");
         mandatoBulk.setCd_cds_origine(cdCds);
         mandatoBulk.setCd_cds(cdCds);
