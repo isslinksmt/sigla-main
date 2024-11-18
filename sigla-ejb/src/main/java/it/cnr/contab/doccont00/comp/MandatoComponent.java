@@ -6720,16 +6720,22 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
     }
 
     public MandatoIBulk creaMandatoWs(UserContext userContext, MandatoIBulk mandatoBulk)throws ComponentException, PersistencyException {
-
         MandatoIBulk mandatoBulkCreato = (MandatoIBulk) this.creaConBulk(userContext, mandatoBulk);
         mandatoBulkCreato = (MandatoIBulk) this.findByPrimaryKey(userContext, new MandatoIBulk(mandatoBulk.getCd_cds(), mandatoBulk.getEsercizio(), mandatoBulkCreato.getPg_mandato()));
         if (!Optional.ofNullable(mandatoBulk).isPresent()){
             throw new ComponentException("Mandato non presente.");
         }
         mandatoBulkCreato = (MandatoIBulk)this.inizializzaBulkPerModifica(userContext, mandatoBulkCreato);
+        return mandatoBulkCreato;
+    }
 
-        V_mandato_reversaleBulk vMandatoReversaleBulk = this.getMandatoReversaleBulk(userContext, mandatoBulkCreato);
-       // if(this.isStampa()){
+    public MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException {
+        MandatoIBulk mandatoBulk = (MandatoIBulk) this.findByPrimaryKey(userContext, new MandatoIBulk(cdCds, esercizio, pgMandato));
+        if (!Optional.ofNullable(mandatoBulk).isPresent()){
+            throw new ComponentException("Mandato non presente.");
+        }
+        mandatoBulk = (MandatoIBulk) this.inizializzaBulkPerModifica(userContext, mandatoBulk);
+        V_mandato_reversaleBulk vMandatoReversaleBulk = this.getMandatoReversaleBulk(userContext, mandatoBulk);
         try {
             predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
         } catch (BusinessProcessException e) {
@@ -6737,9 +6743,7 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        //}
-        // LOGGER.info("Mandato creato con successo. Procedo all'associazione delle righe.");
-        return mandatoBulkCreato;
+        return mandatoBulk;
     }
 
     private  void predisponi(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk, Format dateFormat) throws ComponentException, IOException {

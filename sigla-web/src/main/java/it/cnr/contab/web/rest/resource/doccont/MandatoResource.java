@@ -133,6 +133,13 @@ public class MandatoResource implements MandatoLocal {
         return null;
     }
 
+    @Override
+    public Response stampa(Long pgMandato, int esercizio, String cdCds, HttpServletRequest request) throws Exception {
+        CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
+        MandatoIBulk mandatoBulkCreato=(MandatoIBulk) mandatoComponentSession.stampaMandato(userContext, pgMandato, esercizio, cdCds);
+        return null;
+    }
+
     private MandatoDto mandatoBulkToDto(MandatoBulk bulk){
         MandatoDto mandatoDto = new MandatoDto();
         mandatoDto.setCdCds(bulk.getCd_cds());

@@ -62,6 +62,6 @@ Mandato_rigaBulk setCodiciSIOPECollegabili(UserContext userContext, Mandato_riga
 Ass_mandato_reversaleBulk creaAss_mandato_reversale(UserContext userContext, MandatoBulk mandato, ReversaleBulk reversale) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws RemoteException, ComponentException;
 V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException;
-
-MandatoIBulk creaMandatoWs( UserContext userContext,MandatoIBulk mandatoIBulk)throws ComponentException, PersistencyException, RemoteException;
+MandatoIBulk creaMandatoWs( UserContext userContext, MandatoIBulk mandatoIBulk)throws ComponentException, PersistencyException, RemoteException;
+MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException;
 }

@@ -61,4 +61,22 @@ public interface MandatoLocal {
                     @Context HttpServletRequest request,
                     CreaMandatoRequest mandatoRequest) throws Exception;
 
+    @POST
+    @Path("/stampa/{pgMandato}/{esercizio}/{cd_cds}")
+    @ApiOperation(value = "Crea mandato",
+            notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.MANDATO_REST +"'",
+            response = MandatoDto.class,
+            authorizations = {
+                    @Authorization(value = "BASIC"),
+                    @Authorization(value = SIGLASecurityContext.X_SIGLA_ESERCIZIO),
+                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_CDS),
+                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_UNITA_ORGANIZZATIVA),
+                    @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_CDR)
+            }
+    )
+    Response stampa(@PathParam("pgMandato") Long pgMandato,
+                    @PathParam("esercizio") int esercizio,
+                    @PathParam("cd_cds") String cdCds,
+                    @Context HttpServletRequest request) throws Exception;
+
 }
