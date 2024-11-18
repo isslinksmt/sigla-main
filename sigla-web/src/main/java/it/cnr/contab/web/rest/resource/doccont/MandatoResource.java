@@ -97,7 +97,6 @@ public class MandatoResource implements MandatoLocal {
                         el);
                 Documento_genericoBulk documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.findByPrimaryKey(userContext,
                         documentoGenericoPassivoBulk);
-                documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.inizializzaBulkPerModifica(userContext, documento_genericoBulk);
                 if (!Optional.ofNullable(documento_genericoBulk).isPresent())
                     throw new RestException(Response.Status.NOT_FOUND, String.format("Documento Generico non presente!"));
                     listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
@@ -136,7 +135,7 @@ public class MandatoResource implements MandatoLocal {
 
     private MandatoIBulk mandatoDtoToBulk(CreaMandatoRequest request, String cdCds, String cdUnitaOrganizzativa, Integer esercizio, CNRUserContext userContext) throws ComponentException, RemoteException {
         MandatoIBulk mandatoBulk = new MandatoIBulk();
-        mandatoBulk.setCds((CdsBulk) crudComponentSession.findByPrimaryKey( userContext,new CdsBulk(cdUnitaOrganizzativa)));
+        mandatoBulk.setCds((CdsBulk) crudComponentSession.findByPrimaryKey( userContext,new CdsBulk(cdCds)));
         mandatoBulk.setUnita_organizzativa((Unita_organizzativaBulk) crudComponentSession.findByPrimaryKey(userContext,new Unita_organizzativaBulk(cdUnitaOrganizzativa)));
         mandatoBulk.setEsercizio(esercizio);
         mandatoBulk = (MandatoIBulk) mandatoComponentSession.inizializzaBulkPerInserimento(userContext, mandatoBulk);
