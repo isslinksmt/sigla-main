@@ -148,7 +148,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoBulk.setDs_mandato(request.getDescrizioneMandato());
         mandatoBulk.setStato("E");
         mandatoBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now().minusHours(1).minusMinutes(1)));
-        mandatoBulk.setStato_trasmissione("I");
+        mandatoBulk.setStato_trasmissione(MandatoBulk.STATO_MANDATO_EMESSO);
         mandatoBulk.setStato_coge("N");
         mandatoBulk.setCd_cds_origine(cdCds);
         mandatoBulk.setCd_cds(cdCds);
@@ -180,7 +180,7 @@ public class MandatoResource implements MandatoLocal {
                 report.getName(),
                 v_mandato_reversaleBulk.getStorePath(),
                 true);
-        //aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
+        aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
     }
 
     protected void aggiornaStato(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
