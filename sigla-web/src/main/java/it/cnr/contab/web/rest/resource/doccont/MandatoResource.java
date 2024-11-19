@@ -80,20 +80,21 @@ public class MandatoResource implements MandatoLocal {
                         el);
                 Documento_genericoBulk documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.findByPrimaryKey(userContext,
                         documentoGenericoPassivoBulk);
-                if (!Optional.ofNullable(documento_genericoBulk).isPresent())
+                if (!Optional.ofNullable(documento_genericoBulk).isPresent()){
                     throw new RestException(Response.Status.NOT_FOUND, String.format("Documento Generico non presente!"));
-                    listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
                 }
-                MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
-                for(V_doc_passivo_obbligazioneBulk vdoc : listaVDocPassivi){
-                    importo = importo.add(vdoc.getIm_totale_doc_amm());
-                }
-                mandatoBulk.setIm_mandato(importo);
-                mandatoBulk.setIm_pagato(importo);
-                mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
-                mandatoBulk.setToBeCreated();
-                MandatoIBulk mandatoBulkCreato=(MandatoIBulk) mandatoComponentSession.creaMandatoWs(userContext, mandatoBulk);
-                return Response.status(Response.Status.OK).entity(mandatoBulkToDto(mandatoBulkCreato)).build();
+                listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
+            }
+            MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
+            for(V_doc_passivo_obbligazioneBulk vdoc : listaVDocPassivi){
+                importo = importo.add(vdoc.getIm_totale_doc_amm());
+            }
+            mandatoBulk.setIm_mandato(importo);
+            mandatoBulk.setIm_pagato(importo);
+            mandatoBulk = (MandatoIBulk) mandatoComponentSession.aggiungiDocPassivi(userContext, mandatoBulk, listaVDocPassivi);
+            mandatoBulk.setToBeCreated();
+            MandatoIBulk mandatoBulkCreato=(MandatoIBulk) mandatoComponentSession.creaMandatoWs(userContext, mandatoBulk);
+            return Response.status(Response.Status.OK).entity(mandatoBulkToDto(mandatoBulkCreato)).build();
         }catch (Throwable e){
             if ( e instanceof RestException)
                 throw e;

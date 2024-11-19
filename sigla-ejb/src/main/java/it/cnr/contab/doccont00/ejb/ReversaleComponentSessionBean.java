@@ -20,7 +20,9 @@ package it.cnr.contab.doccont00.ejb;
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoEntrataBulk;
 import it.cnr.contab.doccont00.comp.ReversaleComponent;
 import it.cnr.contab.doccont00.core.bulk.ReversaleBulk;
+import it.cnr.contab.doccont00.core.bulk.ReversaleIBulk;
 import it.cnr.contab.doccont00.core.bulk.Reversale_rigaBulk;
+import it.cnr.contab.doccont00.core.bulk.V_doc_attivo_accertamentoBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.persistency.PersistencyException;
@@ -516,6 +518,60 @@ public class ReversaleComponentSessionBean extends it.cnr.jada.ejb.CRUDComponent
             throw uncaughtRuntimeException(param0, componentObj, e);
         } catch (Error e) {
             throw uncaughtError(param0, componentObj, e);
+        }
+    }
+
+    @Override
+    public V_doc_attivo_accertamentoBulk getVDocAttiviAccertamento(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            V_doc_attivo_accertamentoBulk result = ((ReversaleComponent) componentObj).getVDocAttiviAccertamento(userContext, pgDocumentoGen, cdCds, esercizio);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (it.cnr.jada.comp.ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+    @Override
+    public ReversaleIBulk creaReversaleWs(UserContext userContext, ReversaleIBulk reversaleIBulk) throws ComponentException, PersistencyException, RemoteException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            ReversaleIBulk result = ((ReversaleComponent) componentObj).creaReversaleWs(userContext, reversaleIBulk);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (it.cnr.jada.comp.ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+    @Override
+    public ReversaleIBulk stampaReversale(UserContext userContext, Long pgReversale, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            ReversaleIBulk result = ((ReversaleComponent) componentObj).stampaReversale(userContext, pgReversale, esercizio, cdCds);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
         }
     }
 }

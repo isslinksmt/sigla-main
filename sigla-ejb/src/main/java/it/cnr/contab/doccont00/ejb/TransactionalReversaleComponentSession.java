@@ -19,7 +19,9 @@ package it.cnr.contab.doccont00.ejb;
 
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoEntrataBulk;
 import it.cnr.contab.doccont00.core.bulk.ReversaleBulk;
+import it.cnr.contab.doccont00.core.bulk.ReversaleIBulk;
 import it.cnr.contab.doccont00.core.bulk.Reversale_rigaBulk;
+import it.cnr.contab.doccont00.core.bulk.V_doc_attivo_accertamentoBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.persistency.PersistencyException;
@@ -725,6 +727,69 @@ public class TransactionalReversaleComponentSession extends it.cnr.jada.ejb.Tran
             return (IDocumentoAmministrativoEntrataBulk) invoke("getDocumentoAmministrativoEntrataBulk", new Object[]{
                     param0,
                     param1});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    @Override
+    public V_doc_attivo_accertamentoBulk getVDocAttiviAccertamento(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (V_doc_attivo_accertamentoBulk) invoke("getVDocAttiviAccertamento", new Object[]{
+                    userContext,
+                    pgDocumentoGen,
+                    cdCds,
+                    esercizio});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    @Override
+    public ReversaleIBulk creaReversaleWs(UserContext userContext, ReversaleIBulk reversaleIBulk) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (ReversaleIBulk) invoke("creaReversaleWs", new Object[]{
+                    userContext,
+                    reversaleIBulk
+            });
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    @Override
+    public ReversaleIBulk stampaReversale(UserContext userContext, Long pgReversale, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (ReversaleIBulk) invoke("stampaReversale", new Object[]{
+                    userContext,
+                    pgReversale,
+                    esercizio,
+                    cdCds
+            });
         } catch (java.rmi.RemoteException e) {
             throw e;
         } catch (java.lang.reflect.InvocationTargetException e) {
