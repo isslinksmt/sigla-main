@@ -57,7 +57,7 @@ public class ReversaleResource implements ReversaleLocal {
             for (Long el : reversaleRequest.getPgDocumentiAttivi()) {
                 Documento_generico_attivoBulk documentoGenericoAttivoBulk = new Documento_generico_attivoBulk(
                         reversaleRequest.getCds(),
-                        Documento_genericoBulk.GENERICO_S,
+                        Documento_genericoBulk.GENERICO_E,
                         reversaleRequest.getUnitaOrganizzativa(),
                         reversaleRequest.getEsercizio(),
                         el);
