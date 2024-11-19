@@ -6,6 +6,7 @@ import java.util.List;
 public class CreaReversaleRequest implements Serializable {
     private String unitaOrganizzativa;
     private String cds;
+    private String cdsOrigine;
     private int esercizio;
     private String descrizioneReversale;
     private List<Long> pgDocumentiAttivi;
@@ -48,5 +49,13 @@ public class CreaReversaleRequest implements Serializable {
 
     public void setEsercizio(int esercizio) {
         this.esercizio = esercizio;
+    }
+
+    public String getCdsOrigine() {
+        return cdsOrigine;
+    }
+
+    public void setCdsOrigine(String cdsOrigine) {
+        this.cdsOrigine = cdsOrigine;
     }
 }

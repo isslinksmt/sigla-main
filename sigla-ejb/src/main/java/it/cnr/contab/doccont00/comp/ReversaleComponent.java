@@ -3951,7 +3951,7 @@ REVERSALE
 
     public ReversaleIBulk creaReversaleWs(UserContext userContext, ReversaleIBulk reversaleIBulk)throws ComponentException, PersistencyException, RemoteException{
         ReversaleIBulk reversaleCreata = (ReversaleIBulk) this.creaConBulk(userContext, reversaleIBulk);
-        reversaleCreata = (ReversaleIBulk) this.findByPrimaryKey(userContext, new MandatoIBulk(reversaleIBulk.getCd_cds(), reversaleIBulk.getEsercizio(), reversaleIBulk.getPg_reversale()));
+        reversaleCreata = (ReversaleIBulk) this.findByPrimaryKey(userContext, new ReversaleIBulk(reversaleIBulk.getCd_cds(), reversaleIBulk.getEsercizio(), reversaleIBulk.getPg_reversale()));
         if (!Optional.ofNullable(reversaleCreata).isPresent()){
             throw new ComponentException("Reversale non presente.");
         }

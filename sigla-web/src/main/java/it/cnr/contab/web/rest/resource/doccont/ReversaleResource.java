@@ -97,6 +97,7 @@ public class ReversaleResource implements ReversaleLocal {
         reversaleIBulk.setCds((CdsBulk) crudComponentSession.findByPrimaryKey( userContext, new CdsBulk(reversaleRequest.getCds())) );
         reversaleIBulk.setUnita_organizzativa((Unita_organizzativaBulk) crudComponentSession.findByPrimaryKey(userContext,new Unita_organizzativaBulk(reversaleRequest.getUnitaOrganizzativa())));
         reversaleIBulk.setEsercizio(reversaleRequest.getEsercizio());
+        reversaleIBulk.setCd_cds_origine(reversaleRequest.getCdsOrigine());
         reversaleIBulk = (ReversaleIBulk) reversaleComponentSession.inizializzaBulkPerInserimento(userContext, reversaleIBulk);
         reversaleIBulk.setCd_unita_organizzativa(reversaleRequest.getUnitaOrganizzativa());
         reversaleIBulk.setCd_uo_origine(reversaleRequest.getUnitaOrganizzativa());
@@ -108,7 +109,6 @@ public class ReversaleResource implements ReversaleLocal {
         reversaleIBulk.setDt_emissione(Timestamp.valueOf(LocalDateTime.now().minusHours(1).minusMinutes(1)));
         reversaleIBulk.setStato_trasmissione(ReversaleIBulk.STATO_TRASMISSIONE_NON_INSERITO);
         reversaleIBulk.setStato_coge("N");
-        reversaleIBulk.setCd_cds_origine(reversaleRequest.getCds());
         reversaleIBulk.setCd_cds(reversaleRequest.getCds());
         return reversaleIBulk;
     }
