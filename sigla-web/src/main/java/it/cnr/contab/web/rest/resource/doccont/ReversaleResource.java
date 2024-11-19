@@ -116,6 +116,10 @@ public class ReversaleResource implements ReversaleLocal {
     private ReversaleDto reversaleBulkToDto(ReversaleIBulk reversaleIBulk){
         ReversaleDto reversaleDto = new ReversaleDto();
         reversaleDto.setPgReversale(reversaleIBulk.getPg_reversale());
+        reversaleDto.setCds(reversaleIBulk.getCd_cds());
+        reversaleDto.setUnitaOrganizzativa(reversaleIBulk.getCd_unita_organizzativa());
+        reversaleDto.setImportoReversale(reversaleIBulk.getIm_reversale());
+        reversaleDto.setDescrizioneReversale(reversaleIBulk.getDs_reversale());
         return reversaleDto;
     }
 }

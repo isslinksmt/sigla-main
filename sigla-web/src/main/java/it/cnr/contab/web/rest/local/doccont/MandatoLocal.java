@@ -43,7 +43,6 @@ public interface MandatoLocal {
                  @PathParam("pg_mandato") Long pgMandato ) throws Exception;
 
     @POST
-    @Path("/{cd_cds}/{cd_unita_organizzativa}/{esercizio}")
     @ApiOperation(value = "Crea mandato",
             notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.MANDATO_REST +"'",
             response = MandatoDto.class,
@@ -55,10 +54,7 @@ public interface MandatoLocal {
                     @Authorization(value = SIGLASecurityContext.X_SIGLA_CD_CDR)
             }
     )
-    Response insert(@PathParam("cd_cds") String cdCds,
-                    @PathParam("cd_unita_organizzativa") String cdUnitaOrganizzativa,
-                    @PathParam("esercizio") Integer esercizio,
-                    @Context HttpServletRequest request,
+    Response insert(@Context HttpServletRequest request,
                     CreaMandatoRequest mandatoRequest) throws Exception;
 
     @POST

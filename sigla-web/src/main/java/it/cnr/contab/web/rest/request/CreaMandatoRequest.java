@@ -4,25 +4,17 @@ import java.io.Serializable;
 import java.util.List;
 
 public class CreaMandatoRequest implements Serializable {
+    private String cdCds;
     private String unitaOrganizzativa;
-    private boolean tipoPagamento; //Pagamento o Regolamento sospeso
+    private int esercizio;
     private String descrizioneMandato;
     private List<Long> pgDocumentiPassivi;
-    private boolean stampa;
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
     }
 
     public void setUnitaOrganizzativa(String unitaOrganizzativa) {
         this.unitaOrganizzativa = unitaOrganizzativa;
-    }
-
-    public boolean isTipoPagamento() {
-        return tipoPagamento;
-    }
-
-    public void setTipoPagamento(boolean tipoPagamento) {
-        this.tipoPagamento = tipoPagamento;
     }
 
     public List<Long> getPgDocumentiPassivi() {
@@ -41,11 +33,19 @@ public class CreaMandatoRequest implements Serializable {
         this.descrizioneMandato = descrizioneMandato;
     }
 
-    public boolean isStampa() {
-        return stampa;
+    public String getCdCds() {
+        return cdCds;
     }
 
-    public void setStampa(boolean stampa) {
-        this.stampa = stampa;
+    public void setCdCds(String cdCds) {
+        this.cdCds = cdCds;
+    }
+
+    public int getEsercizio() {
+        return esercizio;
+    }
+
+    public void setEsercizio(int esercizio) {
+        this.esercizio = esercizio;
     }
 }

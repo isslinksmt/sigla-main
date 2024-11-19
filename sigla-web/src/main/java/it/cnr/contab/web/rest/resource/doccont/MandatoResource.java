@@ -65,7 +65,7 @@ public class MandatoResource implements MandatoLocal {
     }
 
     @Override
-    public Response insert(String cdCds, String cdUnitaOrganizzativa, Integer esercizio, HttpServletRequest request, CreaMandatoRequest mandatoRequest) throws Exception {
+    public Response insert(HttpServletRequest request, CreaMandatoRequest mandatoRequest) throws Exception {
         mandatoComponentSession = Utility.createMandatoComponentSession();
         try{
             List<V_doc_passivo_obbligazioneBulk> listaVDocPassivi = new ArrayList<>();
@@ -73,19 +73,19 @@ public class MandatoResource implements MandatoLocal {
             CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
             for (Long el : mandatoRequest.getPgDocumentiPassivi()) {
                 Documento_generico_passivoBulk documentoGenericoPassivoBulk = new Documento_generico_passivoBulk(
-                        cdCds,
+                        mandatoRequest.getCdCds(),
                         Documento_genericoBulk.GENERICO_S,
-                        cdUnitaOrganizzativa,
-                        esercizio,
+                        mandatoRequest.getUnitaOrganizzativa(),
+                        mandatoRequest.getEsercizio(),
                         el);
                 Documento_genericoBulk documento_genericoBulk = (Documento_genericoBulk) documentoGenericoComponentSession.findByPrimaryKey(userContext,
                         documentoGenericoPassivoBulk);
                 if (!Optional.ofNullable(documento_genericoBulk).isPresent()){
                     throw new RestException(Response.Status.NOT_FOUND, String.format("Documento Generico non presente!"));
                 }
-                listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, cdCds, esercizio));
+                listaVDocPassivi.add(mandatoComponentSession.getVDocPassiviObbligazione(userContext, el, mandatoRequest.getCdCds(), mandatoRequest.getEsercizio()));
             }
-            MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, cdCds, cdUnitaOrganizzativa, esercizio, userContext);
+            MandatoIBulk mandatoBulk = mandatoDtoToBulk(mandatoRequest, mandatoRequest.getCdCds(), mandatoRequest.getUnitaOrganizzativa(), mandatoRequest.getEsercizio(), userContext);
             for(V_doc_passivo_obbligazioneBulk vdoc : listaVDocPassivi){
                 importo = importo.add(vdoc.getIm_totale_doc_amm());
             }
