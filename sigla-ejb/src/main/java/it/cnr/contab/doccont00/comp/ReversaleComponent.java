@@ -3960,8 +3960,8 @@ REVERSALE
     }
 
     public V_mandato_reversaleBulk getMandatoReversaleBulk(UserContext userContext, ReversaleIBulk reversaleIBulk) throws ComponentException, PersistencyException {
-        MandatoHome mandatoHome = (MandatoHome) getHome(userContext, reversaleIBulk.getClass());
-        return mandatoHome.findMandatiReversaliBulk(userContext, reversaleIBulk);
+        ReversaleHome reversaleHome = (ReversaleHome) getHome(userContext, reversaleIBulk.getClass());
+        return reversaleHome.findMandatiReversaliBulk(userContext, reversaleIBulk);
     }
 
     public ReversaleIBulk stampaReversale(UserContext userContext, Long pgReversale, int esercizio, String cdCds) throws ComponentException, PersistencyException {

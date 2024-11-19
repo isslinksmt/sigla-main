@@ -102,7 +102,7 @@ public class ReversaleResource implements ReversaleLocal {
         reversaleIBulk.setCd_unita_organizzativa(reversaleRequest.getUnitaOrganizzativa());
         reversaleIBulk.setCd_uo_origine(reversaleRequest.getUnitaOrganizzativa());
         reversaleIBulk.setCd_tipo_documento_cont("REV");
-        reversaleIBulk.setTi_reversale("P");
+        reversaleIBulk.setTi_reversale("I");
         reversaleIBulk.setTi_competenza_residuo("C");
         reversaleIBulk.setDs_reversale(reversaleRequest.getDescrizioneReversale());
         reversaleIBulk.setStato(ReversaleIBulk.STATO_REVERSALE_EMESSO);

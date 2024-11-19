@@ -522,16 +522,4 @@ public abstract class MandatoHome extends BulkHome {
         List vMandatiReversali = vMandatoReversaleHome.fetchAll(sql);
         return (V_mandato_reversaleBulk) vMandatiReversali.get(0);
     }
-
-    public V_mandato_reversaleBulk findMandatiReversaliBulk(UserContext usercontext, ReversaleBulk reversale) throws PersistencyException {
-        PersistentHome vMandatoReversaleHome = getHomeCache().getHome(V_mandato_reversaleBulk.class);
-        SQLBuilder sql = vMandatoReversaleHome.createSQLBuilder();
-        sql.addClause("AND", "cd_cds", SQLBuilder.EQUALS, reversale.getCd_cds());
-        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, reversale.getEsercizio());
-        sql.addClause("AND", "cd_unita_organizzativa", SQLBuilder.EQUALS, reversale.getCd_unita_organizzativa());
-        sql.addClause("AND", "pg_documento_cont", SQLBuilder.EQUALS, reversale.getPg_reversale());
-        sql.addClause("AND", "cd_tipo_documento_cont", SQLBuilder.EQUALS, reversale.getCd_tipo_documento_cont());
-        List vMandatiReversali = vMandatoReversaleHome.fetchAll(sql);
-        return (V_mandato_reversaleBulk) vMandatiReversali.get(0);
-    }
 }
