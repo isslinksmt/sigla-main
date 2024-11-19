@@ -4031,41 +4031,32 @@ REVERSALE
                 report.getName(),
                 v_mandato_reversaleBulk.getStorePath(),
                 true);
-        //aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
+        aggiornaStatoReversale(userContext, MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA, v_mandato_reversaleBulk);
     }
 
-    private  void aggiornaStato(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
-        DistintaCassiereComponentSession distintaCassiereComponentSession = Utility.createDistintaCassiereComponentSession();
+    private void aggiornaStatoReversale(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
         for (StatoTrasmissione v_mandato_reversaleBulk : bulks) {
-            if (v_mandato_reversaleBulk.getCd_tipo_documento_cont().equalsIgnoreCase(Numerazione_doc_contBulk.TIPO_MAN)) {
-                MandatoIBulk mandato = new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
-                mandato = (MandatoIBulk) this.findByPrimaryKey(userContext, mandato);
-                if(mandato.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
-                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione_annullo()))
-                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
-                    mandato.setStato_trasmissione_annullo(stato);
-                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
-                        mandato.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
-                    else
-                        mandato.setDt_firma_annullo(null);
-                }else{
-                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione()))
-                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
-                    mandato.setStato_trasmissione(stato);
-                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
-                        mandato.setDt_firma(EJBCommonServices.getServerTimestamp());
-                    else
-                        mandato.setDt_firma(null);
-                }
-                mandato.setToBeUpdated();
-                this.modificaConBulk(userContext, mandato);
-                /*for (StatoTrasmissione statoTrasmissione : distintaCassiereComponentSession.findReversaliCollegate(actioncontext.getUserContext(), (V_mandato_reversaleBulk) v_mandato_reversaleBulk)) {
-                    aggiornaStatoReversale(actioncontext, statoTrasmissione, stato);
-                }*/
-            /*} else {
-                aggiornaStatoReversale(actioncontext, v_mandato_reversaleBulk, stato);
-            }*/
+            ReversaleIBulk reversale = new ReversaleIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
+            reversale = (ReversaleIBulk) this.findByPrimaryKey(userContext, reversale);
+            if(reversale.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
+                if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione_annullo()))
+                    throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                reversale.setStato_trasmissione_annullo(stato);
+                if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                    reversale.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
+                else
+                    reversale.setDt_firma_annullo(null);
+            }else{
+                if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione()))
+                    throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                reversale.setStato_trasmissione(stato);
+                if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                    reversale.setDt_firma(EJBCommonServices.getServerTimestamp());
+                else
+                    reversale.setDt_firma(null);
             }
+            reversale.setToBeUpdated();
+            this.modificaConBulk(userContext, reversale);
         }
     }
 }

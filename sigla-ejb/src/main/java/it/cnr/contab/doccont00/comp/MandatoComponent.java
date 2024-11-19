@@ -6771,7 +6771,7 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                 report.getName(),
                 v_mandato_reversaleBulk.getStorePath(),
                 true);
-        aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PREDISPOSTO, v_mandato_reversaleBulk);
+        aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA, v_mandato_reversaleBulk);
     }
     private void predisponiPerLaFirma(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk) throws BusinessProcessException, ComponentException, IOException {
         String message = "";
