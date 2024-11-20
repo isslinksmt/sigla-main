@@ -23,6 +23,7 @@ import it.cnr.contab.docamm00.docs.bulk.*;
 import it.cnr.contab.doccont00.dto.EnumSiopeBilancioGestione;
 import it.cnr.contab.doccont00.dto.SiopeBilancioDTO;
 import it.cnr.contab.doccont00.dto.SiopeBilancioKeyDto;
+import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.doccont00.tabrif.bulk.CupBulk;
 import it.cnr.contab.missioni00.docs.bulk.AnticipoBulk;
 import it.cnr.contab.missioni00.docs.bulk.MissioneBulk;
@@ -508,5 +509,17 @@ public abstract class MandatoHome extends BulkHome {
             });
         });
         return mandatoRigaCompleteList;
+    }
+
+    public V_mandato_reversaleBulk findMandatiReversaliBulk(UserContext usercontext, MandatoBulk mandato) throws PersistencyException {
+        PersistentHome vMandatoReversaleHome = getHomeCache().getHome(V_mandato_reversaleBulk.class);
+        SQLBuilder sql = vMandatoReversaleHome.createSQLBuilder();
+        sql.addClause("AND", "cd_cds", SQLBuilder.EQUALS, mandato.getCd_cds());
+        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, mandato.getEsercizio());
+        sql.addClause("AND", "cd_unita_organizzativa", SQLBuilder.EQUALS, mandato.getCd_unita_organizzativa());
+        sql.addClause("AND", "pg_documento_cont", SQLBuilder.EQUALS, mandato.getPg_mandato());
+        sql.addClause("AND", "cd_tipo_documento_cont", SQLBuilder.EQUALS, mandato.getCd_tipo_documento_cont());
+        List vMandatiReversali = vMandatoReversaleHome.fetchAll(sql);
+        return (V_mandato_reversaleBulk) vMandatiReversali.get(0);
     }
 }

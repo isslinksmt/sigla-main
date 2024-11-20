@@ -24,6 +24,7 @@ import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.persistency.PersistencyException;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -677,6 +678,90 @@ public class TransactionalMandatoAutomaticoComponentSession extends it.cnr.jada.
                     param0,
                     param1,
                     param2});
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
+
+    @Override
+    public V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws RemoteException, ComponentException {
+        try {
+            return (V_mandato_reversaleBulk)invoke("cercaVMandatoReversaleBulk",new Object[] {
+                    userContext,
+                    mandatoBulk,
+            });
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
+
+    @Override
+    public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (V_doc_passivo_obbligazioneBulk)invoke("getVDocPassiviObbligazione",new Object[] {
+                    userContext,
+                    pgDocumentoGen,
+                    cdCds,
+                    esercizio
+            });
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
+
+    @Override
+    public MandatoIBulk creaMandatoWs(UserContext userContext, MandatoIBulk mandatoIBulk) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (MandatoIBulk)invoke("creaMandatoWs",new Object[] {
+                    userContext,
+                    mandatoIBulk
+            });
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
+
+    @Override
+    public MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException {
+        try {
+            return (MandatoIBulk)invoke("stampaMandato",new Object[] {
+                    userContext,
+                    pgMandato,
+                    esercizio,
+                    cdCds
+            });
         } catch(java.rmi.RemoteException e) {
             throw e;
         } catch(java.lang.reflect.InvocationTargetException e) {

@@ -17,16 +17,17 @@
 
 package it.cnr.contab.doccont00.ejb;
 
-import java.util.List;
-
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoSpesaBulk;
 import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.persistency.PersistencyException;
 
 import javax.ejb.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
 
 @Remote
 public interface MandatoComponentSession extends it.cnr.jada.ejb.CRUDComponentSession, it.cnr.jada.ejb.PrintComponentSession {
@@ -59,4 +60,8 @@ Mandato_rigaBulk inizializzaTi_fattura(UserContext userContext, Mandato_rigaBulk
 IDocumentoAmministrativoSpesaBulk getDocumentoAmministrativoSpesaBulk(UserContext userContext, Mandato_rigaBulk mandatoRiga) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 Mandato_rigaBulk setCodiciSIOPECollegabili(UserContext userContext, Mandato_rigaBulk riga) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 Ass_mandato_reversaleBulk creaAss_mandato_reversale(UserContext userContext, MandatoBulk mandato, ReversaleBulk reversale) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
+V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws RemoteException, ComponentException;
+V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException;
+MandatoIBulk creaMandatoWs( UserContext userContext, MandatoIBulk mandatoIBulk)throws ComponentException, PersistencyException, RemoteException;
+MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException;
 }
