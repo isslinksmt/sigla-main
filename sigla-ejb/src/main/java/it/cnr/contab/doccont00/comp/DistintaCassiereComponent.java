@@ -4320,7 +4320,11 @@ public class DistintaCassiereComponent extends
 
                 distinta.setDt_invio(DateServices.getDt_valida(userContext));
             }
-            distinta.setStato(Distinta_cassiereBulk.Stato.DEFINITIVA);
+            //NEW: Aggiorno lo stato in ogni caso
+            aggiornaStatoDocContabili(userContext, distinta, MandatoBulk.STATO_TRASMISSIONE_TRASMESSO);
+            aggiornaStoricoTrasmessi(userContext, distinta);
+            distinta.setStato(Distinta_cassiereBulk.Stato.TRASMESSA);
+            distinta.setDt_invio(DateServices.getDt_valida(userContext));
             distinta.setUser(userContext.getUser());
             distinta.setToBeUpdated();
             makeBulkPersistent(userContext, distinta);
