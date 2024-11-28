@@ -18,6 +18,8 @@
 package it.cnr.contab.doccont00.bp;
 
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import it.cnr.contab.doccont00.intcass.giornaliera.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza.MovimentoContoEvidenza;
@@ -39,9 +41,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -77,11 +85,68 @@ public class CaricaFileMandatoBP extends BulkBP {
     }
 
     public void caricaFile(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException, RemoteException {
-        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+        //ByteArrayOutputStream bStream = new ByteArrayOutputStream();
         JAXBContext jc;
         String versioneflussoGiornaliera = null;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
         FlussoGiornaleDiCassa b;
-        try {
+
+        try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
+            List<String[]> records = csvReader.readAll();
+            for (int i = 1; i < records.size(); i++) {
+                String[] record = records.get(i);
+                String codiceEnte = parseString(record[0]);
+                Integer esercizio = parseInteger(record[1]);
+                Integer numeroMandato = parseInteger(record[2]);
+                Integer numeroBeneficiario = parseInteger(record[3]);
+                Date dataCarico = parseDate(record[4], dateFormat);
+                Date dataPagamento = parseDate(record[5], dateFormat);
+                BigDecimal importoMandato = parseBigDecimal(record[6]);
+                BigDecimal importoBeneficiario = parseBigDecimal(record[7]);
+                BigDecimal importoBeneficiarioPagato = parseBigDecimal(record[8]);
+                BigDecimal importoBeneficiarioDaPagare = parseBigDecimal(record[9]);
+                BigDecimal importoRitenute = parseBigDecimal(record[10]);
+                String copertura = parseString(record[11]);
+                Integer conto = parseInteger(record[12]);
+                String anagrafica = parseString(record[13]);
+                Integer codiceCausale = parseInteger(record[14]);
+                String causale = parseString(record[15]);
+                String indirizzo = parseString(record[16]);
+                String cap = parseString(record[17]);
+                String localita = parseString(record[18]);
+                String codiceRiscossione = parseString(record[19]);
+                String iban = parseString(record[20]);
+                Integer numeroRicevuta = parseInteger(record[21]);
+                Integer numeroRicSto = parseInteger(record[22]);
+                Date dataValutaEnte = parseDate(record[23], dateFormat);
+                String codiceFiscalePartitaIva = parseString(record[24]);
+                String stato = parseString(record[25]);
+                String squadr = parseString(record[26]);
+                String codiceIdentificativoEntePagopa = parseString(record[27]);
+                String numeroAvvisoPagopa = parseString(record[28]);
+
+                // Esempio: Stampa i valori letti (puoi sostituire con la logica di assegnazione all'oggetto)
+                System.out.println("Codice Ente: " + codiceEnte);
+                System.out.println("Esercizio: " + esercizio);
+
+                /*FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(b.getEsercizio(), b.getIdentificativoFlusso());
+                flusso.setUser(actioncontext.getUserContext().getUser());
+                flusso.setCodiceAbiBt(new Long(b.getCodiceABIBT()));
+                flusso.setIdentificativoFlusso(b.getIdentificativoFlusso());
+                flusso.setDataOraCreazioneFlusso(new Timestamp(b.getDataOraCreazioneFlusso().toGregorianCalendar().getTime().getTime()));
+                flusso.setDataInizioPeriodoRif(new Timestamp(b.getDataInizioPeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
+                flusso.setDataFinePeriodoRif(new Timestamp(b.getDataFinePeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
+                flusso.setCodiceEnte(b.getCodiceEnte());
+                flusso.setDescrizioneEnte(b.getDescrizioneEnte());
+                flusso.setCodiceEnteBt(b.getCodiceEnteBT());
+                flusso.setEsercizio(b.getEsercizio());*/
+            }
+        } catch (IOException | CsvException e) {
+            e.printStackTrace();
+            throw new BusinessProcessException("Errore durante il parsing del CSV", e);
+        }
+        /*try {
             jc = JAXBContext
                     .newInstance("it.cnr.contab.doccont00.intcass.giornaliera");
 
@@ -209,7 +274,35 @@ public class CaricaFileMandatoBP extends BulkBP {
             throw new ApplicationException("Conversione file non riuscita");
         } catch (JAXBException e) {
             throw handleException(e);
-        }
+        }*/
 
+    }
+
+    private String parseString(String value) {
+        return (value == null || value.trim().isEmpty()) ? null : value.trim();
+    }
+
+    private Integer parseInteger(String value) {
+        try {
+            return (value == null || value.trim().isEmpty()) ? null : Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return null; // Gestione di eventuali errori di conversione
+        }
+    }
+
+    private BigDecimal parseBigDecimal(String value) {
+        try {
+            return (value == null || value.trim().isEmpty()) ? null : new BigDecimal(value.trim().replace(",", "."));
+        } catch (NumberFormatException e) {
+            return null; // Gestione di eventuali errori di conversione
+        }
+    }
+
+    private Date parseDate(String value, SimpleDateFormat dateFormat) {
+        try {
+            return (value == null || value.trim().isEmpty()) ? null : dateFormat.parse(value.trim());
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }
