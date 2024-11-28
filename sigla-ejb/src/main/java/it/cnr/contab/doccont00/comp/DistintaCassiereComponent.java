@@ -4320,7 +4320,11 @@ public class DistintaCassiereComponent extends
 
                 distinta.setDt_invio(DateServices.getDt_valida(userContext));
             }
-            distinta.setStato(Distinta_cassiereBulk.Stato.DEFINITIVA);
+            //NEW: Aggiorno lo stato in ogni caso
+            aggiornaStatoDocContabili(userContext, distinta, MandatoBulk.STATO_TRASMISSIONE_TRASMESSO);
+            aggiornaStoricoTrasmessi(userContext, distinta);
+            distinta.setStato(Distinta_cassiereBulk.Stato.TRASMESSA);
+            distinta.setDt_invio(DateServices.getDt_valida(userContext));
             distinta.setUser(userContext.getUser());
             distinta.setToBeUpdated();
             makeBulkPersistent(userContext, distinta);
@@ -4745,6 +4749,15 @@ public class DistintaCassiereComponent extends
             Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) EJBCommonServices
                     .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
 
+            String isRegistratoSiopeST = Optional.ofNullable(
+                    sess.getVal01(
+                            userContext,
+                            CNRUserContext.getEsercizio(userContext),
+                            null, Configurazione_cnrBulk.PK_FLUSSO_ORDINATIVI,
+                            Configurazione_cnrBulk.SK_ABILITATO_SIOPE
+                    )).orElse("false");
+            boolean isRegistratoSiope = isRegistratoSiopeST.equalsIgnoreCase("true") ? true : false;
+
             String codiceAbi = Optional.ofNullable(
                     sess.getVal01(
                             userContext,
@@ -4752,24 +4765,17 @@ public class DistintaCassiereComponent extends
                             null, Configurazione_cnrBulk.PK_FLUSSO_ORDINATIVI,
                             Configurazione_cnrBulk.SK_CODICE_ABI_BT
                     )).orElseThrow(() -> new ApplicationException("Configurazione mancante per flusso Ordinativo [CODICE_ABI_BT]"));
-            String codiceA2A = getCodiceA2A( userContext,distinta,sess);
 
             String codiceEnte =  getCodiceEnte(userContext,distinta,sess);
             String codiceEnteBT = getCodiceEnteBT(userContext,distinta,sess);
 
-            String codiceTramiteBT = Optional.ofNullable(
-                    sess.getVal01(
-                            userContext,
-                            CNRUserContext.getEsercizio(userContext),
-                            null, Configurazione_cnrBulk.PK_FLUSSO_ORDINATIVI,
-                            Configurazione_cnrBulk.SK_CODICE_TRAMITE_BT
-                    )).orElseThrow(() -> new ApplicationException("Configurazione mancante per flusso Ordinativo [CODICE_TRAMITE_BT]"));
-
-            String codiceIstatEnte = getCodiceIstatEnte(userContext,distinta,sess);
-
             final CtTestataFlusso testataFlusso = objectFactory.createCtTestataFlusso();
+            if(isRegistratoSiope){
+                String codiceA2A = getCodiceA2A( userContext,distinta,sess);
+                testataFlusso.setRiferimentoEnte(codiceA2A);
+                testataFlusso.setCodiceTramiteEnte(codiceA2A);
+            }
             testataFlusso.setCodiceABIBT(codiceAbi);
-            testataFlusso.setRiferimentoEnte(codiceA2A);
             testataFlusso.setIdentificativoFlusso(distinta.getIdentificativoFlusso());
             testataFlusso.setDataOraCreazioneFlusso(DatatypeFactory.newInstance().newXMLGregorianCalendar(
                     formatterTime.format(EJBCommonServices
@@ -4777,16 +4783,26 @@ public class DistintaCassiereComponent extends
             );
             testataFlusso.setCodiceEnte(codiceEnte);
             testataFlusso.setCodiceEnteBT(codiceEnteBT);
-            testataFlusso.setCodiceTramiteEnte(codiceA2A);
-            testataFlusso.setCodiceTramiteBT(codiceTramiteBT);
+            if(isRegistratoSiope){
+                String codiceTramiteBT = Optional.ofNullable(
+                        sess.getVal01(
+                                userContext,
+                                CNRUserContext.getEsercizio(userContext),
+                                null, Configurazione_cnrBulk.PK_FLUSSO_ORDINATIVI,
+                                Configurazione_cnrBulk.SK_CODICE_TRAMITE_BT
+                        )).orElseThrow(() -> new ApplicationException("Configurazione mancante per flusso Ordinativo [CODICE_TRAMITE_BT]"));
+                testataFlusso.setCodiceTramiteBT(codiceTramiteBT);
+            }
             AnagraficoComponentSession component = (AnagraficoComponentSession)
                     EJBCommonServices
                             .createEJB("CNRANAGRAF00_EJB_AnagraficoComponentSession");
 
             AnagraficoBulk uoEnte = component.getAnagraficoEnte(userContext);
             testataFlusso.setDescrizioneEnte(uoEnte.getRagione_sociale());
-
-            testataFlusso.setCodiceIstatEnte(codiceIstatEnte);
+            if(isRegistratoSiope){
+                String codiceIstatEnte = getCodiceIstatEnte(userContext,distinta,sess);
+                testataFlusso.setCodiceIstatEnte(codiceIstatEnte);
+            }
             testataFlusso.setCodiceFiscaleEnte(uoEnte.getCodice_fiscale());
             currentFlusso.getContent().add(objectFactory.createTestataFlusso(testataFlusso));
 
