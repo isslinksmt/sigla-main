@@ -22,9 +22,15 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
+import it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza.MovimentoContoEvidenza;
+import it.cnr.contab.doccont00.service.DocumentiContabiliService;
+import it.cnr.contab.service.SpringUtil;
+import it.cnr.contab.utenze00.bp.WSUserContext;
+import it.cnr.jada.DetailedRuntimeException;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.action.Config;
@@ -35,6 +41,7 @@ import it.cnr.jada.ejb.CRUDComponentSession;
 import it.cnr.jada.persistency.sql.CompoundFindClause;
 import it.cnr.jada.util.RemoteIterator;
 import it.cnr.jada.util.action.BulkBP;
+import it.cnr.jada.util.ejb.EJBCommonServices;
 
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
@@ -60,6 +67,7 @@ import java.util.Optional;
 
 public class CaricaFileMandatoBP extends BulkBP {
     private static final long serialVersionUID = 1L;
+    private DistintaCassiereComponentSession distintaCassiereComponentSession;
 
     public CaricaFileMandatoBP() {
         super();
@@ -87,6 +95,10 @@ public class CaricaFileMandatoBP extends BulkBP {
             throws BusinessProcessException {
         super.init(config, actioncontext);
         setModel(actioncontext, new FlussoGiornaleDiCassaBulk());
+        this.distintaCassiereComponentSession = Optional.ofNullable(EJBCommonServices.createEJB("CNRDOCCONT00_EJB_DistintaCassiereComponentSession"))
+                .filter(DistintaCassiereComponentSession.class::isInstance)
+                .map(DistintaCassiereComponentSession.class::cast)
+                .orElseThrow(() -> new DetailedRuntimeException("cannot find ejb CNRDOCCONT00_EJB_DistintaCassiereComponentSession"));
     }
 
     public void caricaFile(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException, RemoteException {
@@ -159,6 +171,14 @@ public class CaricaFileMandatoBP extends BulkBP {
             flusso.setToBeCreated();
             flusso = (FlussoGiornaleDiCassaBulk) ((CRUDComponentSession) createComponentSession("JADAEJB_CRUDComponentSession", CRUDComponentSession.class))
                     .creaConBulk(actioncontext.getUserContext(false), flusso);
+            V_ext_cassiere00Bulk v_ext_cassiere00Bulk = new V_ext_cassiere00Bulk();
+            v_ext_cassiere00Bulk.setNome_file(flusso.getIdentificativoFlusso());
+            v_ext_cassiere00Bulk.setEsercizio(flusso.getEsercizio());
+            distintaCassiereComponentSession.processaFile(
+                    new WSUserContext(actioncontext.getUserContext().getUser(), null,
+                            flusso.getEsercizio(),
+                            null, null, null),
+                    v_ext_cassiere00Bulk);
         }catch (IOException | CsvException e) {
             e.printStackTrace();
             throw new BusinessProcessException("Errore durante il parsing del CSV", e);
