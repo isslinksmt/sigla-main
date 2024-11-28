@@ -50,6 +50,9 @@ import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -87,19 +90,16 @@ public class CaricaFileMandatoBP extends BulkBP {
     }
 
     public void caricaFile(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException, RemoteException {
-        //ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-        JAXBContext jc;
-        String versioneflussoGiornaliera = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        FlussoGiornaleDiCassa b;
-
+        String identificativoFlusso = "FON-MAN-".concat(file.getName());
         try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(file))
                 .withCSVParser(new CSVParserBuilder()
                         .withSeparator(';')
                         .build())
                 .build()) {
             List<String[]> records = csvReader.readAll();
+            FlussoGiornaleDiCassaBulk flusso = initFlusso(records.get(1), actioncontext.getUserContext().getUser(), identificativoFlusso);
+            InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, records.get(1));
             for (int i = 1; i < records.size(); i++) {
                 String[] record = records.get(i);
                 String codiceEnte = parseString(record[0]);
@@ -131,157 +131,57 @@ public class CaricaFileMandatoBP extends BulkBP {
                 String squadr = parseString(record[26]);
                 String codiceIdentificativoEntePagopa = parseString(record[27]);
                 String numeroAvvisoPagopa = parseString(record[28]);
-
-                // Esempio: Stampa i valori letti (puoi sostituire con la logica di assegnazione all'oggetto)
-                System.out.println("Codice Ente: " + codiceEnte);
-                System.out.println("Esercizio: " + esercizio);
-
-                /*FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(b.getEsercizio(), b.getIdentificativoFlusso());
-                flusso.setUser(actioncontext.getUserContext().getUser());
-                flusso.setCodiceAbiBt(new Long(b.getCodiceABIBT()));
-                flusso.setIdentificativoFlusso(b.getIdentificativoFlusso());
-                flusso.setDataOraCreazioneFlusso(new Timestamp(b.getDataOraCreazioneFlusso().toGregorianCalendar().getTime().getTime()));
-                flusso.setDataInizioPeriodoRif(new Timestamp(b.getDataInizioPeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
-                flusso.setDataFinePeriodoRif(new Timestamp(b.getDataFinePeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
-                flusso.setCodiceEnte(b.getCodiceEnte());
-                flusso.setDescrizioneEnte(b.getDescrizioneEnte());
-                flusso.setCodiceEnteBt(b.getCodiceEnteBT());
-                flusso.setEsercizio(b.getEsercizio());*/
-            }
-        } catch (IOException | CsvException e) {
-            e.printStackTrace();
-            throw new BusinessProcessException("Errore durante il parsing del CSV", e);
-        }
-        /*try {
-            jc = JAXBContext
-                    .newInstance("it.cnr.contab.doccont00.intcass.giornaliera");
-
-            ObjectFactory obj = new ObjectFactory();
-            b = (FlussoGiornaleDiCassa) jc.createUnmarshaller().unmarshal(file);
-
-            FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(b.getEsercizio(), b.getIdentificativoFlusso());
-            flusso.setUser(actioncontext.getUserContext().getUser());
-            flusso.setCodiceAbiBt(new Long(b.getCodiceABIBT()));
-            flusso.setIdentificativoFlusso(b.getIdentificativoFlusso());
-            flusso.setDataOraCreazioneFlusso(new Timestamp(b.getDataOraCreazioneFlusso().toGregorianCalendar().getTime().getTime()));
-            flusso.setDataInizioPeriodoRif(new Timestamp(b.getDataInizioPeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
-            flusso.setDataFinePeriodoRif(new Timestamp(b.getDataFinePeriodoRiferimento().toGregorianCalendar().getTime().getTime()));
-            flusso.setCodiceEnte(b.getCodiceEnte());
-            flusso.setDescrizioneEnte(b.getDescrizioneEnte());
-            flusso.setCodiceEnteBt(b.getCodiceEnteBT());
-            flusso.setEsercizio(b.getEsercizio());
-            for (int progressivo = 0; progressivo < b.getInformazioniContoEvidenza().size(); progressivo++) {
-                InformazioniContoEvidenza info = b.getInformazioniContoEvidenza().get(progressivo);
-                InformazioniContoEvidenzaBulk infoBulk = new InformazioniContoEvidenzaBulk(flusso.getEsercizio(), flusso.getIdentificativoFlusso(), info.getContoEvidenza());
-                infoBulk.setDescrizioneContoEvidenza(info.getDescrizioneContoEvidenza());
-                infoBulk.setSaldoPrecedenteContoEvid(info.getSaldoPrecedenteContoEvidenza());
-                infoBulk.setTotaleEntrateContoEvidenza(info.getTotaleEntrateContoEvidenza());
-                infoBulk.setTotaleUsciteContoEvidenza(info.getTotaleUsciteContoEvidenza());
-                infoBulk.setSaldoFinaleContoEvidenza(info.getSaldoFinaleContoEvidenza());
-                for (int progressivoMov = 0; progressivoMov < info.getMovimentoContoEvidenza().size(); progressivoMov++) {
-                    MovimentoContoEvidenza mov = info.getMovimentoContoEvidenza().get(progressivoMov);
-                    MovimentoContoEvidenzaBulk movBulk = new MovimentoContoEvidenzaBulk(flusso.getEsercizio(), flusso.getIdentificativoFlusso(), info.getContoEvidenza(), "I", new Long(progressivoMov + 1));
-                    movBulk.setTipoMovimento(mov.getTipoMovimento());
-                    movBulk.setTipoDocumento(mov.getTipoDocumento());
-                    movBulk.setTipoOperazione(mov.getTipoOperazione());
-                    movBulk.setTiPagamentoFunzDelegato(mov.getTipologiaPagamentoFunzionarioDelegato());
-                    movBulk.setNumPagFunzDelegato(mov.getNumeroPagamentoFunzionarioDelegato());
-                    movBulk.setNumeroDocumento(mov.getNumeroDocumento());
-                    movBulk.setProgressivoDocumento(mov.getProgressivoDocumento().longValue());
-                    movBulk.setImporto(mov.getImporto());
-                    movBulk.setImportoRitenute(mov.getImportoRitenute());
-                    if (mov.getNumeroBollettaQuietanza() != null)
-                        movBulk.setNumeroBollettaQuietanza(mov.getNumeroBollettaQuietanza().toString());
-                    if (mov.getNumeroBollettaQuietanzaStorno() != null)
-                        movBulk.setNumeroBollettaQuietanzaS(mov.getNumeroBollettaQuietanzaStorno().toString());
-                    movBulk.setDataMovimento(new Timestamp(mov.getDataMovimento().toGregorianCalendar().getTime().getTime()));
-                    if (Optional.ofNullable(mov.getDataValutaEnte()).isPresent())
-                        movBulk.setDataValutaEnte(new Timestamp(mov.getDataValutaEnte().toGregorianCalendar().getTime().getTime()));
-                    movBulk.setTipoEsecuzione(mov.getTipoEsecuzione());
-                    movBulk.setCoordinate(mov.getCoordinate());
-                    movBulk.setCodiceRifOperazione(mov.getCodiceRiferimentoOperazione());
-                    movBulk.setCodiceRifInterno(mov.getCodiceRiferimentoInterno());
-                    movBulk.setTipoContabilita(mov.getTipoContabilita());
-                    movBulk.setDestinazione(mov.getDestinazione());
-                    movBulk.setAssoggettamentoBollo(mov.getAssoggettamentoBollo());
-                    movBulk.setImportoBollo(mov.getImportoBollo());
-                    movBulk.setAssoggettamentoSpese(mov.getAssoggettamentoSpese());
-                    movBulk.setImportoSpese(mov.getImportoSpese());
-                    movBulk.setAssoggettamentoCommissioni(mov.getAssoggettamentoCommissioni());
-                    movBulk.setImportoCommissioni(mov.getImportoCommissioni());
-                    if (mov.getCliente() != null) {
-                        movBulk.setAnagraficaCliente(mov.getCliente().getAnagraficaCliente());
-                        movBulk.setIndirizzoCliente(mov.getCliente().getIndirizzoCliente());
-                        movBulk.setCapCliente(mov.getCliente().getCapCliente());
-                        movBulk.setLocalitaCliente(mov.getCliente().getLocalitaCliente());
-                        movBulk.setProvinciaCliente(mov.getCliente().getProvinciaCliente());
-                        movBulk.setStatoCliente(mov.getCliente().getStatoCliente());
-                        movBulk.setPartitaIvaCliente(mov.getCliente().getPartitaIvaCliente());
-                        movBulk.setCodiceFiscaleCliente(mov.getCliente().getCodiceFiscaleCliente());
-                    }
-                    if (mov.getDelegato() != null) {
-                        movBulk.setAnagraficaDelegato(mov.getDelegato().getAnagraficaDelegato());
-                        movBulk.setIndirizzoDelegato(mov.getDelegato().getIndirizzoDelegato());
-                        movBulk.setCapDelegato(mov.getDelegato().getCapDelegato());
-                        movBulk.setLocalitaDelegato(mov.getDelegato().getLocalitaDelegato());
-                        movBulk.setProvinciaDelegato(mov.getDelegato().getProvinciaDelegato());
-                        movBulk.setStatoDelegato(mov.getDelegato().getStatoDelegato());
-                        movBulk.setCodiceFiscaleDelegato(mov.getDelegato().getCodiceFiscaleDelegato());
-                    }
-                    if (mov.getCreditoreEffettivo() != null) {
-                        movBulk.setAnagraficaCreditoreEff(mov.getCreditoreEffettivo().getAnagraficaCreditoreEffettivo());
-                        movBulk.setIndirizzoCreditoreEff(mov.getCreditoreEffettivo().getIndirizzoCreditoreEffettivo());
-                        movBulk.setCapCreditoreEff(mov.getCreditoreEffettivo().getCapCreditoreEffettivo());
-                        movBulk.setLocalitaCreditoreEff(mov.getCreditoreEffettivo().getLocalitaCreditoreEffettivo());
-                        movBulk.setProvinciaCreditoreEff(mov.getCreditoreEffettivo().getProvinciaCreditoreEffettivo());
-                        movBulk.setStatoCreditoreEff(mov.getCreditoreEffettivo().getStatoCreditoreEffettivo());
-                        movBulk.setPartitaIvaCreditoreEff(mov.getCreditoreEffettivo().getPartitaIvaCreditoreEffettivo());
-                        movBulk.setCodiceFiscaleCreditoreEff(mov.getCreditoreEffettivo().getCodiceFiscaleCreditoreEffettivo());
-                    }
-                    movBulk.setCausale(mov.getCausale());
-                    movBulk.setNumeroSospeso(mov.getNumeroSospeso());
-                    movBulk.setToBeCreated();
-                    infoBulk.addToMovConto(movBulk);
+                MovimentoContoEvidenzaBulk movBulk = new MovimentoContoEvidenzaBulk(flusso.getEsercizio(), flusso.getIdentificativoFlusso(), info.getContoEvidenza(), "I", (long) (i + 1));
+                movBulk.setTipoMovimento("USCITA");
+                movBulk.setTipoDocumento(MovimentoContoEvidenzaBulk.TIPO_DOCUMENTO_MANDATO);
+                movBulk.setTipoOperazione(MovimentoContoEvidenzaBulk.TIPO_OPERAZIONE_ESEGUITO);
+                if(numeroMandato != null){
+                    movBulk.setNumeroDocumento(Long.valueOf(numeroMandato));
                 }
-                infoBulk.setToBeCreated();
-                flusso.addToInfoConto(infoBulk);
+                if(numeroRicevuta != null){
+                    movBulk.setProgressivoDocumento(numeroRicevuta.longValue());
+                }
+                movBulk.setImporto(importoMandato);
+                movBulk.setImportoRitenute(importoRitenute);
+                movBulk.setCausale(causale);
+                if(dataPagamento != null){
+                    movBulk.setDataMovimento(new Timestamp(dataPagamento.getTime()));
+                }
+                movBulk.setAnagraficaCliente(anagrafica);
+                movBulk.setCodiceFiscaleCliente(codiceFiscalePartitaIva);
+                movBulk.setPartitaIvaCliente(codiceFiscalePartitaIva);
+                movBulk.setCoordinate(iban);
+                movBulk.setToBeCreated();
+                info.addToMovConto(movBulk);
             }
-            flusso.setSaldoComplessivoPrec(b.getSaldoComplessivoPrecedente());
-            flusso.setTotaleComplessivoEntrate(b.getTotaleComplessivoEntrate());
-            flusso.setTotaleComplessivoUscite(b.getTotaleComplessivoUscite());
-            flusso.setSaldoComplessivoFinale(b.getSaldoComplessivoFinale());
-            if (b.getTotaliEsercizio() != null) {
-                flusso.setFondoDiCassa(b.getTotaliEsercizio().getFondoDiCassa());
-                flusso.setTotaleReversaliRiscosse(b.getTotaliEsercizio().getTotaleReversaliRiscosse());
-                flusso.setTotaleSospesiEntrata(b.getTotaliEsercizio().getTotaleSospesiEntrata());
-                flusso.setTotaleEntrate(b.getTotaliEsercizio().getTotaleEntrate());
-                flusso.setDeficitDiCassa(b.getTotaliEsercizio().getDeficitDiCassa());
-                flusso.setTotaleMandatiPagati(b.getTotaliEsercizio().getTotaleMandatiPagati());
-                flusso.setTotaleSospesiUscita(b.getTotaliEsercizio().getTotaleSospesiUscita());
-                flusso.setTotaleUscite(b.getTotaliEsercizio().getTotaleUscite());
-                flusso.setSaldoEsercizio(b.getTotaliEsercizio().getSaldoEsercizio());
-            }
-            if (b.getTotaliDisponibilitaLiquide() != null) {
-                flusso.setSaldoContiCorrenti(b.getTotaliDisponibilitaLiquide().getSaldoContiCorrenti());
-                flusso.setSaldoContiBi(b.getTotaliDisponibilitaLiquide().getSaldoContiBI());
-                flusso.setTotaleConti(b.getTotaliDisponibilitaLiquide().getTotaleConti());
-                flusso.setVincoliContiCorrenti(b.getTotaliDisponibilitaLiquide().getVincoliContiCorrenti());
-                flusso.setVincoliContiBi(b.getTotaliDisponibilitaLiquide().getVincoliContiBI());
-                flusso.setTotaleVincoli(b.getTotaliDisponibilitaLiquide().getTotaleVincoli());
-                flusso.setAnticipazioneAccordata(b.getTotaliDisponibilitaLiquide().getAnticipazioneAccordata());
-                flusso.setAnticipazioneUtilizzata(b.getTotaliDisponibilitaLiquide().getAnticipazioneUtilizzata());
-                flusso.setDisponibilita(b.getTotaliDisponibilitaLiquide().getDisponibilita());
-            }
+            info.setToBeCreated();
+            flusso.addToInfoConto(info);
             flusso.setToBeCreated();
             flusso = (FlussoGiornaleDiCassaBulk) ((CRUDComponentSession) createComponentSession("JADAEJB_CRUDComponentSession", CRUDComponentSession.class))
                     .creaConBulk(actioncontext.getUserContext(false), flusso);
+        }catch (IOException | CsvException e) {
+            e.printStackTrace();
+            throw new BusinessProcessException("Errore durante il parsing del CSV", e);
+        }
 
-        } catch (UnmarshalException e) {
-            throw new ApplicationException("Conversione file non riuscita");
-        } catch (JAXBException e) {
-            throw handleException(e);
-        }*/
+    }
 
+    private FlussoGiornaleDiCassaBulk initFlusso(String[] firstRecord, String user, String identificativoFlusso){
+        Integer esercizio = parseInteger(firstRecord[1]);
+        FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(esercizio, identificativoFlusso);
+        flusso.setUser(user);
+        flusso.setIdentificativoFlusso(identificativoFlusso);
+        flusso.setDataOraCreazioneFlusso(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+        flusso.setDataInizioPeriodoRif(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+        flusso.setDataFinePeriodoRif(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+        flusso.setEsercizio(esercizio);
+        return flusso;
+    }
+
+    private InformazioniContoEvidenzaBulk initInformazioniContoEvidenza(FlussoGiornaleDiCassaBulk flussoGiornaleDiCassaBulk, String[] firstRecord){
+        Integer conto = parseInteger(firstRecord[12]);
+        InformazioniContoEvidenzaBulk infoBulk = new InformazioniContoEvidenzaBulk(flussoGiornaleDiCassaBulk.getEsercizio(), flussoGiornaleDiCassaBulk.getIdentificativoFlusso(), String.valueOf(conto));
+        return infoBulk;
     }
 
     private String parseString(String value) {
@@ -292,7 +192,7 @@ public class CaricaFileMandatoBP extends BulkBP {
         try {
             return (value == null || value.trim().isEmpty()) ? null : Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
-            return null; // Gestione di eventuali errori di conversione
+            return null;
         }
     }
 
@@ -300,7 +200,7 @@ public class CaricaFileMandatoBP extends BulkBP {
         try {
             return (value == null || value.trim().isEmpty()) ? null : new BigDecimal(value.trim().replace(",", "."));
         } catch (NumberFormatException e) {
-            return null; // Gestione di eventuali errori di conversione
+            return null;
         }
     }
 
