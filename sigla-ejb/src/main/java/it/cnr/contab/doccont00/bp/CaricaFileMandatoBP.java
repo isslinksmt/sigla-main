@@ -198,7 +198,9 @@ public class CaricaFileMandatoBP extends BulkBP {
 
     private BigDecimal parseBigDecimal(String value) {
         try {
-            return (value == null || value.trim().isEmpty()) ? null : new BigDecimal(value.trim().replace(",", "."));
+            return (value == null || value.trim().isEmpty()) ? null : new BigDecimal(value.trim()
+                    .replace(".", "")
+                    .replace(",", "."));
         } catch (NumberFormatException e) {
             return null;
         }
