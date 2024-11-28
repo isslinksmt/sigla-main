@@ -18,7 +18,9 @@
 package it.cnr.contab.doccont00.bp;
 
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import it.cnr.contab.doccont00.intcass.giornaliera.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza;
@@ -92,7 +94,11 @@ public class CaricaFileMandatoBP extends BulkBP {
 
         FlussoGiornaleDiCassa b;
 
-        try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
+        try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(file))
+                .withCSVParser(new CSVParserBuilder()
+                        .withSeparator(';')
+                        .build())
+                .build()) {
             List<String[]> records = csvReader.readAll();
             for (int i = 1; i < records.size(); i++) {
                 String[] record = records.get(i);
