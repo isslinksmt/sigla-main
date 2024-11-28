@@ -37,7 +37,7 @@
                         bp.getParentRoot().isBootstrap() ? "fa fa-fw fa-2x fa-cloud-upload" : null,
                         bp.getParentRoot().isBootstrap() ? "fa fa-fw fa-2x fa-cloud-upload" : null,
                         "Invia File",
-                        "javascript:submitForm('doCaricaFile')",
+                        "javascript:submitForm('doCaricaFileMandato')",
                         "btn-outline-primary btn-title btn-sm ml-2",
                         true,
                         bp.getParentRoot().isBootstrap()); %>
