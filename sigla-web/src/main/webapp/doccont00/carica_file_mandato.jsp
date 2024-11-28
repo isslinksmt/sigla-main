@@ -16,7 +16,7 @@
 
 <% JSPUtils.printBaseUrl(pageContext);%>
 </head>
-<% CaricaFileGiornalieraBP bp = (CaricaFileGiornalieraBP)BusinessProcess.getBusinessProcess(request); %>
+<% CaricaFileMandatoBP bp = (CaricaFileMandatoBP)BusinessProcess.getBusinessProcess(request); %>
 <body class="Form">
 <% bp.openFormWindow(pageContext); %>
     <span class="FormLabel h1 text-primary" style="color:blue">Carica file csv mandati</span>
