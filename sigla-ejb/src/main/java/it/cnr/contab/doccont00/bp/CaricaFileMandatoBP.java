@@ -22,20 +22,16 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import it.cnr.contab.doccont00.dto.MandatiReversaliParsedDto;
 import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
 import it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.*;
-import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza;
-import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza.MovimentoContoEvidenza;
-import it.cnr.contab.doccont00.service.DocumentiContabiliService;
-import it.cnr.contab.service.SpringUtil;
 import it.cnr.contab.utenze00.bp.WSUserContext;
 import it.cnr.jada.DetailedRuntimeException;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.action.Config;
 import it.cnr.jada.bulk.OggettoBulk;
-import it.cnr.jada.comp.ApplicationException;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.ejb.CRUDComponentSession;
 import it.cnr.jada.persistency.sql.CompoundFindClause;
@@ -45,10 +41,6 @@ import it.cnr.jada.util.ejb.EJBCommonServices;
 
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -57,9 +49,9 @@ import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +59,7 @@ import java.util.Optional;
 
 public class CaricaFileMandatoBP extends BulkBP {
     private static final long serialVersionUID = 1L;
+    public static final String DATE_FORMAT = "dd/MM/yyyy";
     private DistintaCassiereComponentSession distintaCassiereComponentSession;
 
     public CaricaFileMandatoBP() {
@@ -102,67 +95,49 @@ public class CaricaFileMandatoBP extends BulkBP {
     }
 
     public void caricaFile(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException, RemoteException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String identificativoFlusso = "FON-MAN-".concat(file.getName());
+        generaMovimenti(file, actioncontext, identificativoFlusso, "USCITA", MovimentoContoEvidenzaBulk.TIPO_DOCUMENTO_MANDATO);
+
+    }
+
+    public void caricaFileReversale(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException{
+        String identificativoFlusso = "FON-REV-".concat(file.getName());
+        generaMovimenti(file, actioncontext, identificativoFlusso, MovimentoContoEvidenzaBulk.TIPO_MOVIMENTO_ENTRATA, MovimentoContoEvidenzaBulk.TIPO_DOCUMENTO_REVERSALE);
+    }
+
+    private void generaMovimenti(File file, ActionContext actioncontext, String identificativoFlusso, String USCITA, String tipoDocumentoMandato) throws ComponentException, BusinessProcessException {
         try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(file))
                 .withCSVParser(new CSVParserBuilder()
                         .withSeparator(';')
                         .build())
                 .build()) {
             List<String[]> records = csvReader.readAll();
-            FlussoGiornaleDiCassaBulk flusso = initFlusso(records.get(1), actioncontext.getUserContext().getUser(), identificativoFlusso);
-            InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, records.get(1));
-            for (int i = 1; i < records.size(); i++) {
-                String[] record = records.get(i);
-                String codiceEnte = parseString(record[0]);
-                Integer esercizio = parseInteger(record[1]);
-                Integer numeroMandato = parseInteger(record[2]);
-                Integer numeroBeneficiario = parseInteger(record[3]);
-                Date dataCarico = parseDate(record[4], dateFormat);
-                Date dataPagamento = parseDate(record[5], dateFormat);
-                BigDecimal importoMandato = parseBigDecimal(record[6]);
-                BigDecimal importoBeneficiario = parseBigDecimal(record[7]);
-                BigDecimal importoBeneficiarioPagato = parseBigDecimal(record[8]);
-                BigDecimal importoBeneficiarioDaPagare = parseBigDecimal(record[9]);
-                BigDecimal importoRitenute = parseBigDecimal(record[10]);
-                String copertura = parseString(record[11]);
-                Integer conto = parseInteger(record[12]);
-                String anagrafica = parseString(record[13]);
-                Integer codiceCausale = parseInteger(record[14]);
-                String causale = parseString(record[15]);
-                String indirizzo = parseString(record[16]);
-                String cap = parseString(record[17]);
-                String localita = parseString(record[18]);
-                String codiceRiscossione = parseString(record[19]);
-                String iban = parseString(record[20]);
-                Integer numeroRicevuta = parseInteger(record[21]);
-                Integer numeroRicSto = parseInteger(record[22]);
-                Date dataValutaEnte = parseDate(record[23], dateFormat);
-                String codiceFiscalePartitaIva = parseString(record[24]);
-                String stato = parseString(record[25]);
-                String squadr = parseString(record[26]);
-                String codiceIdentificativoEntePagopa = parseString(record[27]);
-                String numeroAvvisoPagopa = parseString(record[28]);
+            List<MandatiReversaliParsedDto> parsedRecords = parseRecords(records);
+            FlussoGiornaleDiCassaBulk flusso = initFlusso(parsedRecords.getFirst(), actioncontext.getUserContext().getUser(), identificativoFlusso);
+            InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, parsedRecords.getFirst());
+            for (int i = 0; i < parsedRecords.size(); i++) {
+                MandatiReversaliParsedDto dto = parsedRecords.get(i);
                 MovimentoContoEvidenzaBulk movBulk = new MovimentoContoEvidenzaBulk(flusso.getEsercizio(), flusso.getIdentificativoFlusso(), info.getContoEvidenza(), "I", (long) (i + 1));
-                movBulk.setTipoMovimento("USCITA");
-                movBulk.setTipoDocumento(MovimentoContoEvidenzaBulk.TIPO_DOCUMENTO_MANDATO);
+                movBulk.setTipoMovimento(USCITA);
+                movBulk.setTipoDocumento(tipoDocumentoMandato);
                 movBulk.setTipoOperazione(MovimentoContoEvidenzaBulk.TIPO_OPERAZIONE_ESEGUITO);
-                if(numeroMandato != null){
-                    movBulk.setNumeroDocumento(Long.valueOf(numeroMandato));
+                if (dto.getNumeroDocumento() != null) {
+                    movBulk.setNumeroDocumento(Long.valueOf(dto.getNumeroDocumento()));
                 }
-                if(numeroRicevuta != null){
-                    movBulk.setProgressivoDocumento(numeroRicevuta.longValue());
+                if (dto.getNumeroRicevuta() != null) {
+                    movBulk.setProgressivoDocumento(dto.getNumeroRicevuta().longValue());
                 }
-                movBulk.setImporto(importoMandato);
-                movBulk.setImportoRitenute(importoRitenute);
-                movBulk.setCausale(causale);
-                if(dataPagamento != null){
-                    movBulk.setDataMovimento(new Timestamp(dataPagamento.getTime()));
+                movBulk.setImporto(dto.getImporto());
+                movBulk.setImportoRitenute(dto.getImportoRitenute());
+                movBulk.setCausale(dto.getCausale());
+                if (dto.getDataPagamento() != null) {
+                    movBulk.setDataMovimento(new Timestamp(dto.getDataValutaEnte().getTime()));
                 }
-                movBulk.setAnagraficaCliente(anagrafica);
-                movBulk.setCodiceFiscaleCliente(codiceFiscalePartitaIva);
-                movBulk.setPartitaIvaCliente(codiceFiscalePartitaIva);
-                movBulk.setCoordinate(iban);
+                movBulk.setCodiceRifOperazione(dto.getCodiceRiscossione());
+                movBulk.setAnagraficaCliente(dto.getAnagrafica());
+                movBulk.setCodiceFiscaleCliente(dto.getCodiceFiscalePartitaIva());
+                movBulk.setPartitaIvaCliente(dto.getCodiceFiscalePartitaIva());
+                movBulk.setCoordinate(dto.getIban());
                 movBulk.setToBeCreated();
                 info.addToMovConto(movBulk);
             }
@@ -171,36 +146,38 @@ public class CaricaFileMandatoBP extends BulkBP {
             flusso.setToBeCreated();
             flusso = (FlussoGiornaleDiCassaBulk) ((CRUDComponentSession) createComponentSession("JADAEJB_CRUDComponentSession", CRUDComponentSession.class))
                     .creaConBulk(actioncontext.getUserContext(false), flusso);
-            V_ext_cassiere00Bulk v_ext_cassiere00Bulk = new V_ext_cassiere00Bulk();
-            v_ext_cassiere00Bulk.setNome_file(flusso.getIdentificativoFlusso());
-            v_ext_cassiere00Bulk.setEsercizio(flusso.getEsercizio());
-            distintaCassiereComponentSession.processaFile(
-                    new WSUserContext(actioncontext.getUserContext().getUser(), null,
-                            flusso.getEsercizio(),
-                            null, null, null),
-                    v_ext_cassiere00Bulk);
-        }catch (IOException | CsvException e) {
+            processaFile(actioncontext, flusso);
+        } catch (IOException | CsvException e) {
             e.printStackTrace();
-            throw new BusinessProcessException("Errore durante il parsing del CSV", e);
+            throw new BusinessProcessException("Errore durante l'elaborazione del file reversale.", e);
         }
-
     }
 
-    private FlussoGiornaleDiCassaBulk initFlusso(String[] firstRecord, String user, String identificativoFlusso){
-        Integer esercizio = parseInteger(firstRecord[1]);
-        FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(esercizio, identificativoFlusso);
+    private void processaFile(ActionContext actioncontext, FlussoGiornaleDiCassaBulk flusso) throws ComponentException, RemoteException {
+        V_ext_cassiere00Bulk v_ext_cassiere00Bulk = new V_ext_cassiere00Bulk();
+        v_ext_cassiere00Bulk.setNome_file(flusso.getIdentificativoFlusso());
+        v_ext_cassiere00Bulk.setEsercizio(flusso.getEsercizio());
+        distintaCassiereComponentSession.processaFile(
+                new WSUserContext(actioncontext.getUserContext().getUser(), null,
+                        flusso.getEsercizio(),
+                        null, null, null),
+                v_ext_cassiere00Bulk);
+    }
+
+    private FlussoGiornaleDiCassaBulk initFlusso(MandatiReversaliParsedDto firstRecord, String user, String identificativoFlusso){
+        FlussoGiornaleDiCassaBulk flusso = new FlussoGiornaleDiCassaBulk(firstRecord.getEsercizio(), identificativoFlusso);
         flusso.setUser(user);
         flusso.setIdentificativoFlusso(identificativoFlusso);
-        flusso.setDataOraCreazioneFlusso(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
-        flusso.setDataInizioPeriodoRif(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
-        flusso.setDataFinePeriodoRif(new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
-        flusso.setEsercizio(esercizio);
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        flusso.setDataOraCreazioneFlusso(currentTimestamp);
+        flusso.setDataInizioPeriodoRif(currentTimestamp);
+        flusso.setDataFinePeriodoRif(currentTimestamp);
+        flusso.setEsercizio(firstRecord.getEsercizio());
         return flusso;
     }
 
-    private InformazioniContoEvidenzaBulk initInformazioniContoEvidenza(FlussoGiornaleDiCassaBulk flussoGiornaleDiCassaBulk, String[] firstRecord){
-        Integer conto = parseInteger(firstRecord[12]);
-        InformazioniContoEvidenzaBulk infoBulk = new InformazioniContoEvidenzaBulk(flussoGiornaleDiCassaBulk.getEsercizio(), flussoGiornaleDiCassaBulk.getIdentificativoFlusso(), String.valueOf(conto));
+    private InformazioniContoEvidenzaBulk initInformazioniContoEvidenza(FlussoGiornaleDiCassaBulk flussoGiornaleDiCassaBulk, MandatiReversaliParsedDto firstRecord){
+        InformazioniContoEvidenzaBulk infoBulk = new InformazioniContoEvidenzaBulk(flussoGiornaleDiCassaBulk.getEsercizio(), flussoGiornaleDiCassaBulk.getIdentificativoFlusso(), String.valueOf(firstRecord.getConto()));
         return infoBulk;
     }
 
@@ -232,5 +209,45 @@ public class CaricaFileMandatoBP extends BulkBP {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    private List<MandatiReversaliParsedDto> parseRecords(List<String[]> records) {
+        records = records.subList(1, records.size());
+        List<MandatiReversaliParsedDto> result = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        for (String[] record : records) {
+            MandatiReversaliParsedDto dto = new MandatiReversaliParsedDto();
+            dto.setCodiceEnte(parseString(record[0]));
+            dto.setEsercizio(parseInteger(record[1]));
+            dto.setNumeroDocumento(parseInteger(record[2]));
+            dto.setNumeroBeneficiario(parseInteger(record[3]));
+            dto.setDataCarico(parseDate(record[4], dateFormat));
+            dto.setDataPagamento(parseDate(record[5], dateFormat));
+            dto.setImporto(parseBigDecimal(record[6]));
+            dto.setImportoBeneficiario(parseBigDecimal(record[7]));
+            dto.setImportoBeneficiarioPagato(parseBigDecimal(record[8]));
+            dto.setImportoBeneficiarioDaPagare(parseBigDecimal(record[9]));
+            dto.setImportoRitenute(parseBigDecimal(record[10]));
+            dto.setCopertura(parseString(record[11]));
+            dto.setConto(parseInteger(record[12]));
+            dto.setAnagrafica(parseString(record[13]));
+            dto.setCodiceCausale(parseInteger(record[14]));
+            dto.setCausale(parseString(record[15]));
+            dto.setIndirizzo(parseString(record[16]));
+            dto.setCap(parseString(record[17]));
+            dto.setLocalita(parseString(record[18]));
+            dto.setCodiceRiscossione(parseString(record[19]));
+            dto.setIban(parseString(record[20]));
+            dto.setNumeroRicevuta(parseInteger(record[21]));
+            dto.setNumeroRicSto(parseInteger(record[22]));
+            dto.setDataValutaEnte(parseDate(record[23], dateFormat));
+            dto.setCodiceFiscalePartitaIva(parseString(record[24]));
+            dto.setStato(parseString(record[25]));
+            dto.setSquadr(parseString(record[26]));
+            dto.setCodiceIdentificativoEntePagopa(parseString(record[27]));
+            dto.setNumeroAvvisoPagopa(parseString(record[28]));
+            result.add(dto);
+        }
+        return result;
     }
 }
