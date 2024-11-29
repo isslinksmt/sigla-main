@@ -113,8 +113,8 @@ public class CaricaFileMandatoBP extends BulkBP {
                 .build()) {
             List<String[]> records = csvReader.readAll();
             List<MandatiReversaliParsedDto> parsedRecords = parseRecords(records);
-            FlussoGiornaleDiCassaBulk flusso = initFlusso(parsedRecords.getFirst(), actioncontext.getUserContext().getUser(), identificativoFlusso);
-            InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, parsedRecords.getFirst());
+            FlussoGiornaleDiCassaBulk flusso = initFlusso(parsedRecords.get(0), actioncontext.getUserContext().getUser(), identificativoFlusso);
+            InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, parsedRecords.get(0));
             for (int i = 0; i < parsedRecords.size(); i++) {
                 MandatiReversaliParsedDto dto = parsedRecords.get(i);
                 MovimentoContoEvidenzaBulk movBulk = new MovimentoContoEvidenzaBulk(flusso.getEsercizio(), flusso.getIdentificativoFlusso(), info.getContoEvidenza(), "I", (long) (i + 1));
