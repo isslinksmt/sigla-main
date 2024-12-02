@@ -54,6 +54,7 @@ import it.cnr.jada.util.action.CRUDBP;
 import it.cnr.si.spring.storage.StorageObject;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -2157,6 +2158,34 @@ public abstract class Fattura_attivaBulk extends Fattura_attivaBase
                         !getFattura_attiva_dettColl().isEmpty();
     }
 
+    public BigDecimal getImportoIntrastatTotRighe( ){
+        BigDecimal totale= BigDecimal.ZERO;
+        for (Iterator i = fattura_attiva_dettColl.iterator(); i.hasNext(); ) {
+            Fattura_attiva_rigaBulk riga = ((Fattura_attiva_rigaBulk) i.next());
+            if (riga.getBene_servizio().getFl_obb_intrastat_ven().booleanValue()
+                    && riga.getVoce_iva().getFl_intrastat().booleanValue())
+                totale=totale.add(riga.getIm_imponibile());
+        }
+        return totale;
+    }
+    public BigDecimal getImportoTotAmmontareIntrastat( ){
+       if ( Optional.ofNullable(getFattura_attiva_intrastatColl()).isPresent()){
+           BigDecimal totAmmontareIntrastat = BigDecimal.ZERO;
+           for (Iterator i = getFattura_attiva_intrastatColl().iterator(); i.hasNext(); ) {
+               Fattura_attiva_intraBulk riga = (Fattura_attiva_intraBulk) i.next();
+               totAmmontareIntrastat = totAmmontareIntrastat.add(riga.getAmmontare_euro());
+               return totAmmontareIntrastat;
+           }
+       }
+       return BigDecimal.ZERO;
+    }
+
+    public Boolean validaImportoDettagliIntrastat(){
+        if ( Optional.ofNullable(getFattura_attiva_intrastatColl()).isPresent()){
+            return ( getImportoTotAmmontareIntrastat().compareTo(getImportoIntrastatTotRighe())>0);
+        }
+        return Boolean.FALSE;
+    }
     public int addToFattura_attiva_intrastatColl(Fattura_attiva_intraBulk dettaglio) {
 
         dettaglio.initialize();
@@ -2173,11 +2202,14 @@ public abstract class Fattura_attivaBulk extends Fattura_attivaBase
             NazioneBulk nazione = getCliente().getAnagrafico().getComune_fiscale().getNazione();
             dettaglio.setNazione_destinazione(nazione);
         }
+        /*
         for (Iterator i = fattura_attiva_dettColl.iterator(); i.hasNext(); ) {
             Fattura_attiva_rigaBulk riga = ((Fattura_attiva_rigaBulk) i.next());
             if (riga.getBene_servizio().getFl_obb_intrastat_ven().booleanValue())
                 dettaglio.setAmmontare_euro(dettaglio.getAmmontare_euro().add(riga.getIm_imponibile()));
         }
+         */
+        dettaglio.setAmmontare_euro(getImportoIntrastatTotRighe());
         dettaglio.setModalita_trasportoColl(getModalita_trasportoColl());
         dettaglio.setCondizione_consegnaColl(getCondizione_consegnaColl());
         dettaglio.setModalita_incassoColl(getModalita_incassoColl());
