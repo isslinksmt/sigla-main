@@ -16,7 +16,7 @@
 
 <% JSPUtils.printBaseUrl(pageContext);%>
 </head>
-<% CaricaFileMandatoBP bp = (CaricaFileMandatoBP)BusinessProcess.getBusinessProcess(request); %>
+<% CaricaFileReversaleBP bp = (CaricaFileReversaleBP)BusinessProcess.getBusinessProcess(request); %>
 <body class="Form">
 <% bp.openFormWindow(pageContext); %>
     <span class="FormLabel h1 text-primary" style="color:blue">Carica file csv reversali</span>

@@ -19,6 +19,7 @@ package it.cnr.contab.doccont00.action;
 
 import it.cnr.contab.doccont00.bp.CaricaFileGiornalieraBP;
 import it.cnr.contab.doccont00.bp.CaricaFileMandatoBP;
+import it.cnr.contab.doccont00.bp.CaricaFileReversaleBP;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.Forward;
 import it.cnr.jada.util.upload.UploadedFile;
@@ -88,7 +89,7 @@ public class CaricaFileGiornalieraAction extends it.cnr.jada.util.action.Selezio
             if (file == null || file.getName().equals(""))
                 throw new it.cnr.jada.comp.ApplicationException("Attenzione: selezionare un File da caricare.");
 
-            CaricaFileMandatoBP bp = (CaricaFileMandatoBP) httpContext.getBusinessProcess();
+            CaricaFileReversaleBP bp = (CaricaFileReversaleBP) httpContext.getBusinessProcess();
             bp.caricaFileReversale(context, file.getFile());
             bp.setMessage("Operazione Completata.");
             return context.findDefaultForward();
