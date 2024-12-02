@@ -18,6 +18,8 @@
 package it.cnr.contab.doccont00.action;
 
 import it.cnr.contab.doccont00.bp.CaricaFileGiornalieraBP;
+import it.cnr.contab.doccont00.bp.CaricaFileMandatoBP;
+import it.cnr.contab.doccont00.bp.CaricaFileReversaleBP;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.Forward;
 import it.cnr.jada.util.upload.UploadedFile;
@@ -57,6 +59,38 @@ public class CaricaFileGiornalieraAction extends it.cnr.jada.util.action.Selezio
 
             CaricaFileGiornalieraBP bp = (CaricaFileGiornalieraBP) httpContext.getBusinessProcess();
             bp.caricaFile(context, file.getFile());
+            bp.setMessage("Operazione Completata.");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
+    }
+
+    public Forward doCaricaFileMandato(ActionContext context){
+        it.cnr.jada.action.HttpActionContext httpContext = (it.cnr.jada.action.HttpActionContext) context;
+        UploadedFile file = httpContext.getMultipartParameter("fileGiornaliera");
+        try {
+            if (file == null || file.getName().equals(""))
+                throw new it.cnr.jada.comp.ApplicationException("Attenzione: selezionare un File da caricare.");
+
+            CaricaFileMandatoBP bp = (CaricaFileMandatoBP) httpContext.getBusinessProcess();
+            bp.caricaFile(context, file.getFile());
+            bp.setMessage("Operazione Completata.");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
+    }
+
+    public Forward doCaricaFileReversale(ActionContext context){
+        it.cnr.jada.action.HttpActionContext httpContext = (it.cnr.jada.action.HttpActionContext) context;
+        UploadedFile file = httpContext.getMultipartParameter("fileGiornaliera");
+        try {
+            if (file == null || file.getName().equals(""))
+                throw new it.cnr.jada.comp.ApplicationException("Attenzione: selezionare un File da caricare.");
+
+            CaricaFileReversaleBP bp = (CaricaFileReversaleBP) httpContext.getBusinessProcess();
+            bp.caricaFileReversale(context, file.getFile());
             bp.setMessage("Operazione Completata.");
             return context.findDefaultForward();
         } catch (Throwable e) {

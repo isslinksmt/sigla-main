@@ -18,6 +18,7 @@
 package it.cnr.contab.doccont00.bp;
 
 
+import it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassa.InformazioniContoEvidenza.MovimentoContoEvidenza;
@@ -204,7 +205,6 @@ public class CaricaFileGiornalieraBP extends BulkBP {
             flusso.setToBeCreated();
             flusso = (FlussoGiornaleDiCassaBulk) ((CRUDComponentSession) createComponentSession("JADAEJB_CRUDComponentSession", CRUDComponentSession.class))
                     .creaConBulk(actioncontext.getUserContext(false), flusso);
-
         } catch (UnmarshalException e) {
             throw new ApplicationException("Conversione file non riuscita");
         } catch (JAXBException e) {
