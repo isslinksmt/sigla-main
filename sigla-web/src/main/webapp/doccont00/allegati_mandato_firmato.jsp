@@ -22,7 +22,7 @@
 <body class="Form">
 <% bp.openFormWindow(pageContext);%>
     <div class="card p-2 w-100">
-        <p>Questa è la mia form</p>
+        <p>Carica documento firmato</p>
         <h3 class="text-primary bg-white"><%=bp.getLabel()%></h3>
         <table class="Panel w-100">
           <% bp.getController().writeForm(out, "onlymandatofirmato");%>
