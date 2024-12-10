@@ -160,7 +160,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
                 throw new RuntimeException(e);
             }
         }
-        setMessage(FormBP.INFO_MESSAGE, "Mandato firmato salvato correttamente.");
+        setMessage(FormBP.INFO_MESSAGE, "Documento firmato salvato correttamente.");
     }
 
     @Override
