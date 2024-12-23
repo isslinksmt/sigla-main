@@ -20,6 +20,7 @@ package it.cnr.contab.doccont00.bp;
 import it.cnr.contab.doccont00.core.bulk.MandatoBulk;
 import it.cnr.contab.doccont00.core.bulk.MandatoIBulk;
 import it.cnr.contab.doccont00.core.bulk.Numerazione_doc_contBulk;
+import it.cnr.contab.doccont00.core.bulk.ReversaleIBulk;
 import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
 import it.cnr.contab.doccont00.intcass.bulk.StatoTrasmissione;
 import it.cnr.contab.service.SpringUtil;
@@ -85,7 +86,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     }
 
     public String getLabel() {
-        return "Salva mandato firmato per: " + documentsLabel(documents);
+        return "Salva documento firmato per: " + documentsLabel(documents);
     }
 
     private String documentsLabel(List<StatoTrasmissione> list) {
@@ -159,7 +160,7 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
                 throw new RuntimeException(e);
             }
         }
-        setMessage(FormBP.INFO_MESSAGE, "Mandato firmato salvato correttamente.");
+        setMessage(FormBP.INFO_MESSAGE, "Documento firmato salvato correttamente.");
     }
 
     @Override
@@ -188,7 +189,6 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
     }
 
     protected void aggiornaStato(ActionContext actioncontext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException, BusinessProcessException {
-        DistintaCassiereComponentSession distintaCassiereComponentSession = Utility.createDistintaCassiereComponentSession();
         CRUDComponentSession crudComponentSession = createComponentSession();
         for (StatoTrasmissione v_mandato_reversaleBulk : bulks) {
             if (v_mandato_reversaleBulk.getCd_tipo_documento_cont().equalsIgnoreCase(Numerazione_doc_contBulk.TIPO_MAN)) {
@@ -216,9 +216,34 @@ public class AllegaMandatoFirmatoBP extends SimpleCRUDBP {
                 /*for (StatoTrasmissione statoTrasmissione : distintaCassiereComponentSession.findReversaliCollegate(actioncontext.getUserContext(), (V_mandato_reversaleBulk) v_mandato_reversaleBulk)) {
                     aggiornaStatoReversale(actioncontext, statoTrasmissione, stato);
                 }*/
-            } /*else {
+            } else {
                 aggiornaStatoReversale(actioncontext, v_mandato_reversaleBulk, stato);
-            }*/
+            }
         }
+    }
+
+    private void aggiornaStatoReversale(ActionContext actioncontext, StatoTrasmissione v_mandato_reversaleBulk, String stato) throws ComponentException, RemoteException, BusinessProcessException {
+        CRUDComponentSession crudComponentSession = createComponentSession();
+        ReversaleIBulk reversale = new ReversaleIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
+        reversale = (ReversaleIBulk) crudComponentSession.findByPrimaryKey(actioncontext.getUserContext(), reversale);
+        if(reversale.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
+            if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione_annullo()))
+                throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+            reversale.setStato_trasmissione_annullo(stato);
+            if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                reversale.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
+            else
+                reversale.setDt_firma_annullo(null);
+        }else{
+            if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione()))
+                throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+            reversale.setStato_trasmissione(stato);
+            if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                reversale.setDt_firma(EJBCommonServices.getServerTimestamp());
+            else
+                reversale.setDt_firma(null);
+        }
+        reversale.setToBeUpdated();
+        crudComponentSession.modificaConBulk(actioncontext.getUserContext(), reversale);
     }
 }

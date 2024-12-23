@@ -5,6 +5,7 @@ import java.util.List;
 
 public class CreaReversaleRequest implements Serializable {
     private String unitaOrganizzativa;
+    private String unitaOrganizzativaOrigine;
     private String cds;
     private String cdsOrigine;
     private int esercizio;
@@ -57,5 +58,13 @@ public class CreaReversaleRequest implements Serializable {
 
     public void setCdsOrigine(String cdsOrigine) {
         this.cdsOrigine = cdsOrigine;
+    }
+
+    public String getUnitaOrganizzativaOrigine() {
+        return unitaOrganizzativaOrigine;
+    }
+
+    public void setUnitaOrganizzativaOrigine(String unitaOrganizzativaOrigine) {
+        this.unitaOrganizzativaOrigine = unitaOrganizzativaOrigine;
     }
 }
