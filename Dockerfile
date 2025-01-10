@@ -2,6 +2,9 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER Marco Spasiano <marco.spasiano@cnr.it>
 
+RUN apk update
+RUN apk add tzdata
+
 COPY sigla-web/target/sigla-thorntail.jar /opt/sigla-thorntail.jar
 
 ENV ESERCIZIO=2024
