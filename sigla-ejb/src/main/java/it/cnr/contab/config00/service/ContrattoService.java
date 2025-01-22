@@ -264,16 +264,16 @@ public class ContrattoService extends StoreService {
 			// Crea la directory target se non esiste
 			Files.createDirectories(targetDirectory);
 
-			// Costruisci il percorso finale del file nella cartella target
-			Path targetPath = targetDirectory.resolve(sourcePath.getFileName());
+			// Determina il percorso del file nel target
+			Path targetFile = targetDirectory.resolve((String) source.getPropertyValue(StoragePropertyNames.NAME.value()));
 
-			// Copia il file o directory nel target
+			// Copia il file o il contenuto della directory
 			if (Files.isDirectory(sourcePath)) {
 				Files.walk(sourcePath).forEach(src -> {
-					Path dest = targetPath.resolve(sourcePath.relativize(src));
+					Path dest = targetFile.resolve(sourcePath.relativize(src));
 					try {
 						if (Files.isDirectory(src)) {
-							Files.createDirectories(dest); // Creazione directory nel target
+							Files.createDirectories(dest);
 						} else {
 							Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
 						}
@@ -282,12 +282,13 @@ public class ContrattoService extends StoreService {
 					}
 				});
 			} else {
-				Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); // Copia file singolo
+				Files.copy(sourcePath, targetFile, StandardCopyOption.REPLACE_EXISTING);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Errore durante la copia da " + sourcePath + " a " + targetDirectory, e);
 		}
 	}
+
 
 	public void changeProgressivoNodeRef(StorageObject oldStorageObject, ContrattoBulk contratto) throws ApplicationException {
 		List<StorageObject> children = getChildren(oldStorageObject.getKey());
