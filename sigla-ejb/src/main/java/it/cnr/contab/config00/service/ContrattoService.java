@@ -33,6 +33,11 @@ import it.cnr.si.spring.storage.config.StoragePropertyNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -243,10 +248,34 @@ public class ContrattoService extends StoreService {
 */
 	public void costruisciAlberaturaAlternativa(AllegatoContrattoDocumentBulk allegato, StorageObject source) throws ApplicationException {
 		try {
-			copyNode(source, getStorageObjectByPath(getCMISPathAlternativo(allegato), true));
+			//copyNode(source, getStorageObjectByPath(getCMISPathAlternativo(allegato), true));
+			copyNodeFileSystem(source, getStorageObjectByPath(getCMISPathAlternativo(allegato), true));
 		} catch (StorageException _ex) {
 			//logger.error("Errore in costruisciAlberaturaAlternativa per il nodo " + source.getKey(), _ex);
 			throw  new ApplicationException(_ex);
+		}
+	}
+
+	public void copyNodeFileSystem(StorageObject source, StorageObject target) {
+		Path sourcePath = Paths.get(source.getPath());
+		Path targetPath = Paths.get(target.getPath());
+
+		try {
+			if (Files.isDirectory(sourcePath)) {
+				Files.walk(sourcePath)
+						.forEach(src -> {
+							Path dest = targetPath.resolve(sourcePath.relativize(src));
+							try {
+								Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+							} catch (IOException e) {
+								throw new RuntimeException("Errore durante la copia", e);
+							}
+						});
+			} else {
+				Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Errore durante la copia", e);
 		}
 	}
 
