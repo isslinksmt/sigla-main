@@ -32,7 +32,6 @@ import it.cnr.si.spring.storage.StoreService;
 import it.cnr.si.spring.storage.config.StoragePropertyNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -257,25 +256,36 @@ public class ContrattoService extends StoreService {
 	}
 
 	public void copyNodeFileSystem(StorageObject source, StorageObject target) {
-		Path sourcePath = Paths.get(source.getPath());
-		Path targetPath = Paths.get(target.getPath());
+		String baseDirectory = SpringUtil.getBean("storePath", StorePath.class).getBaseDirectory();
+		Path sourcePath = Paths.get(baseDirectory, source.getPath());
+		Path targetDirectory = Paths.get(baseDirectory, target.getPath());
 
 		try {
+			// Crea la directory target se non esiste
+			Files.createDirectories(targetDirectory);
+
+			// Costruisci il percorso finale del file nella cartella target
+			Path targetPath = targetDirectory.resolve(sourcePath.getFileName());
+
+			// Copia il file o directory nel target
 			if (Files.isDirectory(sourcePath)) {
-				Files.walk(sourcePath)
-						.forEach(src -> {
-							Path dest = targetPath.resolve(sourcePath.relativize(src));
-							try {
-								Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
-							} catch (IOException e) {
-								throw new RuntimeException("Errore durante la copia", e);
-							}
-						});
+				Files.walk(sourcePath).forEach(src -> {
+					Path dest = targetPath.resolve(sourcePath.relativize(src));
+					try {
+						if (Files.isDirectory(src)) {
+							Files.createDirectories(dest); // Creazione directory nel target
+						} else {
+							Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+						}
+					} catch (IOException e) {
+						throw new RuntimeException("Errore durante la copia del file " + src + " verso " + dest, e);
+					}
+				});
 			} else {
-				Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); // Copia file singolo
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("Errore durante la copia", e);
+			throw new RuntimeException("Errore durante la copia da " + sourcePath + " a " + targetDirectory, e);
 		}
 	}
 
