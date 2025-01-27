@@ -24,7 +24,7 @@ import it.cnr.contab.anagraf00.core.bulk.RapportoBulk;
 import it.cnr.contab.anagraf00.core.bulk.TerzoBulk;
 import it.cnr.contab.web.rest.config.SIGLARoles;
 import it.cnr.contab.web.rest.model.AnagraficaInfoDTO;
-
+import it.cnr.contab.web.rest.model.ModalitaPagamentoDto;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -61,17 +61,17 @@ public interface TerzoLocal {
 
     @GET
     @Path("/query")
-    @ApiOperation(value = "Ritorna i terzo associati all'angrafico con il codice fiscale passato in input ",
+    @ApiOperation(value = "Ritorna i terzi associati all'anagrafico ricercato per codice fiscale o partita iva in input ",
             notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
             response = TerzoBulk.class,
             responseContainer = "List",
             authorizations = @Authorization(value = "BASIC")
     )
-    Response getList(@QueryParam("codicefiscale")  String codicefiscale) throws Exception;
+    Response getList(@QueryParam("codicefiscale")  String codFiscPiva) throws Exception;
 
 	@GET
     @Path("/tiporapporto/{codicefiscale}")
-    @ApiOperation(value = "Ritorna i rapporti associati al terzo",
+    @ApiOperation(value = "Ritorna i rapporti associati al terzo ricercato per codice fiscale o partita iva",
             notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
             response = RapportoBulk.class,
             responseContainer = "List",
@@ -81,7 +81,7 @@ public interface TerzoLocal {
 
     @GET
     @Path("/info/{codicefiscale}")
-    @ApiOperation(value = "Ritorna le informazioni anagrafiche associate al terzo",
+    @ApiOperation(value = "Ritorna le informazioni anagrafiche associate al terzo ricercato per codice fiscale o partita iva",
             notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
             response = AnagraficaInfoDTO.class,
             authorizations = @Authorization(value = "BASIC")
@@ -95,5 +95,26 @@ public interface TerzoLocal {
             authorizations = @Authorization(value = "BASIC")
     )
     Response anagraficaInfoByCdTerzo(@PathParam("cd_terzo") Integer cd_terzo) throws Exception;
+
+    @GET
+    @Path("/modalitapagamento/{cd_terzo}")
+    @ApiOperation(value = "Ritorna le modalità di pagamento attive per il codice del terzo passato in input ",
+            notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
+            response = ModalitaPagamentoDto.class,
+            responseContainer = "List",
+            authorizations = @Authorization(value = "BASIC")
+    )
+    Response modalitaPagamentoByCdTerzo(@PathParam("cd_terzo") Integer cdTerzo) throws Exception;
+
+    @GET
+    @Path("/unita_organizzativa/{cd_unita_organizzativa}")
+    @ApiOperation(value = "Ritorna i terzi associati all'unita_operativa ",
+            notes = "Accesso consentito solo alle utenze abilitate e con ruolo '" + SIGLARoles.TERZO +"'",
+            response = TerzoBulk.class,
+            responseContainer = "List",
+            authorizations = @Authorization(value = "BASIC")
+    )
+
+    Response terzoUnitaOrganizzativa(@PathParam("cd_unita_organizzativa") String cd_unita_organizzativa) throws Exception;
 
 }

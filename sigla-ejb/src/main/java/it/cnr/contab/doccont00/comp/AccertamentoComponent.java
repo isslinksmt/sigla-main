@@ -5060,4 +5060,107 @@ private void modificoDettagliScadenza(UserContext aUC,AccertamentoBulk accertame
         return sql;
     }
 
+	public AccertamentoBulk findAccertamento(UserContext uc,AccertamentoBulk accertamento) throws ComponentException {
+		try {
+			AccertamentoBulk acr = null;
+			acr = ((AccertamentoHome) getHome(uc, AccertamentoBulk.class)).findAccertamento(accertamento);
+
+			getHomeCache(uc).fetchAll(uc);
+			return acr;
+		} catch (PersistencyException e) {
+			throw handleException(e);
+		}
+	}
+
+	private void validaElementoVoceAccertamento(UserContext uc,AccertamentoBulk bulk) throws ComponentException {
+		AccertamentoHome accertamentoHome = ( AccertamentoHome) getHome(uc, AccertamentoBulk.class);
+		CompoundFindClause clauses = new CompoundFindClause();
+		clauses.addClause(FindClause.AND, "cd_voce", SQLBuilder.EQUALS, bulk.getCd_voce());
+
+		SQLBuilder sql = null;
+		List<Elemento_voceBulk> checkVoce= null;
+		try {
+			sql = accertamentoHome.selectCapitoloByClause( bulk,null,null,clauses);
+			checkVoce = getHome(uc, V_voce_f_partita_giroBulk.class).fetchAll( sql );
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		Optional.ofNullable(checkVoce).filter(e->!e.isEmpty()).orElseThrow(() -> new ApplicationException("La voce non può essere usata per l'accertamento"));
+
+	}
+	private List<V_assestatoBulk> listaAssestatoEntrate(UserContext userContext, AccertamentoBulk accertamento) throws ComponentException, PersistencyException{
+		SQLBuilder sql = selectAssestatoEntrateByClause(userContext, accertamento, null, null);
+		return getHome(userContext, V_assestatoBulk.class).fetchAll( sql );
+	}
+
+
+	private List<WorkpackageBulk> getLineeAttivitaSelezionabili(UserContext userContext, AccertamentoBulk accertamento,WorkpackageBulk workpackageBulk){
+		SQLBuilder sql = null;
+		try {
+			CompoundFindClause clauses = new CompoundFindClause();
+			clauses.addClause(FindClause.AND, "cd_centro_responsabilita", SQLBuilder.EQUALS, workpackageBulk.getCd_centro_responsabilita());
+			clauses.addClause(FindClause.AND, "cd_linea_attivita", SQLBuilder.EQUALS, workpackageBulk.getCd_linea_attivita());
+			sql = selectLinea_attByClause(userContext, accertamento,  clauses );
+			return getHome(userContext, WorkpackageBulk.class).fetchAll( sql );
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	private void validaLineeAttivitaAccertamento(UserContext uc,AccertamentoBulk accertamento)throws ComponentException {
+
+		List<V_assestatoBulk> lineeAttivitaValide = null;
+		try {
+			lineeAttivitaValide = listaAssestatoEntrate(uc,  accertamento);
+		} catch (PersistencyException e) {
+			throw new RuntimeException(e);
+		}
+		Optional.ofNullable(lineeAttivitaValide).orElseThrow(() -> new ApplicationException("Non ci sono linee di Attività Valide"));
+
+		if ( Optional.ofNullable(accertamento.getAccertamento_scadenzarioColl()).isPresent()){
+			for ( Accertamento_scadenzarioBulk scadenza:accertamento.getAccertamento_scadenzarioColl()){
+				Map<String,Map<String,List<WorkpackageBulk>>> workpackges=scadenza.getAccertamento_scad_voceColl().stream().
+						map(Accertamento_scad_voceBulk::getLinea_attivita).
+						collect(Collectors.groupingBy(scadVoce->scadVoce.getCd_centro_responsabilita(),
+						Collectors.groupingBy(scadVoce->scadVoce.getCd_linea_attivita())));
+
+				for (Map.Entry<String,Map<String,List<WorkpackageBulk>>> centoResposanbilita : workpackges.entrySet()) {
+					for (Map.Entry<String,List<WorkpackageBulk>> cdLineaAttivita : centoResposanbilita.getValue().entrySet()) {
+						if ( !(lineeAttivitaValide.stream().
+								filter(e->e.getCd_centro_responsabilita().equalsIgnoreCase(centoResposanbilita.getKey())).
+								filter(e->e.getCd_linea_attivita().equalsIgnoreCase(cdLineaAttivita.getKey()))
+								.findFirst().isPresent())){
+								List<WorkpackageBulk> l =getLineeAttivitaSelezionabili( uc,accertamento,new WorkpackageBulk(centoResposanbilita.getKey(),cdLineaAttivita.getKey()));
+								if ( ( !Optional.ofNullable(l).isPresent()) ||l.isEmpty())
+									throw new ApplicationException("Il GAE" + cdLineaAttivita.getKey()+"/"+cdLineaAttivita.getKey()+" non è Utilizzabile");
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	public AccertamentoBulk creaAccertamentoWs(UserContext uc,AccertamentoBulk accertamento) throws ComponentException {
+		validaElementoVoceAccertamento( uc,accertamento);
+		validaLineeAttivitaAccertamento( uc,accertamento);
+		return ( AccertamentoBulk) creaConBulk(uc,accertamento);
+	}
+	public AccertamentoBulk updateAccertamentoWs(UserContext uc,AccertamentoBulk accertamento) throws ComponentException {
+		throw new ApplicationException("Fuzionalità non implementata");
+	}
+	public Boolean deleteAccertamentoWs(UserContext uc,AccertamentoBulk accertamento) throws ComponentException, PersistencyException {
+		try {
+			if (! ((AccertamentoHome)getHome(uc, AccertamentoBulk.class)).verificaStatoEsercizio(accertamento))
+					throw handleException( new ApplicationException( "Non e' possibile eliminare accertamenti: esercizio del Cds non ancora aperto!") );
+			accertamento= ( AccertamentoBulk)inizializzaBulkPerModifica(uc,accertamento);
+			annullaAccertamento(uc,accertamento);
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
+		}
+
+		return Boolean.TRUE;
+	}
+
 }

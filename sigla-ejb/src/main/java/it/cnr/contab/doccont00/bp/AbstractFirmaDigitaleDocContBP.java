@@ -122,7 +122,7 @@ public abstract class AbstractFirmaDigitaleDocContBP extends SelezionatoreListaB
     public it.cnr.jada.util.jsp.Button[] createToolbar() {
         Button[] baseToolbar = super.createToolbar();
 
-        Button[] toolbar = new Button[baseToolbar.length + 9];
+        Button[] toolbar = new Button[baseToolbar.length + 10];
         int i = 0;
         for (Button button : baseToolbar) {
             toolbar[i++] = button;
@@ -149,6 +149,8 @@ public abstract class AbstractFirmaDigitaleDocContBP extends SelezionatoreListaB
         toolbar[i++] = new it.cnr.jada.util.jsp.Button(it.cnr.jada.util.Config
                 .getHandler().getProperties(getClass()), "Toolbar.sign");
         toolbar[i - 1].setSeparator(true);
+        toolbar[i++] = new it.cnr.jada.util.jsp.Button(it.cnr.jada.util.Config
+                .getHandler().getProperties(getClass()), "Toolbar.allegamandatofirmato");
         return toolbar;
     }
 

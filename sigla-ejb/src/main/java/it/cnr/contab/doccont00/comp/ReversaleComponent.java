@@ -34,10 +34,8 @@ import it.cnr.contab.docamm00.ejb.FatturaPassivaComponentSession;
 import it.cnr.contab.docamm00.tabrif.bulk.DivisaBulk;
 import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.dto.SiopeBilancioDTO;
-import it.cnr.contab.doccont00.ejb.AccertamentoComponentSession;
-import it.cnr.contab.doccont00.ejb.AccertamentoPGiroComponentSession;
-import it.cnr.contab.doccont00.ejb.MandatoComponentSession;
-import it.cnr.contab.doccont00.ejb.SaldoComponentSession;
+import it.cnr.contab.doccont00.ejb.*;
+import it.cnr.contab.doccont00.intcass.bulk.StatoTrasmissione;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.doccont00.tabrif.bulk.CupBulk;
 import it.cnr.contab.doccont00.tabrif.bulk.Tipo_bolloBulk;
@@ -54,12 +52,17 @@ import it.cnr.contab.util.enumeration.StatoVariazioneSostituzione;
 import it.cnr.contab.util.enumeration.TipoIVA;
 import it.cnr.jada.DetailedRuntimeException;
 import it.cnr.jada.UserContext;
+import it.cnr.jada.action.ActionContext;
+import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.bulk.*;
 import it.cnr.jada.comp.*;
 import it.cnr.jada.persistency.IntrospectionException;
 import it.cnr.jada.persistency.PersistencyException;
 import it.cnr.jada.persistency.sql.*;
+import it.cnr.jada.util.DateUtils;
 import it.cnr.jada.util.ejb.EJBCommonServices;
+import it.cnr.si.spring.storage.StorageObject;
+import it.cnr.si.spring.storage.StoreService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,6 +73,7 @@ import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -3933,4 +3937,126 @@ REVERSALE
                 .orElse(null);
     }
 
+    public V_doc_attivo_accertamentoBulk getVDocAttiviAccertamento(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {
+        SQLBuilder sql = getHome(userContext, V_doc_attivo_accertamentoBulk.class)
+                .createSQLBuilder();
+        sql.addClause("AND", "cd_cds", SQLBuilder.EQUALS, cdCds);
+        sql.addSQLClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
+        sql.addSQLClause("AND", "pg_documento_amm", SQLBuilder.EQUALS, pgDocumentoGen);
+        List result = getHome(userContext, V_doc_attivo_accertamentoBulk.class).fetchAll(sql);
+        if (result.size() == 0)
+            throw new ApplicationException("Non esiste il documento generico passivo");
+        return (V_doc_attivo_accertamentoBulk)result.get(0);
+    }
+
+    public ReversaleIBulk creaReversaleWs(UserContext userContext, ReversaleIBulk reversaleIBulk)throws ComponentException, PersistencyException, RemoteException{
+        ReversaleIBulk reversaleCreata = (ReversaleIBulk) this.creaConBulk(userContext, reversaleIBulk);
+        reversaleCreata = (ReversaleIBulk) this.findByPrimaryKey(userContext, new ReversaleIBulk(reversaleIBulk.getCd_cds(), reversaleIBulk.getEsercizio(), reversaleIBulk.getPg_reversale()));
+        if (!Optional.ofNullable(reversaleCreata).isPresent()){
+            throw new ComponentException("Reversale non presente.");
+        }
+        reversaleCreata = (ReversaleIBulk)this.inizializzaBulkPerModifica(userContext, reversaleCreata);
+        return reversaleCreata;
+    }
+
+    public V_mandato_reversaleBulk getMandatoReversaleBulk(UserContext userContext, ReversaleIBulk reversaleIBulk) throws ComponentException, PersistencyException {
+        ReversaleHome reversaleHome = (ReversaleHome) getHome(userContext, reversaleIBulk.getClass());
+        return reversaleHome.findMandatiReversaliBulk(userContext, reversaleIBulk);
+    }
+
+    public ReversaleIBulk stampaReversale(UserContext userContext, Long pgReversale, int esercizio, String cdCds) throws ComponentException, PersistencyException {
+        ReversaleIBulk reversaleIBulk = (ReversaleIBulk) this.findByPrimaryKey(userContext, new ReversaleIBulk(cdCds, esercizio, pgReversale));
+        if (!Optional.ofNullable(reversaleIBulk).isPresent()){
+            throw new ComponentException("Reversale non presente.");
+        }
+        reversaleIBulk = (ReversaleIBulk) this.inizializzaBulkPerModifica(userContext, reversaleIBulk);
+        V_mandato_reversaleBulk vMandatoReversaleBulk = this.getMandatoReversaleBulk(userContext, reversaleIBulk);
+        try {
+            predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
+        } catch (BusinessProcessException e) {
+            throw new RuntimeException(e);
+        }
+        return reversaleIBulk;
+    }
+
+    public void predisponiPerLaFirma(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk) throws BusinessProcessException{
+        String message = "";
+        boolean isBloccoFirma = false;
+        Format dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        try {
+            if (v_mandato_reversaleBulk.isReversale()) {
+                if (Utility.createReversaleComponentSession().esisteAnnullodaRiemettereNonCollegato(
+                        userContext,v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getCd_cds_origine())) {
+                    message += "\nEsistono reversali di annullo con riemissione da completamente.";
+                    isBloccoFirma=true;
+                }
+                if (!Utility.createReversaleComponentSession().isCollegamentoSiopeCompleto(
+                        userContext,new ReversaleIBulk(v_mandato_reversaleBulk.getCd_cds(),v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getPg_documento_cont()))) {
+                    message += "\nLa reversale n."+ v_mandato_reversaleBulk.getPg_documento_cont()+ " non risulta associata completamente a codici Siope, pertanto è stata esclusa dalla selezione.";
+                    throw new RuntimeException(message);
+                }
+                if (Utility.createReversaleComponentSession().isReversaleCORINonAssociataMandato(
+                        userContext,new ReversaleIBulk(v_mandato_reversaleBulk.getCd_cds(),v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getPg_documento_cont()))) {
+                        message += "\nLa reversale n."+ v_mandato_reversaleBulk.getPg_documento_cont()+ " di versamento, non risulta associata a nessun mandato, pertanto è stata esclusa dalla selezione.";
+                        throw new RuntimeException(message);
+                    }
+                }
+                predisponi(userContext, v_mandato_reversaleBulk, dateFormat);
+        } catch (Exception e) {
+            throw new RuntimeException(message);
+        }
+    }
+    private  void predisponi(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk, Format dateFormat) throws ComponentException, IOException {
+        Print_spoolerBulk print = new Print_spoolerBulk();
+        print.setPgStampa(UUID.randomUUID().getLeastSignificantBits());
+        print.setFlEmail(false);
+        print.setReport(v_mandato_reversaleBulk.getReportName());
+        print.setNomeFile(v_mandato_reversaleBulk.getCMISName());
+        print.setUtcr(userContext.getUser());
+        print.addParam("aCd_cds", v_mandato_reversaleBulk.getCd_cds(), String.class);
+        print.addParam("aCd_terzo", "%", String.class);
+        print.addParam("aEs", v_mandato_reversaleBulk.getEsercizio().intValue(), Integer.class);
+        print.addParam("aPg_a", v_mandato_reversaleBulk.getPg_documento_cont().longValue(), Long.class);
+        print.addParam("aPg_da", v_mandato_reversaleBulk.getPg_documento_cont().longValue(), Long.class);
+        print.addParam("aDt_da", DateUtils.firstDateOfTheYear(1970), Date.class, dateFormat);
+        print.addParam("aDt_a", DateUtils.firstDateOfTheYear(3000), Date.class, dateFormat);
+
+        Report report = SpringUtil.getBean("printService",
+                PrintService.class).executeReport(userContext,
+                print);
+        final StorageObject storageObject = SpringUtil.getBean("storeService", StoreService.class).restoreSimpleDocument(
+                v_mandato_reversaleBulk,
+                report.getInputStream(),
+                report.getContentType(),
+                report.getName(),
+                v_mandato_reversaleBulk.getStorePath(),
+                true);
+        aggiornaStatoReversale(userContext, MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA, v_mandato_reversaleBulk);
+    }
+
+    private void aggiornaStatoReversale(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
+        for (StatoTrasmissione v_mandato_reversaleBulk : bulks) {
+            ReversaleIBulk reversale = new ReversaleIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
+            reversale = (ReversaleIBulk) this.findByPrimaryKey(userContext, reversale);
+            if(reversale.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
+                if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione_annullo()))
+                    throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                reversale.setStato_trasmissione_annullo(stato);
+                if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                    reversale.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
+                else
+                    reversale.setDt_firma_annullo(null);
+            }else{
+                if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(reversale.getStato_trasmissione()))
+                    throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                reversale.setStato_trasmissione(stato);
+                if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                    reversale.setDt_firma(EJBCommonServices.getServerTimestamp());
+                else
+                    reversale.setDt_firma(null);
+            }
+            reversale.setToBeUpdated();
+            this.modificaConBulk(userContext, reversale);
+        }
+    }
 }

@@ -79,5 +79,18 @@
 			<init-param name="componentSessionName" value="CNRDOCCONT00_EJB_DistintaCassiereComponentSession"/>		
 			<init-param name="defaultAction" value="CaricaFileGiornalieraAction" />
 	</businessProcess>
-	
+	<businessProcess
+			name="CaricaFileMandatoBP" className="it.cnr.contab.doccont00.bp.CaricaFileMandatoBP">
+		<forward name="default" path="/doccont00/carica_file_mandato.jsp"/>
+			<init-param name="bulkClassName" value="it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk" />
+			<init-param name="componentSessionName" value="CNRDOCCONT00_EJB_DistintaCassiereComponentSession"/>
+			<init-param name="defaultAction" value="CaricaFileGiornalieraAction" />
+	</businessProcess>
+	<businessProcess
+			name="CaricaFileReversaleBP" className="it.cnr.contab.doccont00.bp.CaricaFileReversaleBP">
+		<forward name="default" path="/doccont00/carica_file_reversale.jsp"/>
+			<init-param name="bulkClassName" value="it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk" />
+			<init-param name="componentSessionName" value="CNRDOCCONT00_EJB_DistintaCassiereComponentSession"/>
+			<init-param name="defaultAction" value="CaricaFileGiornalieraAction" />
+	</businessProcess>
 </action-mappings>

@@ -16,20 +16,21 @@
  */
 
 package it.cnr.contab.doccont00.ejb;
-import java.rmi.RemoteException;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
 
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoSpesaBulk;
 import it.cnr.contab.doccont00.comp.MandatoComponent;
 import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
-import it.cnr.contab.pdg00.bulk.Pdg_variazioneBulk;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.persistency.PersistencyException;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
+import java.rmi.RemoteException;
+import java.util.List;
+
 @Stateless(name="CNRDOCCONT00_EJB_MandatoComponentSession")
 public class MandatoComponentSessionBean extends it.cnr.jada.ejb.CRUDComponentSessionBean implements MandatoComponentSession {
 	@PostConstruct
@@ -618,6 +619,94 @@ public class MandatoComponentSessionBean extends it.cnr.jada.ejb.CRUDComponentSe
 			throw uncaughtRuntimeException(param0,componentObj,e);
 		} catch(Error e) {
 			throw uncaughtError(param0,componentObj,e);
+		}
+	}
+
+	@Override
+	public V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			V_mandato_reversaleBulk  result = ((MandatoComponent)componentObj).getMandatoReversaleBulk(userContext, mandatoBulk);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	@Override
+	public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			V_doc_passivo_obbligazioneBulk  result = ((MandatoComponent)componentObj).getVDocPassiviObbligazione(userContext, pgDocumentoGen, cdCds, esercizio);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public MandatoIBulk creaMandatoWs(UserContext userContext, MandatoIBulk mandatoIBulk) throws ComponentException, PersistencyException, RemoteException {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			MandatoIBulk  result = ((MandatoComponent)componentObj).creaMandatoWs(userContext, mandatoIBulk);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException {
+		pre_component_invocation(userContext,componentObj);
+		try {
+			MandatoIBulk  result = ((MandatoComponent)componentObj).stampaMandato(userContext, pgMandato, esercizio, cdCds);
+			component_invocation_succes(userContext, componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(userContext, componentObj);
+			throw new RuntimeException(e);
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(userContext, componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(userContext, componentObj,e);
+		} catch (PersistencyException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

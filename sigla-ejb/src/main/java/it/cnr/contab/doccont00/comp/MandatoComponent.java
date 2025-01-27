@@ -38,10 +38,8 @@ import it.cnr.contab.docamm00.ejb.FatturaPassivaComponentSession;
 import it.cnr.contab.docamm00.tabrif.bulk.DivisaBulk;
 import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.contab.doccont00.dto.SiopeBilancioDTO;
-import it.cnr.contab.doccont00.ejb.AccertamentoAbstractComponentSession;
-import it.cnr.contab.doccont00.ejb.AccertamentoComponentSession;
-import it.cnr.contab.doccont00.ejb.ReversaleComponentSession;
-import it.cnr.contab.doccont00.ejb.SaldoComponentSession;
+import it.cnr.contab.doccont00.ejb.*;
+import it.cnr.contab.doccont00.intcass.bulk.StatoTrasmissione;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.doccont00.tabrif.bulk.CupBulk;
 import it.cnr.contab.doccont00.tabrif.bulk.Tipo_bolloBulk;
@@ -51,6 +49,10 @@ import it.cnr.contab.prevent00.bulk.Voce_f_saldi_cdr_lineaBulk;
 import it.cnr.contab.preventvar00.bulk.Var_bilancioBulk;
 import it.cnr.contab.preventvar00.bulk.Var_bilancioHome;
 import it.cnr.contab.preventvar00.ejb.VarBilancioComponentSession;
+import it.cnr.contab.reports.bulk.Print_spoolerBulk;
+import it.cnr.contab.reports.bulk.Report;
+import it.cnr.contab.reports.service.PrintService;
+import it.cnr.contab.service.SpringUtil;
 import it.cnr.contab.utenze00.bp.CNRUserContext;
 import it.cnr.contab.utenze00.bulk.UtenteBulk;
 import it.cnr.contab.utenze00.bulk.Utente_indirizzi_mailBulk;
@@ -65,6 +67,7 @@ import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.contab.util00.ejb.ProcedureComponentSession;
 import it.cnr.jada.DetailedRuntimeException;
 import it.cnr.jada.UserContext;
+import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.bulk.*;
 import it.cnr.jada.comp.ApplicationException;
 import it.cnr.jada.comp.ComponentException;
@@ -74,19 +77,24 @@ import it.cnr.jada.persistency.IntrospectionException;
 import it.cnr.jada.persistency.PersistencyException;
 import it.cnr.jada.persistency.sql.*;
 import it.cnr.jada.util.Config;
+import it.cnr.jada.util.DateUtils;
 import it.cnr.jada.util.SendMail;
 import it.cnr.jada.util.ejb.EJBCommonServices;
+import it.cnr.si.spring.storage.StorageObject;
+import it.cnr.si.spring.storage.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2126,7 +2134,9 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
             riga.setCd_sospeso(docPassivo.getCd_sospeso());
             ((Mandato_rigaHome) getHome(userContext, riga.getClass()))
                     .initializeElemento_voce(userContext, riga);
-
+            if(docPassivo.getCd_cds() != null){
+                riga.setCd_cds(docPassivo.getCd_cds());
+            }
             // imposto il terzo
             if (!Optional.ofNullable(terzoModalitaPagamento).isPresent()) {
                 if (docPassivo.getCodice_terzo_cedente() != null) {
@@ -5314,9 +5324,11 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                                     .format(lastDayOfTheYear));
 
                 if (mandato.getDt_emissione()
-                        .compareTo(mh.getServerTimestamp()) > 0)
+                        .compareTo(mh.getServerTimestamp()) > 0){
+                    logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
                     throw new ApplicationException(
                             "Non è possibile inserire un mandato con data futura");
+                }
                 Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
                         .getClass())).findDataUltimoMandatoPerCds(mandato);
                 if (dataUltMandato != null
@@ -6689,6 +6701,147 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                 List<SiopeBilancioDTO> siope = mandatoHome.getSiopeBilancio(usercontext, mandato);
                 if ( siope!=null && siope.size()>numMaxVociBilancio)
                     throw new ApplicationException("Le voci di Bilancio sono maggiori di quelle previste. Max:"+numMaxVociBilancio);
+            }
+        }
+    }
+
+    public V_mandato_reversaleBulk getMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws ComponentException, PersistencyException {
+        MandatoHome mandatoHome = (MandatoHome) getHome(userContext, mandatoBulk.getClass());
+        return mandatoHome.findMandatiReversaliBulk(userContext, mandatoBulk);
+    }
+
+    public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {
+        SQLBuilder sql = getHome(userContext, V_doc_passivo_obbligazioneBulk.class)
+                .createSQLBuilder();
+        sql.addClause("AND", "cd_cds", SQLBuilder.EQUALS, cdCds);
+        sql.addSQLClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
+        sql.addSQLClause("AND", "pg_documento_amm", SQLBuilder.EQUALS, pgDocumentoGen);
+        List result = getHome(userContext, V_doc_passivo_obbligazioneBulk.class).fetchAll(sql);
+        if (result.size() == 0)
+            throw new ApplicationException("Non esiste il documento generico passivo");
+        return (V_doc_passivo_obbligazioneBulk)result.get(0);
+    }
+
+    public MandatoIBulk creaMandatoWs(UserContext userContext, MandatoIBulk mandatoBulk)throws ComponentException, PersistencyException {
+        MandatoIBulk mandatoBulkCreato = (MandatoIBulk) this.creaConBulk(userContext, mandatoBulk);
+        mandatoBulkCreato = (MandatoIBulk) this.findByPrimaryKey(userContext, new MandatoIBulk(mandatoBulk.getCd_cds(), mandatoBulk.getEsercizio(), mandatoBulkCreato.getPg_mandato()));
+        if (!Optional.ofNullable(mandatoBulk).isPresent()){
+            throw new ComponentException("Mandato non presente.");
+        }
+        mandatoBulkCreato = (MandatoIBulk)this.inizializzaBulkPerModifica(userContext, mandatoBulkCreato);
+        return mandatoBulkCreato;
+    }
+
+    public MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException {
+        MandatoIBulk mandatoBulk = (MandatoIBulk) this.findByPrimaryKey(userContext, new MandatoIBulk(cdCds, esercizio, pgMandato));
+        if (!Optional.ofNullable(mandatoBulk).isPresent()){
+            throw new ComponentException("Mandato non presente.");
+        }
+        mandatoBulk = (MandatoIBulk) this.inizializzaBulkPerModifica(userContext, mandatoBulk);
+        V_mandato_reversaleBulk vMandatoReversaleBulk = this.getMandatoReversaleBulk(userContext, mandatoBulk);
+        try {
+            predisponiPerLaFirma(userContext, vMandatoReversaleBulk);
+        } catch (BusinessProcessException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return mandatoBulk;
+    }
+
+    private  void predisponi(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk, Format dateFormat) throws ComponentException, IOException {
+        Print_spoolerBulk print = new Print_spoolerBulk();
+        print.setPgStampa(UUID.randomUUID().getLeastSignificantBits());
+        print.setFlEmail(false);
+        print.setReport(v_mandato_reversaleBulk.getReportName());
+        print.setNomeFile(v_mandato_reversaleBulk.getCMISName());
+        print.setUtcr(userContext.getUser());
+        print.addParam("aCd_cds", v_mandato_reversaleBulk.getCd_cds(), String.class);
+        print.addParam("aCd_terzo", "%", String.class);
+        print.addParam("aEs", v_mandato_reversaleBulk.getEsercizio().intValue(), Integer.class);
+        print.addParam("aPg_a", v_mandato_reversaleBulk.getPg_documento_cont().longValue(), Long.class);
+        print.addParam("aPg_da", v_mandato_reversaleBulk.getPg_documento_cont().longValue(), Long.class);
+        print.addParam("aDt_da", DateUtils.firstDateOfTheYear(1970), Date.class, dateFormat);
+        print.addParam("aDt_a", DateUtils.firstDateOfTheYear(3000), Date.class, dateFormat);
+
+        Report report = SpringUtil.getBean("printService",
+                PrintService.class).executeReport(userContext,
+                print);
+        final StorageObject storageObject = SpringUtil.getBean("storeService", StoreService.class).restoreSimpleDocument(
+                v_mandato_reversaleBulk,
+                report.getInputStream(),
+                report.getContentType(),
+                report.getName(),
+                v_mandato_reversaleBulk.getStorePath(),
+                true);
+        aggiornaStato(userContext, MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA, v_mandato_reversaleBulk);
+    }
+    private void predisponiPerLaFirma(UserContext userContext, V_mandato_reversaleBulk v_mandato_reversaleBulk) throws BusinessProcessException, ComponentException, IOException {
+        String message = "";
+        boolean isBloccoFirma = false;
+        Format dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        try {
+            if (v_mandato_reversaleBulk.isMandato()) {
+                if (Utility.createMandatoComponentSession().esisteAnnullodaRiemettereNonCollegato(
+                        userContext,v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getCd_cds_origine())) {
+                    message += "\nEsistono mandati di annullo con riemissione da completare.";
+                    isBloccoFirma=true;
+                }
+                boolean isReversaleCollegataSiope = true;
+                try {
+                    Utility.createMandatoComponentSession().esistonoPiuModalitaPagamento(userContext,
+                            new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(),v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getPg_documento_cont()));
+                } catch (ApplicationException _ex) {
+                    message += "\nSul mandato n."+ v_mandato_reversaleBulk.getPg_documento_cont() + " , le modalità di pagamento dei dettagli del mandato sono diverse, " +
+                            "pertanto è stato escluso dalla selezione.";
+                }
+
+                if (!Utility.createMandatoComponentSession().isCollegamentoSiopeCompleto(
+                        userContext,new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(),v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getPg_documento_cont()))) {
+                    message += "\nIl mandato n."+ v_mandato_reversaleBulk.getPg_documento_cont()+ " non risulta associato completamente a codici Siope, pertanto è stato escluso dalla selezione.";
+                }
+                if (v_mandato_reversaleBulk.getStato().compareTo( MandatoBulk.STATO_MANDATO_ANNULLATO)!=0 &&!Utility.createMandatoComponentSession().isCollegamentoSospesoCompleto(
+                        userContext,new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(),v_mandato_reversaleBulk.getEsercizio(),v_mandato_reversaleBulk.getPg_documento_cont()))) {
+                    message += "\nIl mandato n."+ v_mandato_reversaleBulk.getPg_documento_cont()+ " non risulta associato completamente a sospeso, pertanto è stato escluso dalla selezione.";
+                }
+            }
+            predisponi(userContext, v_mandato_reversaleBulk, dateFormat);
+        } catch (Exception e) {
+            //LOGGER.error("Errore durante la predisposizione della firma : {}", e.getMessage());
+            throw e;
+        }
+    }
+    private  void aggiornaStato(UserContext userContext, String stato, StatoTrasmissione...bulks) throws ComponentException, RemoteException {
+        DistintaCassiereComponentSession distintaCassiereComponentSession = Utility.createDistintaCassiereComponentSession();
+        for (StatoTrasmissione v_mandato_reversaleBulk : bulks) {
+            if (v_mandato_reversaleBulk.getCd_tipo_documento_cont().equalsIgnoreCase(Numerazione_doc_contBulk.TIPO_MAN)) {
+                MandatoIBulk mandato = new MandatoIBulk(v_mandato_reversaleBulk.getCd_cds(), v_mandato_reversaleBulk.getEsercizio(), v_mandato_reversaleBulk.getPg_documento_cont());
+                mandato = (MandatoIBulk) this.findByPrimaryKey(userContext, mandato);
+                if(mandato.getStato().compareTo(MandatoBulk.STATO_MANDATO_ANNULLATO)==0){
+                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione_annullo()))
+                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                    mandato.setStato_trasmissione_annullo(stato);
+                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                        mandato.setDt_firma_annullo(EJBCommonServices.getServerTimestamp());
+                    else
+                        mandato.setDt_firma_annullo(null);
+                }else{
+                    if (!v_mandato_reversaleBulk.getStato_trasmissione().equals(mandato.getStato_trasmissione()))
+                        throw new ApplicationException("Risorsa non più valida, eseguire nuovamente la ricerca!");
+                    mandato.setStato_trasmissione(stato);
+                    if (stato.equalsIgnoreCase(MandatoBulk.STATO_TRASMISSIONE_PRIMA_FIRMA))
+                        mandato.setDt_firma(EJBCommonServices.getServerTimestamp());
+                    else
+                        mandato.setDt_firma(null);
+                }
+                mandato.setToBeUpdated();
+                this.modificaConBulk(userContext, mandato);
+                /*for (StatoTrasmissione statoTrasmissione : distintaCassiereComponentSession.findReversaliCollegate(actioncontext.getUserContext(), (V_mandato_reversaleBulk) v_mandato_reversaleBulk)) {
+                    aggiornaStatoReversale(actioncontext, statoTrasmissione, stato);
+                }*/
+            /*} else {
+                aggiornaStatoReversale(actioncontext, v_mandato_reversaleBulk, stato);
+            }*/
             }
         }
     }

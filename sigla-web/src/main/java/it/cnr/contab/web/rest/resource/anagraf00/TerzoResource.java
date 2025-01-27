@@ -17,15 +17,17 @@
 
 package it.cnr.contab.web.rest.resource.anagraf00;
 
-import it.cnr.contab.anagraf00.core.bulk.AnagraficoBulk;
-import it.cnr.contab.anagraf00.core.bulk.TelefonoBulk;
-import it.cnr.contab.anagraf00.core.bulk.TerzoBulk;
+import it.cnr.contab.anagraf00.core.bulk.*;
 import it.cnr.contab.anagraf00.ejb.TerzoComponentSession;
+import it.cnr.contab.config00.sto.bulk.Unita_organizzativaBulk;
 import it.cnr.contab.utenze00.bp.CNRUserContext;
 import it.cnr.contab.web.rest.exception.RestException;
 import it.cnr.contab.web.rest.local.anagraf00.TerzoLocal;
 import it.cnr.contab.web.rest.model.AnagraficaInfoDTO;
+import it.cnr.contab.web.rest.model.DettaglioModalitaPagDto;
+import it.cnr.contab.web.rest.model.ModalitaPagamentoDto;
 import it.cnr.jada.UserContext;
+import it.cnr.jada.bulk.BulkList;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.ejb.CRUDComponentSession;
 import it.cnr.jada.persistency.PersistencyException;
@@ -41,8 +43,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Stateless
 public class TerzoResource implements TerzoLocal {
@@ -152,6 +156,41 @@ public class TerzoResource implements TerzoLocal {
 		).build();
 	}
 
+	private List<DettaglioModalitaPagDto> getDettaglioMOdalitaPagDto(List<BancaBulk> banche){
+		return ( List<DettaglioModalitaPagDto>)Optional.ofNullable( banche).
+				orElse( new ArrayList<BancaBulk>()).stream().map(s->{
+			return new DettaglioModalitaPagDto(s);
+		}).collect(Collectors.toList());
+
+	}
+	private List<ModalitaPagamentoDto> getModalitaPagamentoDto( TerzoBulk terzo){
+
+		return ( List<ModalitaPagamentoDto>) ( Optional.ofNullable(terzo)).map( s->s.getModalita_pagamento()).
+				orElse(new BulkList<Modalita_pagamentoBulk>()).stream().map(modalitaPagamentoBulk -> {
+					return new ModalitaPagamentoDto(modalitaPagamentoBulk,getDettaglioMOdalitaPagDto( terzo.getBanche(modalitaPagamentoBulk)));
+				}).collect(Collectors.toList());
+	}
+	@Override
+	public Response modalitaPagamentoByCdTerzo(Integer cdTerzo) throws Exception {
+		Optional.ofNullable(cdTerzo).orElseThrow(() -> new RestException(Status.BAD_REQUEST, "Errore, indicare il codice terzo."));
+		CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
+		TerzoBulk terzoDB = getTerzo(userContext, cdTerzo);
+		Optional.ofNullable(terzoDB).orElseThrow(() -> new RestException(Status.BAD_REQUEST, "Errore, il codice terzo indicato "+cdTerzo+" non esiste"));
+		terzoDB= ( TerzoBulk) terzoComponentSession.inizializzaBulkPerModifica(userContext,terzoDB);
+		List<ModalitaPagamentoDto> getModalitaPagamentoDto = getModalitaPagamentoDto( terzoDB);
+
+		return Response.status(Status.OK).entity(
+				getModalitaPagamentoDto( terzoDB)
+		).build();
+	}
+	@Override
+	public Response terzoUnitaOrganizzativa(String cd_unita_organizzativa) throws Exception {
+		Optional.ofNullable(cd_unita_organizzativa).orElseThrow(() -> new RestException(Status.BAD_REQUEST, "Errore, indicare l'unita organizzativa."));
+		CNRUserContext userContext = (CNRUserContext) securityContext.getUserPrincipal();
+		return Response.status(Status.OK).entity(
+				terzoComponentSession.cercaTerzoPerUnitaOrganizzativa(userContext, new Unita_organizzativaBulk(cd_unita_organizzativa))
+		).build();
+	}
 
 	private TerzoBulk getTerzo(UserContext userContext, Integer cdTerzo) throws PersistencyException, ComponentException, RemoteException, EJBException {
 		TerzoBulk terzoBulk = new TerzoBulk();

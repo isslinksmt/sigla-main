@@ -74,7 +74,7 @@
 		label="Codice della linea di attivita" />
 	<fieldProperty
 		name="esercizioVoce"
-		property="elementoVoce.esercizio"
+		property="elementoVoce.esercizioVoce"
 		inputType="TEXT"
 		inputSize="5"
 		maxLength="5"

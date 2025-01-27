@@ -19,7 +19,7 @@ package it.cnr.contab.doccont00.ejb;
 
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoEntrataBulk;
 import it.cnr.contab.docamm00.docs.bulk.IDocumentoAmministrativoSpesaBulk;
-import it.cnr.contab.doccont00.core.bulk.Mandato_rigaBulk;
+import it.cnr.contab.doccont00.core.bulk.*;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.persistency.PersistencyException;
@@ -55,5 +55,7 @@ java.lang.Boolean esisteAnnullodaRiemettereNonCollegato(it.cnr.jada.UserContext 
 java.lang.Boolean isReversaleCollegataAnnullodaRiemettere(it.cnr.jada.UserContext userContext,it.cnr.contab.doccont00.core.bulk.ReversaleBulk rev )throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 java.lang.Boolean isReversaleCORINonAssociataMandato(it.cnr.jada.UserContext userContext,it.cnr.contab.doccont00.core.bulk.ReversaleBulk rev )throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
 IDocumentoAmministrativoEntrataBulk getDocumentoAmministrativoEntrataBulk(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.core.bulk.Reversale_rigaBulk param1) throws it.cnr.jada.comp.ComponentException,java.rmi.RemoteException;
-
+V_doc_attivo_accertamentoBulk getVDocAttiviAccertamento(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException;
+ReversaleIBulk creaReversaleWs(UserContext userContext, ReversaleIBulk reversaleIBulk) throws ComponentException, PersistencyException, RemoteException;
+ReversaleIBulk stampaReversale(UserContext userContext, Long pgReversale, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException;
 }
