@@ -5042,11 +5042,15 @@ public class DistintaCassiereComponent extends
                 }
 
                 // Classificazioni
-                infover.setTipoEntrata(INFRUTTIFERO);
-                infover.setDestinazione(LIBERA);
+                // TODO fix rendere configurabile
+                //infover.setTipoEntrata(INFRUTTIFERO);
+                //TODO Ragionare sul tipo riscossione
+                infover.setTipoRiscossione(REGOLARIZZAZIONE);
+                //infover.setDestinazione(LIBERA);
 
                 List listClass = findDocumentiFlussoClassReversali(userContext, bulk);
                 VDocumentiFlussoBulk oldDoc = null;
+                /*
                 for (Iterator c = listClass.iterator(); c.hasNext(); ) {
                     VDocumentiFlussoBulk doc = (VDocumentiFlussoBulk) c.next();
                     if (doc.getCdSiope() != null && oldDoc != null && oldDoc.getCdSiope() != null) {
@@ -5087,7 +5091,7 @@ public class DistintaCassiereComponent extends
                     } else if (doc.getCdCup() != null) {
                         infover.setCausale("CUP " + doc.getCdCup());
                     }
-                }
+                }*/
                 // Fine classificazioni
                 Reversale.InformazioniVersante.Bollo bollo = objectFactory.createReversaleInformazioniVersanteBollo();
                 bollo.setAssoggettamentoBollo(docContabile.getAssoggettamentoBollo());
