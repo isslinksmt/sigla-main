@@ -427,6 +427,8 @@
 	<formFieldProperty
 		name="unita_organizzativa" />
 	<formFieldProperty
+			name="selezione_tesoreria" />
+	<formFieldProperty
 		name="cd_unita_organizzativa" />
 	<formFieldProperty
 		name="ds_unita_organizzativa"/>
