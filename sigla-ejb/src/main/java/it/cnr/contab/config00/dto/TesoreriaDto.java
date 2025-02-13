@@ -2,8 +2,10 @@ package it.cnr.contab.config00.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.io.Serializable;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TesoreriaDto {
+public class TesoreriaDto implements Serializable {
     private String ds_estesa;
 
     public String getDs_estesa() {
