@@ -21,6 +21,20 @@
 		xmlns="https://contab.cnr.it/schema/SIGLA" 
 		xsi:schemaLocation="https://contab.cnr.it/schema/SIGLA https://contab.cnr.it/schema/SIGLA/BulkInfo_1_5.xsd">
 	<fieldProperty
+			name="selezione_tesoreria"
+			property="selezione_tesoreria"
+			inputType="SELECT"
+			optionsProperty="selezione_tesoreriaOptions"
+			readonlyProperty="ROSelezionaTesoreria"
+			printProperty="ds_estesa"
+			nullable="false"
+			inputSize="40"
+			label="Tesoreria"
+			enabledOnSearch="true"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			caseSensitiveSearch="false" />
+	<fieldProperty
 		name="im_disp_cassa"
 		property="im_disp_cassa"
 		inputType="ROTEXT"

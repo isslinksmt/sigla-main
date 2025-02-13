@@ -126,7 +126,7 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
     private java.util.Dictionary tipoDocumentoPerRicercaKeys;
     private java.math.BigDecimal im_disp_cassa_cds;
     private java.math.BigDecimal im_disp_cassa_CNR;
-
+    private List selezione_tesoreriaOptions;
     private Scrittura_partita_doppiaBulk scrittura_partita_doppia;
 
     private Stipendi_cofiBulk stipendiCofiBulk;
@@ -626,6 +626,14 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
         unita_organizzativaOptions = newUnita_organizzativaOptions;
     }
 
+    public List getSelezione_tesoreriaOptions() {
+        return selezione_tesoreriaOptions;
+    }
+
+    public void setSelezione_tesoreriaOptions(List selezione_tesoreriaOptions) {
+        this.selezione_tesoreriaOptions = selezione_tesoreriaOptions;
+    }
+
     /**
      * Inizializza l'Oggetto Bulk per la ricerca libera.
      *
@@ -751,6 +759,10 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
      */
     public boolean isROTi_mandato() {
         return !this.mandato_rigaColl.isEmpty();
+    }
+
+    public boolean isROSelezionaTesoreria() {
+        return false;
     }
 
     /**

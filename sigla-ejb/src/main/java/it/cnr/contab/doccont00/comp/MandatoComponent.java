@@ -28,6 +28,7 @@ import it.cnr.contab.compensi00.docs.bulk.CompensoBulk;
 import it.cnr.contab.compensi00.docs.bulk.ConguaglioBulk;
 import it.cnr.contab.compensi00.docs.bulk.ConguaglioHome;
 import it.cnr.contab.config00.bulk.*;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.config00.ejb.Configurazione_cnrComponentSession;
 import it.cnr.contab.config00.esercizio.bulk.EsercizioBulk;
 import it.cnr.contab.config00.pdcfin.bulk.Voce_fBulk;
@@ -3469,6 +3470,20 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                         mandato.getUnita_organizzativa()
                                 .getCd_unita_organizzativa()))
             result.add(mandato.getUnita_organizzativa());
+        return result;
+    }
+
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               MandatoBulk mandato)
+            throws it.cnr.jada.persistency.PersistencyException,
+            it.cnr.jada.persistency.IntrospectionException, ComponentException {
+        List result = new ArrayList<TesoreriaDto>();
+        TesoreriaDto tesoreria1Dto = new TesoreriaDto();
+        tesoreria1Dto.setDs_estesa("Tesoreria 1");
+        TesoreriaDto tesoreria2Dto = new TesoreriaDto();
+        tesoreria2Dto.setDs_estesa("Tesoreria 2");
+        result.add(tesoreria1Dto);
+        result.add(tesoreria2Dto);
         return result;
     }
 
