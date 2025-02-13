@@ -128,7 +128,7 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
     private java.math.BigDecimal im_disp_cassa_CNR;
     private List selezione_tesoreriaOptions;
     private Scrittura_partita_doppiaBulk scrittura_partita_doppia;
-
+    private String selezione_tesoreria;
     private Stipendi_cofiBulk stipendiCofiBulk;
 
     public MandatoBulk() {
@@ -1246,4 +1246,11 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
         this.stipendiCofiBulk = stipendiCofiBulk;
     }
 
+    public String getSelezione_tesoreria() {
+        return selezione_tesoreria;
+    }
+
+    public void setSelezione_tesoreria(String selezione_tesoreria) {
+        this.selezione_tesoreria = selezione_tesoreria;
+    }
 }
