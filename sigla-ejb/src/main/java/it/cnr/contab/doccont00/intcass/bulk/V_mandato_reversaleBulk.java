@@ -45,10 +45,7 @@ import it.cnr.jada.bulk.OggettoBulk;
 import it.cnr.jada.comp.ComponentException;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @StorageType(name="D:doccont:document")
@@ -62,7 +59,12 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	private String documento;
 	private BulkList<AllegatoGenericoBulk> archivioAllegati = new BulkList<AllegatoGenericoBulk>();
 	protected BulkList<Mandato_rigaIBulk> mandato_rigaColl = new BulkList();
-
+	public final static java.util.Dictionary selezione_tesoreriaKeys;
+	static{
+		selezione_tesoreriaKeys = new java.util.Hashtable();
+		selezione_tesoreriaKeys.put("TESORERIA_1", "tesoreria 1");
+		selezione_tesoreriaKeys.put("TESORERIA_2", "tesoreria 2");
+	}
 	public final static java.util.Dictionary cd_tipo_documento_contKeys;
 	static 
 	{
