@@ -305,6 +305,8 @@
     <formFieldProperty
             name="dt_trasmissione"/>
     <formFieldProperty
+            name="selezione_tesoreria"/>
+    <formFieldProperty
             name="cd_cds"/>
     <formFieldProperty
             name="im_documento_cont"/>
