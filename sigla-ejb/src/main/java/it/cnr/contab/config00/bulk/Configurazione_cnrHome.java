@@ -90,6 +90,13 @@ public class Configurazione_cnrHome extends BulkHome {
         return fetchAll(sql);
     }
 
+    public java.util.List findTesorerie() throws PersistencyException {
+        SQLBuilder sql = createSQLBuilder();
+        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, new Integer(0));
+        sql.addClause("AND", "cd_chiave_primaria", SQLBuilder.EQUALS, Configurazione_cnrBulk.TESORERIA);
+        return fetchAll(sql);
+    }
+
     /**
      * Indica se la uo indicata è proprio quella speciale tutta sac
      *

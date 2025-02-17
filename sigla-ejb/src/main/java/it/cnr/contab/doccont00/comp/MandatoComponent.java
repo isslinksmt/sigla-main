@@ -3476,15 +3476,10 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
     public List findSelezione_tesoreriaOptions(UserContext userContext,
                                                MandatoBulk mandato)
             throws it.cnr.jada.persistency.PersistencyException,
-            it.cnr.jada.persistency.IntrospectionException, ComponentException {
-        List result = new ArrayList<TesoreriaDto>();
-        TesoreriaDto tesoreria1Dto = new TesoreriaDto();
-        tesoreria1Dto.setDs_estesa("Tesoreria 1");
-        TesoreriaDto tesoreria2Dto = new TesoreriaDto();
-        tesoreria2Dto.setDs_estesa("Tesoreria 2");
-        result.add(tesoreria1Dto);
-        result.add(tesoreria2Dto);
-        return result;
+            it.cnr.jada.persistency.IntrospectionException, ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext);
     }
 
     /**
