@@ -220,6 +220,11 @@
                 propertyName="mese_stipendi_cofi"
                 sqlTypeName="DECIMAL"
                 columnSize="4" />
+        <columnMapping
+                columnName="SELEZIONE_TESORERIA"
+                propertyName="selezione_tesoreria"
+                sqlTypeName="VARCHAR"
+                columnSize="40"/>
 
     </defaultColumnMap>
     <persistentProperty
@@ -292,4 +297,6 @@
             name="esercizio_stipendi_cofi"/>
     <persistentProperty
             name="mese_stipendi_cofi"/>
+    <persistentProperty
+            name="selezione_tesoreria"/>
 </SQLPersistentInfo>
