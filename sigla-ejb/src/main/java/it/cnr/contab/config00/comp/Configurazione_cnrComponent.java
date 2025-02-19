@@ -1315,7 +1315,7 @@ public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComp
                     .findTesorerie();
             return result.stream().map(el-> {
                 TesoreriaDto tesoreriaDto = new TesoreriaDto();
-                tesoreriaDto.setDs_estesa(el.getCd_chiave_secondaria().concat(" ").concat(el.getVal04()));
+                tesoreriaDto.setDs_estesa(el.getCd_chiave_secondaria());
                 return tesoreriaDto;
             }).collect(Collectors.toList());
         } catch (PersistencyException e) {
