@@ -491,7 +491,8 @@
 	<formFieldProperty
 		name="statoVarSos" />
 
-
+	<columnFieldProperty
+			name="selezione_tesoreria"/>
 	<columnFieldProperty
 		name="esercizio"/>
 	<columnFieldProperty
@@ -596,4 +597,6 @@
 			name="erroreSiopePlus" />
 	<findFieldProperty
 			name="statoVarSos" />
+	<findFieldProperty
+			name="selezione_tesoreria" />
 </bulkInfo>
