@@ -26,7 +26,6 @@
 			inputType="SELECT"
 			optionsProperty="selezione_tesoreriaOptions"
 			readonlyProperty="ROSelezionaTesoreria"
-			printProperty="ds_estesa"
 			nullable="false"
 			inputSize="40"
 			label="Tesoreria"
