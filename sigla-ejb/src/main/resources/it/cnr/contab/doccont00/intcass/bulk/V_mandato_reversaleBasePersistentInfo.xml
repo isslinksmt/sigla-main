@@ -156,6 +156,11 @@
 			propertyName="statoVarSos"
 			sqlTypeName="VARCHAR"
 			columnSize="30"/>
+		<columnMapping
+				columnName="SELEZIONE_TESORERIA"
+				propertyName="selezione_tesoreria"
+				sqlTypeName="VARCHAR"
+				columnSize="40"/>
 	</defaultColumnMap>
 	
 	<persistentProperty
@@ -210,4 +215,6 @@
 		name="esitoOperazione" />
 	<persistentProperty
 		name="statoVarSos"/>
+	<persistentProperty
+			name="selezione_tesoreria" />
 </SQLPersistentInfo>

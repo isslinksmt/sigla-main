@@ -97,6 +97,7 @@ public class V_mandato_reversaleBase extends V_mandato_reversaleKey implements P
 	private String tipo_debito_siope;
 
 	private String esitoOperazione;
+	private String selezione_tesoreria;
 
 	// STATO_VAR_SOS VARCHAR2(30)
 	private java.lang.String statoVarSos;
@@ -402,5 +403,13 @@ public class V_mandato_reversaleBase extends V_mandato_reversaleKey implements P
 
 	public void setStatoVarSos(String statoVarSos) {
 		this.statoVarSos = statoVarSos;
+	}
+
+	public String getSelezione_tesoreria() {
+		return selezione_tesoreria;
+	}
+
+	public void setSelezione_tesoreria(String selezione_tesoreria) {
+		this.selezione_tesoreria = selezione_tesoreria;
 	}
 }

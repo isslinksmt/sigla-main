@@ -77,6 +77,7 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReversaleComponent extends ScritturaPartitaDoppiaFromDocumentoComponent implements IReversaleMgr, ICRUDMgr, IPrintMgr, Cloneable, Serializable {
     public final static String INSERIMENTO_REVERSALE_ACTION = "I";
@@ -4058,5 +4059,14 @@ REVERSALE
             reversale.setToBeUpdated();
             this.modificaConBulk(userContext, reversale);
         }
+    }
+
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               ReversaleBulk reversale)
+            throws it.cnr.jada.persistency.PersistencyException,
+            it.cnr.jada.persistency.IntrospectionException, ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList());
     }
 }

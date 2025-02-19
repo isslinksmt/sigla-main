@@ -735,4 +735,17 @@ public class CRUDReversaleAction extends EconomicaAction {
                 });
         return actionContext.findDefaultForward();
     }
+
+    public Forward doCambiaTesoreria(ActionContext context) {
+        try {
+            fillModel(context);
+            SimpleCRUDBP bp = (SimpleCRUDBP) getBusinessProcess(context);
+            ReversaleIBulk reversale = (ReversaleIBulk) bp.getModel();
+            System.out.println("Selezionata nuova tesoreria");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
+    }
+
 }

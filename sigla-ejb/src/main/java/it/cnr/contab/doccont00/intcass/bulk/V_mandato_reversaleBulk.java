@@ -62,6 +62,8 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	public final static java.util.Dictionary selezione_tesoreriaKeys;
 	static{
 		selezione_tesoreriaKeys = new java.util.Hashtable();
+		Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+				.createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
 		selezione_tesoreriaKeys.put("TESORERIA_1", "tesoreria 1");
 		selezione_tesoreriaKeys.put("TESORERIA_2", "tesoreria 2");
 	}
