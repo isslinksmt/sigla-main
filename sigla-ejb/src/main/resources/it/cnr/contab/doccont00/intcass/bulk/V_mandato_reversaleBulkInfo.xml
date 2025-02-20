@@ -213,7 +213,7 @@
             caseSensitiveSearch="false"/>
     <fieldProperty
             name="selezione_tesoreria"
-            property="cd_tipo_documento_cont"
+            property="selezione_tesoreria"
             maxLength="40"
             inputSize="40"
             inputType="SELECT"
