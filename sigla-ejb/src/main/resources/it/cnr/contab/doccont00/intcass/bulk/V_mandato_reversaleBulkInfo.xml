@@ -217,7 +217,7 @@
             maxLength="40"
             inputSize="40"
             inputType="SELECT"
-            optionsProperty="selezione_tesoreriaKeys"
+            optionsProperty="selezione_tesoreriaOptions"
             label="Tesoreria"
             enabledOnSearch="true"
             caseSensitiveSearch="false"/>

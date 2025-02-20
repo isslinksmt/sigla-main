@@ -6756,4 +6756,13 @@ public class DistintaCassiereComponent extends
         }
     }
 
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               ReversaleBulk reversale)
+            throws it.cnr.jada.persistency.PersistencyException,
+            it.cnr.jada.persistency.IntrospectionException, ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList());
+    }
+
 }
