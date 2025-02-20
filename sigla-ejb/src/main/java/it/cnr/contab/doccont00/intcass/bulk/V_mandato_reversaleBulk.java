@@ -343,4 +343,12 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	public void setSelezione_tesoreria(String selezione_tesoreria) {
 		this.selezione_tesoreria = selezione_tesoreria;
 	}
+
+	public List getSelezione_tesoreriaOptions() {
+		return selezione_tesoreriaOptions;
+	}
+
+	public void setSelezione_tesoreriaOptions(List selezione_tesoreriaOptions) {
+		this.selezione_tesoreriaOptions = selezione_tesoreriaOptions;
+	}
 }
