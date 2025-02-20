@@ -53,7 +53,7 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	TerzoBulk terzo = new TerzoBulk();
 	Unita_organizzativaBulk uo = new Unita_organizzativaBulk();
 	boolean stato_trasmissioneToBeUpdated = false;
-	
+	private String selezione_tesoreria;
 	// PG_DISTINTA DECIMAL(10,0) NOT NULL (PK)
 	private java.lang.Long pg_distinta;
 	private String documento;
@@ -342,4 +342,12 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
     public void setMandato_rigaColl(it.cnr.jada.bulk.BulkList<Mandato_rigaIBulk> newMandato_rigaColl) {
         mandato_rigaColl = newMandato_rigaColl;
     }
+
+	public String getSelezione_tesoreria() {
+		return selezione_tesoreria;
+	}
+
+	public void setSelezione_tesoreria(String selezione_tesoreria) {
+		this.selezione_tesoreria = selezione_tesoreria;
+	}
 }
