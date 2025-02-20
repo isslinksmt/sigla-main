@@ -95,6 +95,8 @@ public class ReversaleBase extends ReversaleKey implements Keyed {
 
 	// STATO_VAR_SOS VARCHAR2(30)
 	private java.lang.String statoVarSos;
+	private String selezione_tesoreria;
+
 
 	public ReversaleBase() {
 		super();
@@ -368,5 +370,13 @@ public class ReversaleBase extends ReversaleKey implements Keyed {
 
 	public void setStatoVarSos(String statoVarSos) {
 		this.statoVarSos = statoVarSos;
+	}
+	
+	public String getSelezione_tesoreria() {
+		return selezione_tesoreria;
+	}
+
+	public void setSelezione_tesoreria(String selezione_tesoreria) {
+		this.selezione_tesoreria = selezione_tesoreria;
 	}
 }

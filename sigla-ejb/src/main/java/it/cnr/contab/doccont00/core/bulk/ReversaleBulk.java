@@ -50,7 +50,6 @@ public class ReversaleBulk extends ReversaleBase implements IManRevBulk, IDeffer
     public final static Dictionary competenzaResiduoKeys;
     public final static String TIPO_TRASFERIMENTO = "A";
     private List selezione_tesoreriaOptions;
-    private String selezione_tesoreria;
     public final static String TIPO_REGOLARIZZAZIONE = "R";
     public final static String TIPO_REGOLAM_SOSPESO = "S";
     public final static String TIPO_INCASSO = "I";
@@ -1013,13 +1012,5 @@ public class ReversaleBulk extends ReversaleBase implements IManRevBulk, IDeffer
 
     public void setSelezione_tesoreriaOptions(List selezione_tesoreriaOptions) {
         this.selezione_tesoreriaOptions = selezione_tesoreriaOptions;
-    }
-
-    public String getSelezione_tesoreria() {
-        return selezione_tesoreria;
-    }
-
-    public void setSelezione_tesoreria(String selezione_tesoreria) {
-        this.selezione_tesoreria = selezione_tesoreria;
     }
 }
