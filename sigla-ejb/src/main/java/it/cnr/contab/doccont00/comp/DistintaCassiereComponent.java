@@ -4844,6 +4844,28 @@ public class DistintaCassiereComponent extends
                 currentFlusso.getContent().add(objectFactory.createMandato(creaMandatoFlussoSiopeplus(userContext, bulk)));
             }
 
+            String isTesoreriaMultipla = Optional.ofNullable(
+                    sess.getVal01(
+                            userContext,
+                            0,
+                            null, Configurazione_cnrBulk.CONFIGURAZIONE_TESORERIA,
+                            "ABILITATA"
+                    )).orElse("false");
+            boolean isTesoreriaMultiplaEnabled = isTesoreriaMultipla.equalsIgnoreCase("true");
+
+            if(isTesoreriaMultiplaEnabled){
+                List firstListNotNull = dettagliRev.isEmpty() ? dettagliMan : dettagliRev;
+                V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) firstListNotNull.get(0);
+                String codiceABIBTTesoreria = Optional.ofNullable(sess.getVal01(
+                        userContext,
+                        0,
+                        null,
+                        Configurazione_cnrBulk.TESORERIA,
+                        bulk.getSelezione_tesoreria()
+                )).orElse(codiceAbi);
+                testataFlusso.setCodiceABIBT(codiceABIBTTesoreria);
+            }
+
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Marshaller jaxbMarshaller = jc.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
