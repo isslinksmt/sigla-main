@@ -4866,6 +4866,7 @@ public class DistintaCassiereComponent extends
                 testataFlusso.setCodiceABIBT(codiceABIBTTesoreria);
             }
 
+            
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Marshaller jaxbMarshaller = jc.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
