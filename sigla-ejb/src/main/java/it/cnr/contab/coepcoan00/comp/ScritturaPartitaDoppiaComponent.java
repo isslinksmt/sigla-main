@@ -4987,6 +4987,7 @@ public class ScritturaPartitaDoppiaComponent extends it.cnr.jada.comp.CRUDCompon
 
 	private Voce_epBulk findContoByMultiplaTesoreria(UserContext userContext, int esercizio, String chiavePrimaria, String chiaveSecondaria, int fieldNumber, int annoMandatoRiga)  throws ComponentException, RemoteException {
 		Configurazione_cnrBulk config = Utility.createConfigurazioneCnrComponentSession().getConfigurazione(userContext, esercizio, null, chiavePrimaria, chiaveSecondaria);
+
 		if (config==null)
 			config = Utility.createConfigurazioneCnrComponentSession().getConfigurazione(userContext, CNRUserContext.getEsercizio(userContext), null, chiavePrimaria, chiaveSecondaria);
 
