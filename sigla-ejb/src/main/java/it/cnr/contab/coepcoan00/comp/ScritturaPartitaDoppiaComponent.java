@@ -5065,7 +5065,7 @@ public class ScritturaPartitaDoppiaComponent extends it.cnr.jada.comp.CRUDCompon
 
 		if(isTesoreriaMultiplaEnabled){
 			System.out.println("Tesoreria multipla abilitata");
-			return this.findContoByConfigurazioneCNR(userContext, mandatoRigaBulk.getEsercizio(), Configurazione_cnrBulk.TESORERIA, mandatoRigaBulk.getMandato().getSelezione_tesoreria(), 4);
+			return this.findContoByConfigurazioneCNR(userContext, 0, Configurazione_cnrBulk.TESORERIA, mandatoRigaBulk.getMandato().getSelezione_tesoreria(), 4);
 		}
 
 		if (rifModalitaPagamentoBulk.isModalitaBancaItalia())
