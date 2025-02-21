@@ -174,7 +174,16 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	 */
 	public OggettoBulk initializeForSearch(it.cnr.jada.util.action.CRUDBP bp,it.cnr.jada.action.ActionContext context) 
 	{
-		setEsercizio( ((CNRUserContext)context.getUserContext()).getEsercizio() );
+		Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+				.createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        try {
+            this.setSelezione_tesoreriaOptions(sess.findTesorerie(context.getUserContext()).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList()));
+        } catch (ComponentException e) {
+            throw new RuntimeException(e);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        setEsercizio( ((CNRUserContext)context.getUserContext()).getEsercizio() );
 		
 			try {
 				if (!isUoDistintaTuttaSac(context))

@@ -144,4 +144,14 @@ public class RicercaMandatoReversaleAction extends it.cnr.jada.util.action.CRUDA
         bp.inserisciMandatiCORI(context, bp, bpp, nbp);
     }
 
+    public Forward doCambiaTesoreria(ActionContext context) {
+        try {
+            fillModel(context);
+            System.out.println("Selezionata nuova tesoreria");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
+    }
+
 }
