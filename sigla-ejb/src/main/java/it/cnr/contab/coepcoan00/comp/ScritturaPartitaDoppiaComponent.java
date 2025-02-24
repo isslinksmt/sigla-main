@@ -5117,6 +5117,31 @@ public class ScritturaPartitaDoppiaComponent extends it.cnr.jada.comp.CRUDCompon
 		return this.findValueByConfigurazioneCNR(userContext, null, Configurazione_cnrBulk.PK_CORI_SPECIALE, Configurazione_cnrBulk.SK_IVA, 3);
 	}
 
+	private Voce_epBulk findContoByMultiplaTesoreria(UserContext userContext, int esercizio, String chiavePrimaria, String chiaveSecondaria, int fieldNumber, int annoMandatoRiga)  throws ComponentException, RemoteException {
+		Configurazione_cnrBulk config = Utility.createConfigurazioneCnrComponentSession().getConfigurazione(userContext, esercizio, null, chiavePrimaria, chiaveSecondaria);
+
+		if (config==null)
+			config = Utility.createConfigurazioneCnrComponentSession().getConfigurazione(userContext, CNRUserContext.getEsercizio(userContext), null, chiavePrimaria, chiaveSecondaria);
+
+		Integer esercizioConfig = Optional.ofNullable(config).map(el->el.getEsercizio())
+				.orElseThrow(()->new ApplicationException("Manca la configurazione richiesta nella tabella CONFIGURAZIONE_CNR per gli esercizi "+esercizio+" e/o "+CNRUserContext.getEsercizio(userContext)
+						+" ("+chiavePrimaria+" - "+chiaveSecondaria+")."));
+
+		String value = Optional.of(config).flatMap(el->Optional.ofNullable(el.getVal(fieldNumber)))
+				.orElseThrow(()->new ApplicationException("Manca il valore richiesto nella tabella CONFIGURAZIONE_CNR per l'esercizio "+esercizio
+						+" ("+chiavePrimaria+" - "+chiaveSecondaria+" - VAL0"+fieldNumber+")."));
+
+		return Optional.of(value).map(el->{
+			try {
+				Voce_epHome voceEpHome = (Voce_epHome) getHome(userContext, Voce_epBulk.class);
+				return (Voce_epBulk) voceEpHome.findByPrimaryKey(new Voce_epBulk(el, annoMandatoRiga));
+			} catch(ComponentException|PersistencyException ex) {
+				throw new DetailedRuntimeException(ex);
+			}
+		}).orElseThrow(()->new ApplicationException("Attenzione! Non esiste il conto economico "+ value +" indicato nella tabella CONFIGURAZIONE_CNR per l'esercizio "+esercizioConfig
+				+" ("+chiavePrimaria+"-"+chiaveSecondaria+"-VAL0"+fieldNumber+")."));
+	}
+
 	private Voce_epBulk findContoByConfigurazioneCNR(UserContext userContext, int esercizio, String chiavePrimaria, String chiaveSecondaria, int fieldNumber) throws ComponentException, RemoteException {
 		Configurazione_cnrBulk config = Utility.createConfigurazioneCnrComponentSession().getConfigurazione(userContext, esercizio, null, chiavePrimaria, chiaveSecondaria);
 		if (config==null)
@@ -5185,6 +5210,21 @@ public class ScritturaPartitaDoppiaComponent extends it.cnr.jada.comp.CRUDCompon
 	private Voce_epBulk findContoBanca(UserContext userContext, Mandato_rigaBulk mandatoRigaBulk) throws ComponentException, RemoteException {
 		Modalita_pagamentoBulk modalitaPagamentoBulk = (Modalita_pagamentoBulk)this.loadObject(userContext, mandatoRigaBulk.getModalita_pagamento());
 		Rif_modalita_pagamentoBulk rifModalitaPagamentoBulk = (Rif_modalita_pagamentoBulk)this.loadObject(userContext, modalitaPagamentoBulk.getRif_modalita_pagamento());
+
+		String isTesoreriaMultipla = Optional.ofNullable(
+				Utility.createConfigurazioneCnrComponentSession().getVal01(
+						userContext,
+						0,
+						null, Configurazione_cnrBulk.CONFIGURAZIONE_TESORERIA,
+						"ABILITATA"
+				)).orElse("false");
+		boolean isTesoreriaMultiplaEnabled = isTesoreriaMultipla.equalsIgnoreCase("true");
+
+		if(isTesoreriaMultiplaEnabled){
+			System.out.println("Tesoreria multipla abilitata");
+			return this.findContoByMultiplaTesoreria(userContext, 0, Configurazione_cnrBulk.TESORERIA, mandatoRigaBulk.getMandato().getSelezione_tesoreria(), 4, mandatoRigaBulk.getEsercizio());
+		}
+
 		if (rifModalitaPagamentoBulk.isModalitaBancaItalia())
 			return this.findContoByConfigurazioneCNR(userContext, mandatoRigaBulk.getEsercizio(), Configurazione_cnrBulk.PK_VOCEEP_SPECIALE, Configurazione_cnrBulk.SK_BANCA, 2);
 		return this.findContoByConfigurazioneCNR(userContext, mandatoRigaBulk.getEsercizio(), Configurazione_cnrBulk.PK_VOCEEP_SPECIALE, Configurazione_cnrBulk.SK_BANCA, 1);
@@ -5193,6 +5233,21 @@ public class ScritturaPartitaDoppiaComponent extends it.cnr.jada.comp.CRUDCompon
 	private Voce_epBulk findContoBanca(UserContext userContext, Reversale_rigaBulk reversaleRigaBulk) throws ComponentException, RemoteException {
 		Modalita_pagamentoBulk modalitaPagamentoBulk = (Modalita_pagamentoBulk)this.loadObject(userContext, reversaleRigaBulk.getModalita_pagamento());
 		Rif_modalita_pagamentoBulk rifModalitaPagamentoBulk = (Rif_modalita_pagamentoBulk)this.loadObject(userContext, modalitaPagamentoBulk.getRif_modalita_pagamento());
+
+		String isTesoreriaMultipla = Optional.ofNullable(
+				Utility.createConfigurazioneCnrComponentSession().getVal01(
+						userContext,
+						0,
+						null, Configurazione_cnrBulk.CONFIGURAZIONE_TESORERIA,
+						"ABILITATA"
+				)).orElse("false");
+		boolean isTesoreriaMultiplaEnabled = isTesoreriaMultipla.equalsIgnoreCase("true");
+
+		if(isTesoreriaMultiplaEnabled){
+			System.out.println("Tesoreria multipla abilitata");
+			return this.findContoByMultiplaTesoreria(userContext, 0, Configurazione_cnrBulk.TESORERIA, reversaleRigaBulk.getReversale().getSelezione_tesoreria(), 4, reversaleRigaBulk.getEsercizio());
+		}
+
 		if (rifModalitaPagamentoBulk.isModalitaBancaItalia())
 			return this.findContoByConfigurazioneCNR(userContext, reversaleRigaBulk.getEsercizio(), Configurazione_cnrBulk.PK_VOCEEP_SPECIALE, Configurazione_cnrBulk.SK_BANCA, 2);
 		return this.findContoByConfigurazioneCNR(userContext, reversaleRigaBulk.getEsercizio(), Configurazione_cnrBulk.PK_VOCEEP_SPECIALE, Configurazione_cnrBulk.SK_BANCA, 1);

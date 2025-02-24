@@ -212,6 +212,16 @@
             enabledOnSearch="true"
             caseSensitiveSearch="false"/>
     <fieldProperty
+            name="selezione_tesoreria"
+            property="selezione_tesoreria"
+            maxLength="40"
+            inputSize="40"
+            inputType="SELECT"
+            optionsProperty="selezione_tesoreriaOptions"
+            label="Tesoreria"
+            enabledOnSearch="true"
+            caseSensitiveSearch="false"/>
+    <fieldProperty
             name="ds_documento_cont"
             property="ds_documento_cont"
             maxLength="300"
@@ -294,6 +304,8 @@
 
     <formFieldProperty
             name="dt_trasmissione"/>
+    <formFieldProperty
+            name="selezione_tesoreria"/>
     <formFieldProperty
             name="cd_cds"/>
     <formFieldProperty
@@ -683,6 +695,8 @@
             name="stato"/>
     <findFieldProperty
             name="stato_trasmissione"/>
+    <findFieldProperty
+            name="selezione_tesoreria"/>
     <findFieldProperty
             name="esercizio"/>
     <findFieldProperty

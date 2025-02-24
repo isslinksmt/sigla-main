@@ -9,6 +9,7 @@ public class ReversaleDto implements Serializable {
     private String unitaOrganizzativa;
     private String descrizioneReversale;
     private BigDecimal importoReversale;
+    private String tesoreria;
     public Long getPgReversale() {
         return pgReversale;
     }
@@ -47,5 +48,12 @@ public class ReversaleDto implements Serializable {
 
     public void setImportoReversale(BigDecimal importoReversale) {
         this.importoReversale = importoReversale;
+    }
+    public String getTesoreria() {
+        return tesoreria;
+    }
+
+    public void setTesoreria(String tesoreria) {
+        this.tesoreria = tesoreria;
     }
 }

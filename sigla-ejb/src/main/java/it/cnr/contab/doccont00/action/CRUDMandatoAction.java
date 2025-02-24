@@ -171,6 +171,21 @@ public class CRUDMandatoAction extends CRUDAbstractMandatoAction {
     }
 
     /**
+     * Gestisce la selezione dell'unità organizzativa
+     */
+    public Forward doCambiaTesoreria(ActionContext context) {
+        try {
+            fillModel(context);
+            SimpleCRUDBP bp = (SimpleCRUDBP) getBusinessProcess(context);
+            MandatoIBulk mandato = (MandatoIBulk) bp.getModel();
+            System.out.println("Selezionata nuova tesoreria");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
+    }
+
+    /**
      * Gestisce il caricamento dei documenti passivi
      */
     public Forward doCercaDocPassivi(ActionContext context) {

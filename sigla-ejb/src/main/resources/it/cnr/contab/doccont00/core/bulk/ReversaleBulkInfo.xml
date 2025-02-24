@@ -31,6 +31,19 @@
 		enabledOnInsert="false"
 		enabledOnSearch="true" />
 	<fieldProperty
+			name="selezione_tesoreria"
+			property="selezione_tesoreria"
+			inputType="SELECT"
+			optionsProperty="selezione_tesoreriaOptions"
+			readonlyProperty="ROSelezionaTesoreria"
+			nullable="false"
+			inputSize="40"
+			label="Tesoreria"
+			enabledOnSearch="true"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			caseSensitiveSearch="false" />
+	<fieldProperty
 		name="dt_ritrasmissione"
 		property="dt_ritrasmissione"
 		inputType="TEXT"
@@ -374,6 +387,8 @@
 	<formFieldProperty
 		name="unita_organizzativa" />
 	<formFieldProperty
+			name="selezione_tesoreria" />
+	<formFieldProperty
 		name="cd_unita_organizzativa" />
 	<formFieldProperty
 		name="ds_unita_organizzativa" />
@@ -435,6 +450,8 @@
 
 	<columnFieldProperty
 		name="esercizio" />
+	<columnFieldProperty
+			name="selezione_tesoreria"/>
 	<columnFieldProperty
 		name="cd_cds"
 		inputType="TEXT"/>
@@ -519,5 +536,6 @@
 			name="erroreSiopePlus" />
 	<findFieldProperty
 			name="statoVarSos" />
-
+	<findFieldProperty
+			name="selezione_tesoreria" />
 </bulkInfo>

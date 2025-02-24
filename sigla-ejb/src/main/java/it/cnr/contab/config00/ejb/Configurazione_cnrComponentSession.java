@@ -17,13 +17,16 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.comp.NoRollbackException;
 
 import javax.ejb.Remote;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Remote
 public interface Configurazione_cnrComponentSession extends it.cnr.jada.ejb.CRUDDetailComponentSession {
@@ -142,6 +145,7 @@ public interface Configurazione_cnrComponentSession extends it.cnr.jada.ejb.CRUD
 
     public Boolean isCheckImpIntrastatFattPassiva(UserContext userContext) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;
 
+    public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException, RemoteException;
     public Boolean isAttivoGestFlIrregistrabile(UserContext userContext) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;
 
     Boolean isLiqIvaAnticipataFattPassiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException;

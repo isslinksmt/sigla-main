@@ -20,6 +20,7 @@ package it.cnr.contab.config00.comp;
 import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.bulk.Configurazione_cnrHome;
 import it.cnr.contab.config00.bulk.Configurazione_cnrKey;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.utente00.ejb.RuoloComponentSession;
 import it.cnr.contab.utenze00.bp.CNRUserContext;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
@@ -42,8 +43,10 @@ import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComponent implements IConfigurazione_cnrMgr, Cloneable, Serializable {
 
@@ -1329,6 +1332,19 @@ public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComp
         }
     }
 
+    public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException {
+        try {
+            List<Configurazione_cnrBulk> result = ((Configurazione_cnrHome)getHome(userContext, Configurazione_cnrBulk.class))
+                    .findTesorerie();
+            return result.stream().map(el-> {
+                TesoreriaDto tesoreriaDto = new TesoreriaDto();
+                tesoreriaDto.setDs_estesa(el.getCd_chiave_secondaria());
+                return tesoreriaDto;
+            }).collect(Collectors.toList());
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
 
     public Boolean isLiqIvaAnticipataFattAttiva(UserContext userContext, Timestamp dataFattura) throws ComponentException {
         Date dataInizio;

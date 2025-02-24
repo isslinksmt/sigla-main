@@ -11,7 +11,7 @@ public class CreaReversaleRequest implements Serializable {
     private int esercizio;
     private String descrizioneReversale;
     private List<Long> pgDocumentiAttivi;
-
+    private String tesoreria;
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
     }
@@ -66,5 +66,13 @@ public class CreaReversaleRequest implements Serializable {
 
     public void setUnitaOrganizzativaOrigine(String unitaOrganizzativaOrigine) {
         this.unitaOrganizzativaOrigine = unitaOrganizzativaOrigine;
+    }
+
+    public String getTesoreria() {
+        return tesoreria;
+    }
+
+    public void setTesoreria(String tesoreria) {
+        this.tesoreria = tesoreria;
     }
 }

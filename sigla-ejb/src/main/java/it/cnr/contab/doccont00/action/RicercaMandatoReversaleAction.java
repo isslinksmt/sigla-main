@@ -21,6 +21,7 @@ package it.cnr.contab.doccont00.action;
 import it.cnr.contab.doccont00.bp.CRUDDistintaCassiereBP;
 import it.cnr.contab.doccont00.bp.RicercaMandatoReversaleBP;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
+import it.cnr.contab.exception.MissingTesoreriaExcpetion;
 import it.cnr.contab.util.Utility;
 import it.cnr.jada.action.*;
 import it.cnr.jada.bulk.BulkInfo;
@@ -142,6 +143,16 @@ public class RicercaMandatoReversaleAction extends it.cnr.jada.util.action.CRUDA
     public void inserisciMandatiCORI(ActionContext context, RicercaMandatoReversaleBP bp, CRUDDistintaCassiereBP bpp, SelezionatoreListaBP nbp)
             throws BusinessProcessException {
         bp.inserisciMandatiCORI(context, bp, bpp, nbp);
+    }
+
+    public Forward doCambiaTesoreria(ActionContext context) {
+        try {
+            fillModel(context);
+            System.out.println("Selezionata nuova tesoreria");
+            return context.findDefaultForward();
+        } catch (Throwable e) {
+            return handleException(context, e);
+        }
     }
 
 }

@@ -21,6 +21,19 @@
 		xmlns="https://contab.cnr.it/schema/SIGLA" 
 		xsi:schemaLocation="https://contab.cnr.it/schema/SIGLA https://contab.cnr.it/schema/SIGLA/BulkInfo_1_5.xsd">
 	<fieldProperty
+			name="selezione_tesoreria"
+			property="selezione_tesoreria"
+			inputType="SELECT"
+			optionsProperty="selezione_tesoreriaOptions"
+			readonlyProperty="ROSelezionaTesoreria"
+			nullable="false"
+			inputSize="40"
+			label="Tesoreria"
+			enabledOnSearch="true"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			caseSensitiveSearch="false" />
+	<fieldProperty
 		name="im_disp_cassa"
 		property="im_disp_cassa"
 		inputType="ROTEXT"
@@ -413,6 +426,8 @@
 	<formFieldProperty
 		name="unita_organizzativa" />
 	<formFieldProperty
+			name="selezione_tesoreria" />
+	<formFieldProperty
 		name="cd_unita_organizzativa" />
 	<formFieldProperty
 		name="ds_unita_organizzativa"/>
@@ -476,7 +491,8 @@
 	<formFieldProperty
 		name="statoVarSos" />
 
-
+	<columnFieldProperty
+			name="selezione_tesoreria"/>
 	<columnFieldProperty
 		name="esercizio"/>
 	<columnFieldProperty
@@ -581,4 +597,6 @@
 			name="erroreSiopePlus" />
 	<findFieldProperty
 			name="statoVarSos" />
+	<findFieldProperty
+			name="selezione_tesoreria" />
 </bulkInfo>

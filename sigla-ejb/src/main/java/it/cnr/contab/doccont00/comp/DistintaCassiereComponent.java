@@ -47,6 +47,7 @@ import it.cnr.contab.doccont00.intcass.bulk.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaHome;
 import it.cnr.contab.doccont00.service.DocumentiContabiliService;
+import it.cnr.contab.exception.MissingTesoreriaExcpetion;
 import it.cnr.contab.logs.bulk.Batch_log_rigaBulk;
 import it.cnr.contab.logs.bulk.Batch_log_tstaBulk;
 import it.cnr.contab.logs.ejb.BatchControlComponentSession;
@@ -1500,6 +1501,11 @@ public class DistintaCassiereComponent extends
                         sql.addClause(docPassivo.buildFindClauses(null));
                     sql.addClause(clausole);
                     sql.addClause(FindClause.AND, "esercizio", SQLBuilder.EQUALS,CNRUserContext.getEsercizio(userContext));
+                    if(docPassivo.getSelezione_tesoreria() == null){
+                        throw handleException(new ApplicationException(
+                                "E' necessario selezionare la tesoreria."));
+                    }
+                    sql.addClause(FindClause.AND, "V_MANDATO_REVERSALE.SELEZIONE_TESORERIA", SQLBuilder.EQUALS, docPassivo.getSelezione_tesoreria());
                     sql.addSQLJoin("V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT_PADRE", "V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT");
                     sql.addSQLJoin("V_MANDATO_REVERSALE.PG_DOCUMENTO_CONT_PADRE", "V_MANDATO_REVERSALE.PG_DOCUMENTO_CONT");
                     if (!tesoreriaUnica(userContext, distinta)) {
@@ -4839,6 +4845,41 @@ public class DistintaCassiereComponent extends
                 currentFlusso.getContent().add(objectFactory.createMandato(creaMandatoFlussoSiopeplus(userContext, bulk)));
             }
 
+            String isTesoreriaMultipla = Optional.ofNullable(
+                    sess.getVal01(
+                            userContext,
+                            0,
+                            null, Configurazione_cnrBulk.CONFIGURAZIONE_TESORERIA,
+                            "ABILITATA"
+                    )).orElse("false");
+            boolean isTesoreriaMultiplaEnabled = isTesoreriaMultipla.equalsIgnoreCase("true");
+
+            if(isTesoreriaMultiplaEnabled){
+                List firstListNotNull = dettagliRev.isEmpty() ? dettagliMan : dettagliRev;
+                V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) firstListNotNull.get(0);
+                String codiceABIBTTesoreria = Optional.ofNullable(sess.getVal01(
+                        userContext,
+                        0,
+                        null,
+                        Configurazione_cnrBulk.TESORERIA,
+                        bulk.getSelezione_tesoreria()
+                )).orElse(codiceAbi);
+
+                BigDecimal codiceEnteBtBD = sess.getIm01(
+                        userContext,
+                        0,
+                        null,
+                        Configurazione_cnrBulk.TESORERIA,
+                        bulk.getSelezione_tesoreria()
+                );
+                if(null != codiceEnteBtBD){
+                    String codiceEnteBtClean = codiceEnteBtBD.toPlainString().replaceAll("\\D", "");
+                    testataFlusso.setCodiceEnteBT(codiceEnteBtClean);
+                }
+                testataFlusso.setCodiceABIBT(codiceABIBTTesoreria);
+            }
+
+
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Marshaller jaxbMarshaller = jc.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
@@ -6742,6 +6783,15 @@ public class DistintaCassiereComponent extends
         } catch (PersistencyException e) {
            throw handleException(e);
         }
+    }
+
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               ReversaleBulk reversale)
+            throws it.cnr.jada.persistency.PersistencyException,
+            it.cnr.jada.persistency.IntrospectionException, ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList());
     }
 
 }

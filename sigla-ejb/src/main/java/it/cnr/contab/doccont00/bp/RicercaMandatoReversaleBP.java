@@ -17,20 +17,26 @@
 
 package it.cnr.contab.doccont00.bp;
 
+import it.cnr.contab.config00.ejb.Configurazione_cnrComponentSession;
+import it.cnr.contab.doccont00.core.bulk.ReversaleBulk;
 import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
 import it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
+import it.cnr.jada.UserContext;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.bulk.OggettoBulk;
+import it.cnr.jada.comp.ComponentException;
 import it.cnr.jada.util.action.BulkBP;
 import it.cnr.jada.util.action.SelezionatoreListaBP;
 import it.cnr.jada.util.jsp.Button;
 
+import java.rmi.RemoteException;
 import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <!-- @TODO: da completare -->
