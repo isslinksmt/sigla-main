@@ -9,6 +9,7 @@ public class CreaMandatoRequest implements Serializable {
     private int esercizio;
     private String descrizioneMandato;
     private List<Long> pgDocumentiPassivi;
+    private String tesoreria;
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
     }
@@ -47,5 +48,13 @@ public class CreaMandatoRequest implements Serializable {
 
     public void setEsercizio(int esercizio) {
         this.esercizio = esercizio;
+    }
+
+    public String getTesoreria() {
+        return tesoreria;
+    }
+
+    public void setTesoreria(String tesoreria) {
+        this.tesoreria = tesoreria;
     }
 }

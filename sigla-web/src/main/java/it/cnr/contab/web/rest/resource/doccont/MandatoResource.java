@@ -114,6 +114,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoDto.setCdCds(bulk.getCd_cds());
         mandatoDto.setEsercizio(bulk.getEsercizio());
         mandatoDto.setPgMandato(bulk.getPg_mandato());
+        mandatoDto.setTesoreria(bulk.getSelezione_tesoreria());
         return mandatoDto;
     }
 
@@ -135,6 +136,7 @@ public class MandatoResource implements MandatoLocal {
         mandatoBulk.setStato_coge("N");
         mandatoBulk.setCd_cds_origine(cdCds);
         mandatoBulk.setCd_cds(cdCds);
+        mandatoBulk.setSelezione_tesoreria(request.getTesoreria());
         return mandatoBulk;
     }
 }
