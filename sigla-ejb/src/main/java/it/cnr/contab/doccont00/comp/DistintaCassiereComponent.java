@@ -4865,6 +4865,18 @@ public class DistintaCassiereComponent extends
                         Configurazione_cnrBulk.TESORERIA,
                         bulk.getSelezione_tesoreria()
                 )).orElse(codiceAbi);
+
+                BigDecimal codiceEnteBtBD = sess.getIm01(
+                        userContext,
+                        0,
+                        null,
+                        Configurazione_cnrBulk.TESORERIA,
+                        bulk.getSelezione_tesoreria()
+                );
+                if(null != codiceEnteBtBD){
+                    String codiceEnteBtClean = codiceEnteBtBD.toPlainString().replaceAll("\\D", "");
+                    testataFlusso.setCodiceEnteBT(codiceEnteBtClean);
+                }
                 testataFlusso.setCodiceABIBT(codiceABIBTTesoreria);
             }
 
