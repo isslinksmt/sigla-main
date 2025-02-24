@@ -1503,7 +1503,8 @@ public class DistintaCassiereComponent extends
                     sql.addClause(clausole);
                     sql.addClause(FindClause.AND, "esercizio", SQLBuilder.EQUALS,CNRUserContext.getEsercizio(userContext));
                     if(docPassivo.getSelezione_tesoreria() == null){
-                        throw new MissingTesoreriaExcpetion("Selezionare la tesoreria!");
+                        throw handleException(new ApplicationException(
+                                "E' necessario selezionare la tesoreria."));
                     }
                     sql.addClause(FindClause.AND, "V_MANDATO_REVERSALE.SELEZIONE_TESORERIA", SQLBuilder.EQUALS, docPassivo.getSelezione_tesoreria());
                     sql.addSQLJoin("V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT_PADRE", "V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT");
