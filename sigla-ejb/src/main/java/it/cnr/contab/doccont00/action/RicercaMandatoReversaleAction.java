@@ -21,6 +21,7 @@ package it.cnr.contab.doccont00.action;
 import it.cnr.contab.doccont00.bp.CRUDDistintaCassiereBP;
 import it.cnr.contab.doccont00.bp.RicercaMandatoReversaleBP;
 import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
+import it.cnr.contab.exception.MissingTesoreriaExcpetion;
 import it.cnr.contab.util.Utility;
 import it.cnr.jada.action.*;
 import it.cnr.jada.bulk.BulkInfo;
@@ -68,7 +69,13 @@ public class RicercaMandatoReversaleAction extends it.cnr.jada.util.action.CRUDA
             fillModel(context);
             RicercaMandatoReversaleBP bp = (RicercaMandatoReversaleBP) getBusinessProcess(context);
             OggettoBulk model = bp.getModel();
-            it.cnr.jada.util.RemoteIterator ri = bp.find(context, null, model);
+            it.cnr.jada.util.RemoteIterator ri = null;
+            try {
+                ri = bp.find(context, null, model);
+            }catch (MissingTesoreriaExcpetion mex){
+                bp.setMessage("Selezionare una tesoreria per la ricerca.");
+                return context.findDefaultForward();
+            }
             if (ri == null || ri.countElements() == 0) {
                 it.cnr.jada.util.ejb.EJBCommonServices.closeRemoteIterator(context, ri);
                 bp.setMessage("Nessun mandato/reversale da inserire in distinta.");

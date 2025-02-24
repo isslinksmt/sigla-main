@@ -47,6 +47,7 @@ import it.cnr.contab.doccont00.intcass.bulk.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaHome;
 import it.cnr.contab.doccont00.service.DocumentiContabiliService;
+import it.cnr.contab.exception.MissingTesoreriaExcpetion;
 import it.cnr.contab.logs.bulk.Batch_log_rigaBulk;
 import it.cnr.contab.logs.bulk.Batch_log_tstaBulk;
 import it.cnr.contab.logs.ejb.BatchControlComponentSession;
@@ -1502,7 +1503,7 @@ public class DistintaCassiereComponent extends
                     sql.addClause(clausole);
                     sql.addClause(FindClause.AND, "esercizio", SQLBuilder.EQUALS,CNRUserContext.getEsercizio(userContext));
                     if(docPassivo.getSelezione_tesoreria() == null){
-                        throw new RuntimeException("Selezionare la tesoreria!");
+                        throw new MissingTesoreriaExcpetion("Selezionare la tesoreria!");
                     }
                     sql.addClause(FindClause.AND, "V_MANDATO_REVERSALE.SELEZIONE_TESORERIA", SQLBuilder.EQUALS, docPassivo.getSelezione_tesoreria());
                     sql.addSQLJoin("V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT_PADRE", "V_MANDATO_REVERSALE.CD_TIPO_DOCUMENTO_CONT");
