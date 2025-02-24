@@ -3402,6 +3402,11 @@ REVERSALE
         if (reversale.getReversale_rigaColl().size() == 0)
             throw handleException(new ApplicationException("E' necessario selezionare almeno un documento attivo"));
 
+        if(null == reversale.getSelezione_tesoreria()){
+            throw handleException(new ApplicationException(
+                    "E' necessario selezionare la tesoreria"));
+        }
+
         //le reverali di regoalarizz/incasso non possono avere sospesi associati
         if ((ReversaleBulk.TIPO_REGOLARIZZAZIONE.equals(reversale.getTi_reversale()) ||
                 ReversaleBulk.TIPO_INCASSO.equals(reversale.getTi_reversale())) &&

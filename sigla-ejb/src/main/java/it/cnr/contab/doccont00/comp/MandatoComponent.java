@@ -5287,9 +5287,15 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
         MandatoHome mh = (MandatoHome) getHome(aUC, mandato.getClass());
 
         // il mandato deve avere almeno un dettaglio
-        if (mandato.getMandato_rigaColl().size() == 0)
+        if (mandato.getMandato_rigaColl().size() == 0){
             throw handleException(new ApplicationException(
                     "E' necessario selezionare almeno un documento passivo"));
+        }
+
+        if(null == mandato.getSelezione_tesoreria()){
+            throw handleException(new ApplicationException(
+                    "E' necessario selezionare la tesoreria"));
+        }
 
         // il mandato a regolamento sospeso deve avere dei sospesi associati
         if (mandato.getTi_mandato().equals(MandatoBulk.TIPO_REGOLAM_SOSPESO)) {
