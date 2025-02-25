@@ -40,9 +40,9 @@
         <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_REVERSALE_TERZO.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="true"/>
     </changeSet>
     <changeSet author="sigla" runOnChange="true" id="update_procedure_insert_vpg_reversale">
-        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/INSERT_VPG_REVERSALE.prc" relativeToChangelogFile="true" splitStatements="true" stripComments="true"/>
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/INSERT_VPG_REVERSALE.prc" relativeToChangelogFile="true" splitStatements="false" stripComments="true"/>
     </changeSet>
     <changeSet author="sigla" runOnChange="true" id="update_procedure_spg_mandato">
-        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/SPG_MANDATO.prc" relativeToChangelogFile="true" splitStatements="true" stripComments="true"/>
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/SPG_MANDATO.prc" relativeToChangelogFile="true" splitStatements="false" stripComments="true"/>
     </changeSet>
 </databaseChangeLog>
