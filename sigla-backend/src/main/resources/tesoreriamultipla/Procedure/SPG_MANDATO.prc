@@ -1,4 +1,102 @@
-CREATE OR REPLACE PROCEDURE SIGLA.SPG_MANDATO
+CREATE OR REPLACE PROCEDURE SPG_MANDATO
+--
+-- Date: 17/01/2010
+-- Version: 1.18
+--
+-- Protocollo VPG per stampa massiva di mandati
+--
+--
+-- History:
+--
+-- Date: 18/02/2003
+-- Version: 1.0
+-- Creazione
+--
+-- Date: 21/02/2003
+-- Version: 1.1
+-- Aggiunti parametri di ingresso
+--
+-- Date: 26/02/2003
+-- Version: 1.2
+-- Corretta select iniziale
+--
+-- Date: 07/03/2003
+-- Version: 1.3
+-- Inserita ds_mandato come causale
+--
+-- Date: 20/03/2003
+-- Version: 1.4
+-- Filtro sui sospesi annullati
+--
+-- Date: 24/03/2003
+-- Version: 1.5
+-- Estrazione del terzo cedente per modalit? di pagamento di tipo cessonario
+--
+-- Date: 24/03/2003
+-- Version: 1.6
+-- Corretta outer join cd_terzo_cedente
+--
+-- Date: 25/03/2003
+-- Version: 1.7
+-- Filtro sui riscontri
+--
+-- Date: 14/05/2003
+-- Version: 1.8
+-- Gestione modalit? di pagamento diverse note di credito-fatture
+-- (Segnalazione n. 597)
+--
+-- Date: 19/05/2003
+-- Version: 1.9
+-- Corretto filtro per modalit? di pagamento diverse (segnalazione n. 597)
+--
+-- Date: 21/05/2003
+-- Version: 1.10
+-- Corretto filtro
+--
+-- Date: 26/05/2003
+-- Version: 1.11
+-- Corretta select modalit? di pagamento (segnalazione n. 605)
+--
+-- Date: 20/01/2004
+-- Version: 1.12
+-- Estrazione CIN dalla banca (richiesta n. 697)
+--
+-- Date: 21/01/2004
+-- Version: 1.13
+-- Estrazione dt_nascita del terzo (richiesta n. 699)
+--
+-- Date: 30/01/2006
+-- Version: 1.14
+-- Aggiunto campo CD_TIPO_DOCUMENTO_CONT per la stampa dei mandati vpg_man_rev_ass.rpt
+--
+-- Date: 18/07/2006
+-- Version: 1.15
+-- Gestione Impegni/Accertamenti Residui:
+-- aggiornata la funzione per tener conto anche del campo Esercizio Originale Impegno/Accertamento
+--
+-- Date: 09/05/2007
+-- Version: 1.16
+-- Gestione Siope:
+-- aggiornata la funzione per inserire il riepilogo Codici Siope
+--
+--
+-- Date: 09/09/2010
+-- Version: 1.17
+-- Gestione CUP:
+-- aggiornata la funzione per inserire il riepilogo CUP
+--
+--
+-- Date: 17/01/2010
+-- Version: 1.18
+-- Gestione Conto Speciale Ente Banca d'Italia:
+-- inserita la modifica il 5/1 ed ? stata modificata la gestione utilizzando le funzioni del package CNRCTB015
+--
+-- Date: 28/03/2023
+-- Version: 1.19
+-- Gestione Avviso PAGOPA:
+-- inserita nella descrizione della modalità di pagamento anche i riferimenti all'avviso PAGOPA
+-- Body:
+--
 (
  aCd_cds in varchar2,
  aEs in number,
@@ -46,7 +144,7 @@ for aMan in (select * from mandato man
 
    i := i+1;
 
-
+-- inizio inserimento record (A,A): testata e informazioni del beneficiario
 
 select distinct * into aNum1, aVar1, aNum2, aNum3
 from (select distinct cd_terzo, cd_modalita_pag, pg_banca,  nvl(cd_terzo_cedente,0)
@@ -55,7 +153,7 @@ from (select distinct cd_terzo, cd_modalita_pag, pg_banca,  nvl(cd_terzo_cedente
         and mriga.ESERCIZIO  			 = aMan.ESERCIZIO
         and mriga.PG_MANDATO 			 = aMan.PG_MANDATO
         and mriga.CD_TIPO_DOCUMENTO_AMM IN ('FATTURA_P', 'FAT_ORDINE')
-        and mriga.IM_MANDATO_RIGA <> 0
+        and mriga.IM_MANDATO_RIGA <> 0  -- escludo note di credito
       union all
       select distinct cd_terzo, cd_modalita_pag, pg_banca,  nvl(cd_terzo_cedente,0)
       from mandato_riga mriga
@@ -76,7 +174,7 @@ where rmp.CD_MODALITA_PAG = aVar1;
 exception when NO_DATA_FOUND then
    			 aVar2 := null;
 end;
-
+   -- Controllo il tipo pagamento SIOPE
    if (tipoPagamentoSIOPE = 'AVVISO PAGOPA') then
 begin
 select distinct DOCUMENTO_GENERICO_RIGA.CODICE_IDENTIFICATIVO_ENTE_PAGOPA, DOCUMENTO_GENERICO_RIGA.NUMERO_AVVISO_PAGOPA  into codiceEntePAGOPA, numeroAvvisoPAGOPA
@@ -198,8 +296,8 @@ where uo1.CD_UNITA_ORGANIZZATIVA	 = aMan.CD_CDS
       exists(select 1 from configurazione_cnr where
           (configurazione_cnr.esercizio =0 or
            configurazione_cnr.esercizio =aMan.esercizio) and
-          cd_chiave_primaria ='CONTO_CORRENTE_SPECIALE' and
-          cd_chiave_secondaria='ENTE' and
+          cd_chiave_primaria ='TESORERIA' and
+          cd_chiave_secondaria=aMan.SELEZIONE_TESORERIA and
           ban1.abi = val01 and
           ban1.cab = val02 and
           ban1.numero_conto like '%'||val03 )))
@@ -207,7 +305,7 @@ where uo1.CD_UNITA_ORGANIZZATIVA	 = aMan.CD_CDS
   and vat.CD_TERZO				 = aNum1 ;
 
 if(tesoreria_unica='N') then
-
+-- se la UO ? ENTE e CD_TIPO_DOCUMENTO_AMM = GEN_CORV_S la modalit? di pagamento deve essere BI
 
 select count(*) into aNum4
 from
@@ -217,14 +315,14 @@ from
         where mriga.CD_CDS     	 	  	 = aMan.CD_CDS
           and mriga.ESERCIZIO  			 = aMan.ESERCIZIO
           and mriga.PG_MANDATO 			 = aMan.PG_MANDATO
-          and mriga.IM_MANDATO_RIGA <> 0
+          and mriga.IM_MANDATO_RIGA <> 0  -- escludo note di credito
           and CD_TIPO_DOCUMENTO_AMM =  CNRCTB100.TI_GEN_CORI_VER_SPESA);
 
 aAbiCCEnteBI:=CNRCTB015.GETVAL01PERCHIAVE(CNRCTB080.CONTO_CORRENTE_SPECIALE_BI,CNRCTB080.ENTE);
      aCabCCEnteBI:=CNRCTB015.GETVAL02PERCHIAVE(CNRCTB080.CONTO_CORRENTE_SPECIALE_BI,CNRCTB080.ENTE);
      aNCCEnteBI:=CNRCTB015.GETVAL03PERCHIAVE(CNRCTB080.CONTO_CORRENTE_SPECIALE_BI,CNRCTB080.ENTE);
 
-
+ --if aNum4 > 0 and CNRCTB020.getdesUO(aMan.CD_CDS) = CNRCTB020.TIPO_ENTE then
 if aNum4 > 0 and CNRCTB020.getCDCDSENTE(aMan.esercizio) = aMan.CD_CDS then
 
 update VPG_MANDATO vpg
@@ -247,7 +345,7 @@ set (CAB,
             and ban1.abi = aAbiCCEnteBI
             and ban1.cab = aCabCCEnteBI
             and ban1.numero_conto = aNCCEnteBI)
-
+-- and ban1.ti_pagamento = 'I')
 where vpg.CD_CDS 		 = aMan.CD_CDS
   and vpg.ESERCIZIO 	 = aMan.ESERCIZIO
   and vpg.PG_MANDATO   = aMan.PG_MANDATO
@@ -256,8 +354,8 @@ where vpg.CD_CDS 		 = aMan.CD_CDS
   and vpg.SEQUENZA	 = i;
 end if;
 else
-
-
+-- tesoreria unica
+-- se la UO ? 000.407 e CD_TIPO_DOCUMENTO_AMM = GEN_CORV_S la modalit? di pagamento deve essere BI
     uo := CNRCTB020.getCdUOVersIVA(aEs);
 
 select count(*) into aNum4
@@ -268,7 +366,7 @@ from
         where mriga.CD_CDS     	 	  	 = aMan.CD_CDS
           and mriga.ESERCIZIO  			 = aMan.ESERCIZIO
           and mriga.PG_MANDATO 			 = aMan.PG_MANDATO
-          and mriga.IM_MANDATO_RIGA <> 0
+          and mriga.IM_MANDATO_RIGA <> 0  -- escludo note di credito
           and CD_TIPO_DOCUMENTO_AMM =  CNRCTB100.TI_GEN_CORI_VER_SPESA);
 
 aAbiCCEnteBI:=CNRCTB015.GETVAL01PERCHIAVE(CNRCTB080.CONTO_CORRENTE_SPECIALE_BI,CNRCTB080.ENTE);
@@ -297,7 +395,7 @@ set (CAB,
             and ban1.abi = aAbiCCEnteBI
             and ban1.cab = aCabCCEnteBI
             and ban1.numero_conto like '%' ||aNCCEnteBI)
-
+-- and ban1.ti_pagamento = 'I')
 where vpg.CD_CDS 		 = aMan.CD_CDS
   and vpg.ESERCIZIO 	 = aMan.ESERCIZIO
   and vpg.PG_MANDATO   = aMan.PG_MANDATO
@@ -307,8 +405,8 @@ where vpg.CD_CDS 		 = aMan.CD_CDS
 end if;
 end if;
 end if;
-
-
+--
+-- informazioni terzo cedente
 
    if aNum3 <> 0 then
 update VPG_MANDATO vpg
@@ -325,7 +423,7 @@ where vpg.CD_CDS 		 = aMan.CD_CDS
   and vpg.SEQUENZA	 = i;
 end if;
 
-
+-- coordinate bancarie istituto cassiere
 begin
 update VPG_MANDATO vpg
 set (DS_ABICAB,
@@ -353,9 +451,9 @@ exception when NO_DATA_FOUND then
    			 null;
 end;
 
+-- coordinate bancarie beneficiario
 
-
-
+-- (NB: per mandati di regolarizzazione, cd_modalita_pag, pg_banca potrebbero essere null)
 begin
 update VPG_MANDATO vpg
 set    (TI_PAGAMENTO,
@@ -414,17 +512,17 @@ exception when NO_DATA_FOUND then
    			 null;
 end;
 
+-- fine inserimento record (A,A): testata e informazioni del beneficiario
 
-
-
+   -- ciclo sulle righe di mandato
 for aMriga in (select mriga.*, mriga.rowid from mandato_riga mriga
    	   		  	  where mriga.CD_CDS	     = aMan.CD_CDS
 				    and mriga.ESERCIZIO      = aMan.ESERCIZIO
   					and mriga.PG_MANDATO     = aMan.PG_MANDATO) loop
-
+   -- inizio loop 1
 
    	  i := i+1;
-
+-- inizio inserimento record (B,A): dettagli delle righe di mandato
 insert into VPG_MANDATO  (ID,
                           CHIAVE,
                           DESCRIZIONE,
@@ -484,17 +582,17 @@ where obb.CD_CDS 	   	     = aMriga.CD_CDS
   and obb.ESERCIZIO        = aMriga.ESERCIZIO
   and obb.ESERCIZIO_ORIGINALE  = aMriga.ESERCIZIO_ORI_OBBLIGAZIONE
   and obb.PG_OBBLIGAZIONE  = aMriga.PG_OBBLIGAZIONE;
+-- fine inserimento record (B,A): dettagli delle righe di mandato
 
-
-
-
+-- inizio inserimento record (B,B): capitoli associati alle obbligazioni delle righe di mandato
+-- ciclo sui capitoli
 for aObbv in (select * from obbligazione_scad_voce obbv
 	  	  		    where obbv.cd_cds                      = aMriga.CD_CDS
 					  and obbv.esercizio                   = aMriga.ESERCIZIO
 					  and obbv.esercizio_originale         = aMriga.ESERCIZIO_ORI_OBBLIGAZIONE
   					  and obbv.pg_obbligazione             = aMriga.PG_OBBLIGAZIONE
   					  and obbv.pg_obbligazione_scadenzario = aMriga.PG_OBBLIGAZIONE_SCADENZARIO) loop
-
+	  -- inizio loop 5
 
 	  	 i:= i+1;
 
@@ -576,20 +674,20 @@ where voce.ESERCIZIO       = aObbv.ESERCIZIO
   and voce.CD_VOCE 		= aObbv.CD_VOCE;
 end if;
 
-end loop;
+end loop; -- fine loop 5
 
+-- fine inserimento record (B,B): capitoli associati alle obbligazioni delle righe di mandato
 
+end loop; -- fine loop 1
 
-end loop;
-
-
-
+-- inizio inserimento record (C,A): reversali associate al mandato
+   -- ciclo sulle reversali associate
 for aAssmr in (select * from ass_mandato_reversale assmr
    	   		  	  where assmr.CD_CDS_MANDATO     = aMan.cd_cds
 				    and assmr.ESERCIZIO_MANDATO  = aMan.esercizio
   					and assmr.PG_MANDATO         = aMan.pg_mandato
   					order by assmr.pg_reversale) loop
-
+   -- inizio loop 2
 
    	  i:= i+1;
 
@@ -636,19 +734,19 @@ where r.CD_CDS        = aAssmr.CD_CDS_REVERSALE
   and r.ESERCIZIO     = aAssmr.ESERCIZIO_REVERSALE
   and r.PG_REVERSALE  = aAssmr.PG_REVERSALE;
 
-end loop;
+end loop; -- fine loop 2
 
+-- fine inserimento record (C,A): reversali associate al mandato
 
-
-
-
+-- inizio inserimento record (D,A): sospesi
+   -- ciclo sui sospesi
 for aSosp in (select * from sospeso_det_usc sosp
    	   		 	 where sosp.CD_CDS_mandato      = aMan.cd_cds
   				   and sosp.ESERCIZIO   = aMan.esercizio
   				   and sosp.PG_MANDATO  = aMan.pg_mandato
 				   and sosp.STATO		<> 'A'
 				   and sosp.TI_SOSPESO_RISCONTRO = 'S') loop
-
+   -- inizio loop 3
 
    	  i:= i+1;
 
@@ -693,18 +791,18 @@ where s.CD_CDS 			   = aSosp.CD_CDS
   and s.TI_SOSPESO_RISCONTRO = aSosp.TI_SOSPESO_RISCONTRO
   and s.CD_SOSPESO 		   = aSosp.CD_SOSPESO;
 
-end loop;
+end loop; -- fine loop 3
 
+-- fine inserimento record (D,A): sospesi
 
+-- inizio inserimento record (E,A): bolli
 
-
-
-
+   -- ciclo sui bolli
 for aMterzo in (select * from mandato_terzo mterzo
    	   		   	   where mterzo.CD_CDS     = aMan.CD_CDS
   				     and mterzo.ESERCIZIO  = aMan.ESERCIZIO
   					 and mterzo.PG_MANDATO = aMan.PG_MANDATO) loop
-
+   -- inizio loop 4
 
    	  i:= i+1;
 
@@ -743,13 +841,13 @@ select  aId,
 from tipo_bollo tbollo
 where tbollo.CD_TIPO_BOLLO = aMterzo.CD_TIPO_BOLLO;
 
-end loop;
+end loop; -- fine loop 4
 
+-- fine inserimento record (E,A): bolli
 
+-- inizio inserimento record (F,A): siope
 
-
-
-
+   -- ciclo sui codici siope
 for aMsiope in (select distinct msiope.cd_siope CD_SIOPE, descrizione DS_SIOPE, sum(importo) IM_SIOPE, msiope.pg_mandato
    			from mandato_siope msiope, codici_siope siope
 				where msiope.CD_CDS = aMan.CD_CDS
@@ -758,7 +856,7 @@ for aMsiope in (select distinct msiope.cd_siope CD_SIOPE, descrizione DS_SIOPE, 
 				and msiope.esercizio_siope = siope.esercizio
 				and msiope.ti_gestione = siope.ti_gestione
 				and msiope.cd_siope = siope.cd_siope group by msiope.cd_siope, descrizione, msiope.pg_mandato) loop
-
+   -- inizio loop 5
 
    	  i:= i+1;
 
@@ -791,12 +889,12 @@ values(  aId,
          aMan.UTCR,
          aMan.DACR);
 
-end loop;
+end loop; -- fine loop 5
 
+-- fine inserimento record (F,A): siope
+-- inizio inserimento record (G,A): cup
 
-
-
-
+   -- ciclo sui cup
 for aMcup in (select distinct mcup.cd_cup CD_cup, descrizione DS_CUP, sum(importo) IM_CUP, mcup.pg_mandato
    			from mandato_cup mcup, cup
 				where mcup.CD_CDS = aMan.CD_CDS
@@ -810,7 +908,7 @@ for aMcup in (select distinct mcup.cd_cup CD_cup, descrizione DS_CUP, sum(import
   				and mcup.ESERCIZIO  = aMan.ESERCIZIO
   				and mcup.PG_MANDATO = aMan.PG_MANDATO
 				  and mcup.cd_cup = cup.cd_cup group by mcup.cd_cup, descrizione, mcup.pg_mandato)) loop
-
+   -- inizio loop 6
 
    	  i:= i+1;
 
@@ -843,9 +941,9 @@ values(  aId,
          aMan.UTCR,
          aMan.DACR);
 
-end loop;
+end loop; -- fine loop 6
 
-
+-- fine inserimento record (G,A): CUP
 end loop;
 End;
 /
