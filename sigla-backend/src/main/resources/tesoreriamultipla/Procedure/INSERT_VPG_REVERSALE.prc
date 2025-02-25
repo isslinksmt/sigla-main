@@ -1,4 +1,60 @@
-CREATE OR REPLACE PROCEDURE SIGLA.INSERT_VPG_REVERSALE
+CREATE OR REPLACE PROCEDURE INSERT_VPG_REVERSALE
+--
+-- Date: 17/05/2007
+-- Version: 1.7
+--
+-- Stored procedure per inserimento record in VPG_REVERSALE
+--
+--
+-- History:
+--
+-- Date: 26/02/2003
+-- Version: 1.0
+-- Creazione
+--
+-- Date: 07/03/2003
+-- Version: 1.1
+-- Corretto inserimento record di sospesi
+--
+-- Date: 20/03/2003
+-- Version: 1.2
+-- Filtro sui sospesi annullati
+--
+-- Date: 25/03/2003
+-- Version: 1.3
+-- Filtro sui riscontri
+--
+-- Date: 28/05/2003
+-- Version: 1.4
+-- Inserimento comune DS_COMUNE_SEDE terzo per record B
+--
+-- Date: 20/01/2004
+-- Version: 1.5
+-- Estrazione CIN dalla banca (richiesta n. 697)
+--
+-- Date: 19/07/2006
+-- Version: 1.6
+-- Gestione Impegni/Accertamenti Residui:
+-- gestito il nuovo campo ESERCIZIO_ORIGINALE
+--
+-- Date: 17/05/2007
+-- Version: 1.7
+-- Gestione Codici Siope:
+-- aggiunti i campi CD_SIOPE,DS_SIOPE,IM_SIOPE
+--
+-- Date: 27/10/2010
+-- Version: 1.8
+-- Gestione CUP:
+-- aggiornata la funzione per inserire il riepilogo CUP
+--
+-- Date: 28/08/2023
+-- Version: 1.9
+-- Gestione DS_REVERSALE:
+-- aggiornato campo ds_reversale
+--
+
+-- Body:
+--
 (
  aCd_cds in varchar2,
  aEs in number,
@@ -21,6 +77,9 @@ from reversale rev
 where rev.CD_CDS       = aCd_cds
   and rev.ESERCIZIO    = aEs
   and rev.PG_REVERSALE = aPg;
+
+-- inizio inserimento record A: testata
+
 select min(cd_terzo_uo),
        min(PG_BANCA),
        min(cd_terzo),
@@ -78,7 +137,7 @@ select  aId,
         uo2.DS_UNITA_ORGANIZZATIVA,
         aRev.IM_REVERSALE,
         IBMUTL001.INLETTERE(aRev.IM_REVERSALE),
-        aNum3,
+        aNum3, -- cd_terzo
         vat.DENOMINAZIONE_SEDE,
         vat.VIA_SEDE || ' ' || vat.NUMERO_CIVICO_SEDE,
         vat.CAP_COMUNE_SEDE,
@@ -181,16 +240,16 @@ exception when NO_DATA_FOUND then
 			  null;
 end;
 
+	-- fine inserimento record A: testata
 
+	-- inizio inserimento record B: righe
 
-
-
-
+	-- ciclo sulle righe dellal reversale
 for aRriga in (select * from reversale_riga rriga
 	   	   		   where rriga.CD_CDS	  	= aRev.CD_CDS
 	 				 and rriga.ESERCIZIO	= aRev.ESERCIZIO
 	 				 and rriga.PG_REVERSALE = aRev.PG_REVERSALE) loop
-
+	   -- inizio loop 2
 
 	   	  i := i+1;
 
@@ -267,11 +326,11 @@ where vat.CD_TERZO         = aRriga.CD_TERZO
   and voce.TI_GESTIONE 	 = 'E'
   and voce.CD_VOCE 		 = acc.CD_VOCE;
 
-end loop;
+end loop; -- fine loop 2
 
+	-- fine inserimento record B: righe
 
-
-
+	-- inizio inserimento record C: sospesi
 
 for aSosp in (select * from sospeso_det_etr sosp
 		 	  	  where sosp.CD_CDS_reversale       = aRev.cd_cds
@@ -279,7 +338,7 @@ for aSosp in (select * from sospeso_det_etr sosp
 	 		   		and sosp.PG_REVERSALE = aRev.pg_reversale
 					and sosp.STATO		  <> 'A'
 					and sosp.TI_SOSPESO_RISCONTRO = 'S') loop
-
+	-- inizio loop 3
 
 	   i := i+1;
 
@@ -322,11 +381,11 @@ where s.CD_CDS 			    = aSosp.CD_CDS
   and s.TI_SOSPESO_RISCONTRO = aSosp.TI_SOSPESO_RISCONTRO
   and s.CD_SOSPESO 		    = aSosp.CD_SOSPESO;
 
-end loop;
+end loop;  -- fine loop 3
 
+	-- fine inserimento record C: sospesi
 
-
-
+	   -- inizio inserimento record D: codici siope
 
 for aRsiope in (select distinct rsiope.cd_siope CD_SIOPE, descrizione DS_SIOPE, sum(importo) IM_SIOPE, rsiope.pg_reversale
    			from reversale_siope rsiope, codici_siope siope
@@ -336,7 +395,7 @@ for aRsiope in (select distinct rsiope.cd_siope CD_SIOPE, descrizione DS_SIOPE, 
 				and rsiope.esercizio_siope = siope.esercizio
 				and rsiope.ti_gestione = siope.ti_gestione
 				and rsiope.cd_siope = siope.cd_siope group by rsiope.cd_siope, descrizione, rsiope.pg_reversale) loop
-
+   -- inizio loop 4
 
    	  i:= i+1;
 
@@ -369,12 +428,12 @@ values( aId,
         aRev.UTCR,
         aRev.DACR);
 
-end loop;
+end loop; -- fine loop 4
 
+-- fine inserimento record (D): siope
+-- inizio inserimento record (E): cup
 
-
-
-
+   -- ciclo sui cup
 for aRcup in (select distinct rcup.cd_cup CD_cup, descrizione DS_CUP, sum(importo) IM_CUP, rcup.pg_reversale
    			from reversale_cup rcup, cup
 				where rcup.CD_CDS = aRev.CD_CDS
@@ -388,7 +447,7 @@ for aRcup in (select distinct rcup.cd_cup CD_cup, descrizione DS_CUP, sum(import
   				and rcup.ESERCIZIO  = aRev.ESERCIZIO
   				and rcup.pg_reversale = aRev.pg_reversale
 				  and rcup.cd_cup = cup.cd_cup group by rcup.cd_cup, descrizione, rcup.pg_reversale)) loop
-
+   -- inizio loop 5
 
    	  i:= i+1;
 insert into VPG_REVERSALE (ID,
@@ -419,6 +478,11 @@ values( aId,
         aRcup.IM_CUP,
         aRev.UTCR,
         aRev.DACR);
-end loop;
+end loop; -- fine loop 5
+
+-- fine inserimento record (E): CUP
+
 end;
 /
+
+
