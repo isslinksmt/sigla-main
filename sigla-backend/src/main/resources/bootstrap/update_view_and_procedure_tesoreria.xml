@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2022  Consiglio Nazionale delle Ricerche
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Affero General Public License as
+  ~     published by the Free Software Foundation, either version 3 of the
+  ~     License, or (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Affero General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Affero General Public License
+  ~     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_mandato_reversale">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_MANDATO_REVERSALE.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_mandato_reversale_distinta">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_MANDATO_REVERSALE_DISTINTA.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_mandato_reversale_ver_cori">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_MANDATO_REVERSALE_VER_CORI.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_mandato_reversale_ver_cori_n">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_MANDATO_REVERSALE_VER_CORI_N.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_mandato_terzo">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_MANDATO_TERZO.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_view_v_reversale_terzo">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Views/V_REVERSALE_TERZO.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_procedure_insert_vpg_reversale">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/INSERT_VPG_REVERSALE.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+    <changeSet author="sigla" runOnChange="true" id="update_procedure_spg_mandato">
+        <sqlFile dbms="oracle" path="../tesoreriamultipla/Procedure/SPG_MANDATO.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+</databaseChangeLog>
