@@ -4829,7 +4829,6 @@ public class DistintaCassiereComponent extends
                     distinta,
                     Numerazione_doc_contBulk.TIPO_REV);
             // Elaboriamo prima le reversali
-            Reversale currentReversale = null;
             for (Iterator i = dettagliRev.iterator(); i.hasNext(); ) {
                 V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) i.next();
                 currentFlusso.getContent().add(objectFactory.createReversale(creaReversaleFlussoSiopeplus(userContext, bulk)));
@@ -4839,10 +4838,17 @@ public class DistintaCassiereComponent extends
                     distinta,
                     Numerazione_doc_contBulk.TIPO_MAN);
             // Mandati
-            Mandato currentMandato = null;
             for (Iterator i = dettagliMan.iterator(); i.hasNext(); ) {
                 V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) i.next();
-                currentFlusso.getContent().add(objectFactory.createMandato(creaMandatoFlussoSiopeplus(userContext, bulk)));
+                Mandato mandato = creaMandatoFlussoSiopeplus(userContext, bulk);
+                List<Mandato.InformazioniBeneficiario> beneficiari = mandato.getInformazioniBeneficiario();
+                if (beneficiari != null && !beneficiari.isEmpty()) {
+                    beneficiari.get(0).setDestinazione(null);
+                    beneficiari.get(0).getClassificazione().clear();
+                    beneficiari.get(0).setSpese(null);
+                    beneficiari.get(0).getBeneficiario().setCodiceFiscaleBeneficiario(bulk.getTerzo().getCodice_fiscale_anagrafico());
+                }
+                currentFlusso.getContent().add(objectFactory.createMandato(mandato));
             }
 
             String isTesoreriaMultipla = Optional.ofNullable(
@@ -4879,7 +4885,6 @@ public class DistintaCassiereComponent extends
                 testataFlusso.setCodiceABIBT(codiceABIBTTesoreria);
             }
 
-
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Marshaller jaxbMarshaller = jc.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
@@ -4887,6 +4892,16 @@ public class DistintaCassiereComponent extends
 
             //FIX per firma xml
             String out = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
+
+            boolean isTestataPresent = Optional.ofNullable(
+                    sess.getVal01(userContext, 0, null, "CONFIGURAZIONE_FONDO", "TESTATA_PRESENT")
+            ).orElse("true").equalsIgnoreCase("true");
+
+            if(!isTestataPresent){
+                out = out.replace("<testata_flusso>", "")
+                        .replace("</testata_flusso>", "");
+            }
+
             out = out.replace("</flusso_ordinativi>", "\n</flusso_ordinativi>");
 
             StorageFile storageFile = new StorageFile(out.getBytes(StandardCharsets.UTF_8), MimeTypes.XML.mimetype(), distinta.getFileNameXML());
