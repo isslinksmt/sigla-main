@@ -2170,14 +2170,20 @@ public class DocumentoGenericoComponent
         if (!optionalDocumento_genericoBulk.isPresent()) {
             return super.creaConBulk(userContext, bulk);
         }
-
         Documento_genericoBulk documento = optionalDocumento_genericoBulk.get();
         documento.setAndVerifyStatus();
         try {
-
-            // controlla che la data di registrazione sia successiava all'ultima data di registrazione inserita
+            String checkDataAbilitato = Optional.ofNullable(
+                    EJBCommonServices.createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession", it.cnr.contab.config00.ejb.Configurazione_cnrComponentSession.class).getVal01(
+                            userContext,
+                            0,
+                            null, "CONFIGURAZIONE_FONDO",
+                            "CHECK_DATA_DOC_GEN"
+                    )).orElse("true");
+            boolean isCheckDataAbilitato = checkDataAbilitato.equalsIgnoreCase("true");
+            // controlla che la data di registrazione sia successiava all'ultima data di registrazione inseriti
             java.sql.Timestamp ultimaRegistrazione = ((Documento_genericoHome) getHome(userContext, Documento_genericoBulk.class)).findForMaxDataRegistrazione(userContext, documento);
-            if (ultimaRegistrazione != null && documento.getData_registrazione().before(ultimaRegistrazione))
+            if (isCheckDataAbilitato && ultimaRegistrazione != null && documento.getData_registrazione().before(ultimaRegistrazione))
                 throw new it.cnr.jada.comp.ApplicationException("La data di registrazione non e' valida essendo precedente all'ultima data di registrazione immessa");
 
             //effettua il controllo di validazione
