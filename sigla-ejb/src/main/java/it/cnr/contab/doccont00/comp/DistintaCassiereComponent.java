@@ -4823,6 +4823,9 @@ public class DistintaCassiereComponent extends
 
             currentFlusso.getContent().add(objectFactory.createEsercizio(CNRUserContext.getEsercizio(userContext)));
 
+            boolean customizeDistinta = Optional.ofNullable(
+                    sess.getVal01(userContext, 0, null, "CONFIGURAZIONE_FONDO", "DISTINTA_CUSTOM")
+            ).orElse("false").equalsIgnoreCase("true");
 
             List dettagliRev = dettagliDistinta(
                     userContext,
@@ -4831,23 +4834,35 @@ public class DistintaCassiereComponent extends
             // Elaboriamo prima le reversali
             for (Iterator i = dettagliRev.iterator(); i.hasNext(); ) {
                 V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) i.next();
-                currentFlusso.getContent().add(objectFactory.createReversale(creaReversaleFlussoSiopeplus(userContext, bulk)));
+                Reversale reversale = creaReversaleFlussoSiopeplus(userContext, bulk);
+                if(customizeDistinta){
+                    List<Reversale. InformazioniVersante> versanti = reversale.getInformazioniVersante();
+                    if (versanti != null && !versanti.isEmpty()) {
+                        versanti.get(0).setTipoEntrata(null);
+                        versanti.get(0).setDestinazione(null);
+                        versanti.get(0).getClassificazione().clear();
+                    }
+                }
+                currentFlusso.getContent().add(objectFactory.createReversale(reversale));
             }
             List dettagliMan = dettagliDistinta(
                     userContext,
                     distinta,
                     Numerazione_doc_contBulk.TIPO_MAN);
+
             // Mandati
             for (Iterator i = dettagliMan.iterator(); i.hasNext(); ) {
                 V_mandato_reversaleBulk bulk = (V_mandato_reversaleBulk) i.next();
                 Mandato mandato = creaMandatoFlussoSiopeplus(userContext, bulk);
-                List<Mandato.InformazioniBeneficiario> beneficiari = mandato.getInformazioniBeneficiario();
-                if (beneficiari != null && !beneficiari.isEmpty()) {
-                    beneficiari.get(0).setDestinazione(null);
-                    beneficiari.get(0).getClassificazione().clear();
-                    beneficiari.get(0).setSpese(null);
-                    beneficiari.get(0).getBeneficiario().setCodiceFiscaleBeneficiario(bulk.getTerzo().getCodice_fiscale_anagrafico());
-                    beneficiari.get(0).getSepaCreditTransfer().setIdentificativoEndToEnd(null);
+                if(customizeDistinta){
+                    List<Mandato.InformazioniBeneficiario> beneficiari = mandato.getInformazioniBeneficiario();
+                    if (beneficiari != null && !beneficiari.isEmpty()) {
+                        beneficiari.get(0).setDestinazione(null);
+                        beneficiari.get(0).getClassificazione().clear();
+                        beneficiari.get(0).setSpese(null);
+                        beneficiari.get(0).getBeneficiario().setCodiceFiscaleBeneficiario(bulk.getTerzo().getCodice_fiscale_anagrafico());
+                        beneficiari.get(0).getSepaCreditTransfer().setIdentificativoEndToEnd(null);
+                    }
                 }
                 currentFlusso.getContent().add(objectFactory.createMandato(mandato));
             }
