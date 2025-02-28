@@ -4847,6 +4847,7 @@ public class DistintaCassiereComponent extends
                     beneficiari.get(0).getClassificazione().clear();
                     beneficiari.get(0).setSpese(null);
                     beneficiari.get(0).getBeneficiario().setCodiceFiscaleBeneficiario(bulk.getTerzo().getCodice_fiscale_anagrafico());
+                    beneficiari.get(0).getSepaCreditTransfer().setIdentificativoEndToEnd(null);
                 }
                 currentFlusso.getContent().add(objectFactory.createMandato(mandato));
             }
