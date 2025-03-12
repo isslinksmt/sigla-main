@@ -3459,12 +3459,17 @@ REVERSALE
                     throw new ApplicationException("La data di registrazione deve essere " +
                             java.text.DateFormat.getDateInstance().format(lastDayOfTheYear));
 
-                if (reversale.getDt_emissione().compareTo(rh.getServerTimestamp()) > 0)
-                    throw new ApplicationException("Non è possibile inserire una reversale con data futura");
-                Timestamp dataUltReversale = ((ReversaleHome) getHome(aUC, reversale.getClass())).findDataUltimaReversalePerCds(reversale);
-                if (dataUltReversale != null && dataUltReversale.after(reversale.getDt_emissione()))
-                    throw new ApplicationException("Non è possibile inserire una reversale con data anteriore a " +
-                            java.text.DateFormat.getDateTimeInstance().format(dataUltReversale));
+                boolean checkData = Optional.ofNullable(
+                        createConfigurazioneCnrComponentSession().getVal01(aUC, 0, null, "CONFIGURAZIONE_FONDO", "CHECK_DATA_DOC_GEN")
+                ).orElse("false").equalsIgnoreCase("true");
+                if(checkData){
+                    if (reversale.getDt_emissione().compareTo(rh.getServerTimestamp()) > 0)
+                        throw new ApplicationException("Non è possibile inserire una reversale con data futura");
+                    Timestamp dataUltReversale = ((ReversaleHome) getHome(aUC, reversale.getClass())).findDataUltimaReversalePerCds(reversale);
+                    if (dataUltReversale != null && dataUltReversale.after(reversale.getDt_emissione()))
+                        throw new ApplicationException("Non è possibile inserire una reversale con data anteriore a " +
+                                java.text.DateFormat.getDateTimeInstance().format(dataUltReversale));
+                }
             }
             verificaModalitaPagamento(aUC, reversale);
         } catch (Exception e) {

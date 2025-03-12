@@ -5172,12 +5172,17 @@ public void verificaTestataObbligazione (UserContext aUC,ObbligazioneBulk obblig
 			if ( getDataOdierna( aUC).after(lastDayOfTheYear ) &&
 				  obbligazione.getDt_registrazione().compareTo( lastDayOfTheYear) != 0 )
 				throw  new ApplicationException( "La data di registrazione deve essere " +
-   									java.text.DateFormat.getDateInstance().format( lastDayOfTheYear ));					
-			
-			Timestamp dataUltObbligazione = ((ObbligazioneHome) getHome( aUC, ObbligazioneBulk.class )).findDataUltimaObbligazionePerCds( obbligazione );
-			if ( dataUltObbligazione != null && dataUltObbligazione.after( obbligazione.getDt_registrazione() ) )
-				throw  new ApplicationException( "Non è possibile inserire un'obbligazione con data anteriore a " +  
-   									java.text.DateFormat.getDateInstance().format( dataUltObbligazione ));
+   									java.text.DateFormat.getDateInstance().format( lastDayOfTheYear ));
+
+			boolean checkDataObbligazione = Optional.ofNullable(
+					createConfigurazioneCnrComponentSession().getVal01(aUC, 0, null, "CONFIGURAZIONE_FONDO", "CHECK_DATA_DOC_GEN")
+			).orElse("false").equalsIgnoreCase("true");
+			if(checkDataObbligazione){
+				Timestamp dataUltObbligazione = ((ObbligazioneHome) getHome( aUC, ObbligazioneBulk.class )).findDataUltimaObbligazionePerCds( obbligazione );
+				if ( dataUltObbligazione != null && dataUltObbligazione.after( obbligazione.getDt_registrazione() ) )
+					throw  new ApplicationException( "Non è possibile inserire un'obbligazione con data anteriore a " +
+							java.text.DateFormat.getDateInstance().format( dataUltObbligazione ));
+			}
 		}
 		if ( (obbligazione.getEsercizio_competenza()).intValue() < (obbligazione.getEsercizio()).intValue() )
 			throw new ApplicationException("Non è possibile creare un'obbligazione con esercizio antecedente a quello di scrivania.");

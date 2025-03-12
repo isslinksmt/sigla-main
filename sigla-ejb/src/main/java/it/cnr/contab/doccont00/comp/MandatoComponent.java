@@ -5338,21 +5338,26 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                                     + java.text.DateFormat.getDateInstance()
                                     .format(lastDayOfTheYear));
 
-                if (mandato.getDt_emissione()
-                        .compareTo(mh.getServerTimestamp()) > 0){
-                    logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
-                    throw new ApplicationException(
-                            "Non è possibile inserire un mandato con data futura");
+                boolean checkData = Optional.ofNullable(
+                        createConfigurazioneCnrComponentSession().getVal01(aUC, 0, null, "CONFIGURAZIONE_FONDO", "CHECK_DATA_DOC_GEN")
+                ).orElse("false").equalsIgnoreCase("true");
+                if(checkData){
+                    if (mandato.getDt_emissione()
+                            .compareTo(mh.getServerTimestamp()) > 0){
+                        logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
+                        throw new ApplicationException(
+                                "Non è possibile inserire un mandato con data futura");
+                    }
+                    Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
+                            .getClass())).findDataUltimoMandatoPerCds(mandato);
+                    if (dataUltMandato != null
+                            && dataUltMandato.after(mandato.getDt_emissione()))
+                        throw new ApplicationException(
+                                "Non è possibile inserire un mandato con data anteriore a "
+                                        + java.text.DateFormat
+                                        .getDateTimeInstance().format(
+                                                dataUltMandato));
                 }
-                Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
-                        .getClass())).findDataUltimoMandatoPerCds(mandato);
-                if (dataUltMandato != null
-                        && dataUltMandato.after(mandato.getDt_emissione()))
-                    throw new ApplicationException(
-                            "Non è possibile inserire un mandato con data anteriore a "
-                                    + java.text.DateFormat
-                                    .getDateTimeInstance().format(
-                                            dataUltMandato));
                 // verifica disponibilità su CC
                 if (!mandato.getTi_mandato().equals(
                         MandatoBulk.TIPO_REGOLARIZZAZIONE))
