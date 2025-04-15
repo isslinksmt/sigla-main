@@ -204,7 +204,15 @@ public it.cnr.jada.bulk.OggettoBulk creaConBulk(it.cnr.jada.UserContext uc, it.c
 		if (latt.getProgetto2016()!=null && latt.getProgetto2016().getPg_progetto()!=null) {
 			progetto2016 = latt.getProgetto2016();
 		}
-		latt = (WorkpackageBulk)super.creaConBulk( uc, bulk );
+
+		String codiceLinea = ((WorkpackageBulk) bulk).getCd_linea_attivita();
+		this.getHome(uc, bulk).initializePrimaryKeyForInsert(uc, bulk);
+		latt = (WorkpackageBulk)this.getHome(uc, bulk).findByPrimaryKey(bulk);
+		if (latt == null) {
+			((WorkpackageBulk) bulk).setCd_linea_attivita(codiceLinea);
+			latt = (WorkpackageBulk)super.creaConBulk( uc, bulk );
+		}
+
 		if (modulo2015!=null) {
 			Ass_linea_attivita_esercizioBulk assGaeEsercizio2015 = new Ass_linea_attivita_esercizioBulk(latt.getEsercizio_inizio(),latt.getCd_centro_responsabilita(), latt.getCd_linea_attivita());
 			assGaeEsercizio2015.setProgetto(modulo2015);
