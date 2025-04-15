@@ -211,24 +211,25 @@ public it.cnr.jada.bulk.OggettoBulk creaConBulk(it.cnr.jada.UserContext uc, it.c
 		if (latt == null) {
 			((WorkpackageBulk) bulk).setCd_linea_attivita(codiceLinea);
 			latt = (WorkpackageBulk)super.creaConBulk( uc, bulk );
+
+			if (modulo2015!=null) {
+				Ass_linea_attivita_esercizioBulk assGaeEsercizio2015 = new Ass_linea_attivita_esercizioBulk(latt.getEsercizio_inizio(),latt.getCd_centro_responsabilita(), latt.getCd_linea_attivita());
+				assGaeEsercizio2015.setProgetto(modulo2015);
+				assGaeEsercizio2015.setEsercizio_fine(Integer.valueOf(2015));
+				assGaeEsercizio2015.setToBeCreated();
+				makeBulkPersistent(uc, assGaeEsercizio2015);
+				latt.setModulo2015(assGaeEsercizio2015.getProgetto());
+			}
+			if (progetto2016!=null) {
+				Ass_linea_attivita_esercizioBulk assGaeEsercizio2016 = new Ass_linea_attivita_esercizioBulk(CNRUserContext.getEsercizio(uc),latt.getCd_centro_responsabilita(), latt.getCd_linea_attivita());
+				assGaeEsercizio2016.setProgetto(progetto2016);
+				assGaeEsercizio2016.setEsercizio_fine(latt.getEsercizio_fine());
+				assGaeEsercizio2016.setToBeCreated();
+				makeBulkPersistent(uc, assGaeEsercizio2016);
+				latt.setProgetto2016(assGaeEsercizio2016.getProgetto());
+			}
 		}
 
-		if (modulo2015!=null) {
-			Ass_linea_attivita_esercizioBulk assGaeEsercizio2015 = new Ass_linea_attivita_esercizioBulk(latt.getEsercizio_inizio(),latt.getCd_centro_responsabilita(), latt.getCd_linea_attivita());
-			assGaeEsercizio2015.setProgetto(modulo2015);
-			assGaeEsercizio2015.setEsercizio_fine(Integer.valueOf(2015));
-			assGaeEsercizio2015.setToBeCreated();
-			makeBulkPersistent(uc, assGaeEsercizio2015);
-			latt.setModulo2015(assGaeEsercizio2015.getProgetto());
-		} 
-		if (progetto2016!=null) {
-			Ass_linea_attivita_esercizioBulk assGaeEsercizio2016 = new Ass_linea_attivita_esercizioBulk(CNRUserContext.getEsercizio(uc),latt.getCd_centro_responsabilita(), latt.getCd_linea_attivita());
-			assGaeEsercizio2016.setProgetto(progetto2016);
-			assGaeEsercizio2016.setEsercizio_fine(latt.getEsercizio_fine());
-			assGaeEsercizio2016.setToBeCreated();
-			makeBulkPersistent(uc, assGaeEsercizio2016);
-			latt.setProgetto2016(assGaeEsercizio2016.getProgetto());
-		}
 		return latt;
 	} catch(PersistencyException e) {
 		throw handleException(bulk,e);
