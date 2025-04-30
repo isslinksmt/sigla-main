@@ -49,7 +49,8 @@ function doScaricaFirmato() {
         <b class="text-info h3 d-flex justify-content-center mt-2">PROGRESSIVO MANDATI/REVERSALI</b>
         <table class="Panel card border-info p-2 mt-2">
             <tr>
-                <% bp.getController().writeFormField( out, "progFlusso"); %>
+                <td><% bp.getController().writeFormLabel( out, "pg_man_rev_dis"); %></td>
+                <td><% bp.getController().writeFormLabel( out, "pg_man_rev_dis"); %></td>
             </tr>
         </table>
     </div>
