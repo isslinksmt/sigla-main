@@ -50,7 +50,7 @@ function doScaricaFirmato() {
         <table class="Panel card border-info p-2 mt-2">
             <tr>
                 <td><% bp.getController().writeFormLabel( out, "pg_man_rev_dis"); %></td>
-                <td><% bp.getController().writeFormLabel( out, "pg_man_rev_dis"); %></td>
+                <td><% bp.getController().writeFormInput( out, "pg_man_rev_dis"); %></td>
             </tr>
         </table>
     </div>
