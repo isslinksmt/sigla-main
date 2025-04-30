@@ -44,7 +44,15 @@ public class Distinta_cassiereBulk extends Distinta_cassiereBase implements Alle
 	public final static Dictionary stato_DistintaKeys = new OrderedHashtable();
 	public final static Dictionary tesoreriaKeys = new OrderedHashtable();
 
-	public enum Tesoreria {
+    public Long getPg_man_rev_dis() {
+        return pg_man_rev_dis;
+    }
+
+    public void setPg_man_rev_dis(Long pg_man_rev_dis) {
+        this.pg_man_rev_dis = pg_man_rev_dis;
+    }
+
+    public enum Tesoreria {
 		BANCA_ITALIA("Banca d'Italia", "BI"),
 		BANCA_TESORIERE("Banca Tesoriere", "BT");
 		private final String label, value;
@@ -153,7 +161,7 @@ public class Distinta_cassiereBulk extends Distinta_cassiereBase implements Alle
 	private java.math.BigDecimal totReversaliRegSospesoBIAnnullateRitrasmesse = new java.math.BigDecimal(0);
 	private java.math.BigDecimal totReversaliRitenuteAnnullateRitrasmesse = new java.math.BigDecimal(0);
 	private java.math.BigDecimal totReversaliTrasferimentoAnnullateRitrasmesse = new java.math.BigDecimal(0);
-
+	private Long pg_man_rev_dis;
 
 	public Distinta_cassiereBulk() {
 		super();

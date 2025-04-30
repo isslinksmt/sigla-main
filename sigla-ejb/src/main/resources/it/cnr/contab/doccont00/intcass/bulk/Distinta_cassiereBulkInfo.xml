@@ -388,6 +388,16 @@
 		maxLength="10"
 		inputSize="10"/>
 	<fieldProperty
+			name="pg_man_rev_dis"
+			property="pg_man_rev_dis"
+			inputType="TEXT"
+			label="Progressivo di partenza per mandati/reversali"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			enabledOnSearch="false"
+			maxLength="10"
+			inputSize="10"/>
+	<fieldProperty
 		name="fl_flusso"
 		property="fl_flusso"
 		inputType="CHECKBOX"
@@ -601,6 +611,8 @@
 	<formFieldProperty
 		name="pg_distinta_def" />
 	<formFieldProperty
+			name="pg_man_rev_dis" />
+	<formFieldProperty
 		name="fl_flusso" />
 	<formFieldProperty
 		name="fl_sepa" />
@@ -634,6 +646,8 @@
 		name="dt_invio" />
 	<columnFieldProperty
 		name="pg_distinta_def" />
+	<columnFieldProperty
+			name="pg_man_rev_dis" />
 	<columnFieldProperty
 		name="progFlusso"/>
 	<columnFieldProperty
