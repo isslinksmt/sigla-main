@@ -4459,7 +4459,8 @@ public class DistintaCassiereComponent extends
                 aggiungiMandatiEReversaliDaRitrasmettere(userContext, distinta);
             }
             assegnaProgressivoCassiere(userContext, distinta);
-
+            //TODO AGGIORNA MANDATI/REVERSALI CON ID PROGRESSIVO
+            aggiornaProgressivoDocumenti(userContext, distinta);
             if (isAttivoSiopeplus(userContext)) {
                 generaFlussoSiopeplus(userContext, distinta);
             } else {
@@ -4472,8 +4473,6 @@ public class DistintaCassiereComponent extends
             }
             //NEW: Aggiorno lo stato in ogni caso
             aggiornaStatoDocContabili(userContext, distinta, MandatoBulk.STATO_TRASMISSIONE_TRASMESSO);
-            //TODO AGGIORNA MANDATI/REVERSALI CON ID PROGRESSIVO
-            aggiornaProgressivoDocumenti(userContext, distinta);
             aggiornaStoricoTrasmessi(userContext, distinta);
             distinta.setStato(Distinta_cassiereBulk.Stato.TRASMESSA);
             distinta.setDt_invio(DateServices.getDt_valida(userContext));
