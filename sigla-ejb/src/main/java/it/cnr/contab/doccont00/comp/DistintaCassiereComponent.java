@@ -956,7 +956,7 @@ public class DistintaCassiereComponent extends
     }
 
     public Distinta_cassiereBulk calcolaMinProgressivoManRev(UserContext userContext,
-                                               Distinta_cassiereBulk distinta) throws ComponentException {
+                                               Distinta_cassiereBulk distinta, boolean save) throws ComponentException {
         try {
             Distinta_cassiereHome distHome = (Distinta_cassiereHome) getHome(
                     userContext, distinta.getClass());
@@ -971,7 +971,7 @@ public class DistintaCassiereComponent extends
                 tipoDocumento = "MANDATO";
                 tesoreria = tesoreriaMandati.keySet().toArray()[0].toString();
                 offset = tesoreriaMandati.get(tesoreria);
-            }else{
+            }else if(tesoreriaReversali != null){
                 tipoDocumento = "REVERSALE";
                 tesoreria = tesoreriaReversali.keySet().toArray()[0].toString();
                 offset = tesoreriaReversali.get(tesoreria);
@@ -981,7 +981,7 @@ public class DistintaCassiereComponent extends
                     (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
                             it.cnr.jada.util.ejb.EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
                                     it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
-            Long pgVar = numerazione.creaNuovoProgressivoOffset(userContext, CNRUserContext.getEsercizio(userContext), tipoDocumento, tesoreria, CNRUserContext.getUser(userContext), offset);
+            Long pgVar = numerazione.creaNuovoProgressivoOffset(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), offset, save);
             distinta.setPg_man_rev_dis(pgVar);
             return distinta;
         } catch (Exception e) {
@@ -2273,7 +2273,7 @@ public class DistintaCassiereComponent extends
                 lockUltimaDistinta(userContext, distinta);
                 distinta = calcolaTotali(userContext, distinta);
                 distinta = calcolaTotaliStorici(userContext, distinta);
-
+                distinta = calcolaMinProgressivoManRev(userContext, distinta);
                 EnteBulk ente = (EnteBulk) getHome(userContext, EnteBulk.class)
                         .findAll().get(0);
                 distinta.setCd_cds_ente(ente.getCd_unita_organizzativa());

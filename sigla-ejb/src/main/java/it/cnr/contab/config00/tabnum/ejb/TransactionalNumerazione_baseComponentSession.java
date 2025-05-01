@@ -61,7 +61,7 @@ public java.lang.Long creaNuovoProgressivoTemp(it.cnr.jada.UserContext param0,ja
 		}
 	}
 }
-	public java.lang.Long creaNuovoProgressivoOffset(it.cnr.jada.UserContext param0,java.lang.Integer param1,java.lang.String param2,java.lang.String param3,java.lang.String param4, Integer param5) throws RemoteException,it.cnr.jada.comp.ComponentException {
+	public java.lang.Long creaNuovoProgressivoOffset(it.cnr.jada.UserContext param0,java.lang.Integer param1,java.lang.String param2,java.lang.String param3,java.lang.String param4, Integer param5, boolean param6) throws RemoteException,it.cnr.jada.comp.ComponentException {
 		try {
 			return (java.lang.Long)invoke("creaNuovoProgressivoOffset",new Object[] {
 					param0,
@@ -69,7 +69,8 @@ public java.lang.Long creaNuovoProgressivoTemp(it.cnr.jada.UserContext param0,ja
 					param2,
 					param3,
 					param4,
-					param5});
+					param5,
+					param6});
 		} catch(java.rmi.RemoteException e) {
 			throw e;
 		} catch(java.lang.reflect.InvocationTargetException e) {

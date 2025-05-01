@@ -104,10 +104,10 @@ public class DistintaCassiereComponentSessionBean extends it.cnr.jada.ejb.CRUDDe
         }
     }
 
-    public it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1) throws it.cnr.jada.comp.ComponentException, javax.ejb.EJBException {
+    public it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1, boolean param2) throws it.cnr.jada.comp.ComponentException, javax.ejb.EJBException {
         pre_component_invocation(param0, componentObj);
         try {
-            it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk result = ((DistintaCassiereComponent) componentObj).calcolaMinProgressivoManRev(param0, param1);
+            it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk result = ((DistintaCassiereComponent) componentObj).calcolaMinProgressivoManRev(param0, param1, param2);
             component_invocation_succes(param0, componentObj);
             return result;
         } catch (it.cnr.jada.comp.NoRollbackException e) {
