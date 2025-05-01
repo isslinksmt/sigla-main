@@ -88,4 +88,22 @@ public class Numerazione_baseComponentSessionBean extends it.cnr.jada.ejb.Generi
 			throw uncaughtError(param0,componentObj,e);
 		}
 	}
+	public java.lang.Long salvaNumerazione(it.cnr.jada.UserContext param0,java.lang.Integer param1,java.lang.String param2,java.lang.String param3,java.lang.String param4, Integer param5) throws it.cnr.jada.comp.ComponentException,it.cnr.jada.bulk.BusyResourceException,javax.ejb.EJBException {
+		pre_component_invocation(param0,componentObj);
+		try {
+			java.lang.Long result = componentObj.salvaNumerazione(param0,param1,param2,param3,param4, param5);
+			component_invocation_succes(param0,componentObj);
+			return result;
+		} catch(it.cnr.jada.comp.NoRollbackException e) {
+			component_invocation_succes(param0,componentObj);
+			throw e;
+		} catch(it.cnr.jada.comp.ComponentException e) {
+			component_invocation_failure(param0,componentObj);
+			throw e;
+		} catch(RuntimeException e) {
+			throw uncaughtRuntimeException(param0,componentObj,e);
+		} catch(Error e) {
+			throw uncaughtError(param0,componentObj,e);
+		}
+	}
 }

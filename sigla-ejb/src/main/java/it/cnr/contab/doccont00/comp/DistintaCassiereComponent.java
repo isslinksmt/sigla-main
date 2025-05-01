@@ -955,6 +955,31 @@ public class DistintaCassiereComponent extends
         }
     }
 
+    public void salvaNumerazione(UserContext userContext, Distinta_cassiereBulk distinta) throws SQLException, ComponentException, BusyResourceException, RemoteException {
+        Distinta_cassiereHome distHome = (Distinta_cassiereHome) getHome(
+                userContext, distinta.getClass());
+
+        Map<String, Integer> tesoreriaMandati = distHome.findTesoreriaMandati(distinta);
+        Map<String, Integer> tesoreriaReversali = distHome.findTesoreriaReversali(distinta);
+
+        String tesoreria = null;
+        String tipoDocumento = null;
+        if(tesoreriaMandati != null){
+            tipoDocumento = "MANDATO";
+            tesoreria = tesoreriaMandati.keySet().toArray()[0].toString();
+        }else if(tesoreriaReversali != null){
+            tipoDocumento = "REVERSALE";
+            tesoreria = tesoreriaReversali.keySet().toArray()[0].toString();
+        }
+        //NON ESEGUIRE SE TUTTO NULL
+        //CHECK SE CD_CORRENTE < DEL VALORE PASSATO IN INPUT
+        it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession numerazione =
+                (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
+                        it.cnr.jada.util.ejb.EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
+                                it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
+        numerazione.salvaNumerazione(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), Math.toIntExact(distinta.getPg_man_rev_dis()));
+    }
+
     public Distinta_cassiereBulk calcolaMinProgressivoManRev(UserContext userContext,
                                                Distinta_cassiereBulk distinta, boolean save) throws ComponentException {
         try {
@@ -971,22 +996,28 @@ public class DistintaCassiereComponent extends
                 tipoDocumento = "MANDATO";
                 tesoreria = tesoreriaMandati.keySet().toArray()[0].toString();
                 offset = tesoreriaMandati.get(tesoreria);
+                return getNextProgressivoDistintaCassiereBulk(userContext, distinta, save, tesoreria, tipoDocumento, offset);
             }else if(tesoreriaReversali != null){
                 tipoDocumento = "REVERSALE";
                 tesoreria = tesoreriaReversali.keySet().toArray()[0].toString();
                 offset = tesoreriaReversali.get(tesoreria);
+                return getNextProgressivoDistintaCassiereBulk(userContext, distinta, save, tesoreria, tipoDocumento, offset);
             }
-
-            it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession numerazione =
-                    (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
-                            it.cnr.jada.util.ejb.EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
-                                    it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
-            Long pgVar = numerazione.creaNuovoProgressivoOffset(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), offset, save);
-            distinta.setPg_man_rev_dis(pgVar);
+            //NON ESEGUIRE SE TUTTO NULL
             return distinta;
         } catch (Exception e) {
             throw handleException(e);
         }
+    }
+
+    private static Distinta_cassiereBulk getNextProgressivoDistintaCassiereBulk(UserContext userContext, Distinta_cassiereBulk distinta, boolean save, String tesoreria, String tipoDocumento, Integer offset) throws ComponentException, BusyResourceException, RemoteException {
+        it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession numerazione =
+                (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
+                        EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
+                                it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
+        Long pgVar = numerazione.creaNuovoProgressivoOffset(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), offset, save);
+        distinta.setPg_man_rev_dis(pgVar);
+        return distinta;
     }
 
     /**
@@ -2273,7 +2304,11 @@ public class DistintaCassiereComponent extends
                 lockUltimaDistinta(userContext, distinta);
                 distinta = calcolaTotali(userContext, distinta);
                 distinta = calcolaTotaliStorici(userContext, distinta);
-                distinta = calcolaMinProgressivoManRev(userContext, distinta, false);
+                if(distinta.getPg_man_rev_dis() == null){
+                    distinta = calcolaMinProgressivoManRev(userContext, distinta, true);
+                }else{
+                    salvaNumerazione(userContext, distinta);
+                }
                 EnteBulk ente = (EnteBulk) getHome(userContext, EnteBulk.class)
                         .findAll().get(0);
                 distinta.setCd_cds_ente(ente.getCd_unita_organizzativa());

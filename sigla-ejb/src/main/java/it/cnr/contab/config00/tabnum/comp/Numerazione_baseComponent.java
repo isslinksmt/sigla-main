@@ -190,4 +190,33 @@ public Long creaNuovoProgressivoTemp(UserContext userContext,Integer esercizio,S
 			throw new it.cnr.jada.bulk.BusyResourceException("Numeratori occupati, riprovare!");
 		}
 	}
+
+	public Long salvaNumerazione(UserContext userContext,Integer esercizio,String tabella,String colonna,String user, Integer value) throws it.cnr.jada.comp.ComponentException,it.cnr.jada.bulk.BusyResourceException {
+		try {
+			Numerazione_baseHome home = (Numerazione_baseHome) getHome(userContext, Numerazione_baseBulk.class);
+			Numerazione_baseBulk numerazione = (Numerazione_baseBulk)home.findByPrimaryKey(new Numerazione_baseBulk(colonna,esercizio,tabella));
+			Long cd_corrente = new Long(Long.parseLong(numerazione.getCd_corrente()));
+
+			cd_corrente = Long.valueOf(value);
+			long cd_massimo = Long.parseLong(numerazione.getCd_massimo());
+			if (cd_corrente.longValue() >= cd_massimo)
+				throw new NumerazioneEsauritaException();
+			if(value < cd_corrente){
+				throw new RuntimeException();
+			}
+			numerazione.setCd_corrente(cd_corrente.toString());
+			numerazione.setUser(user);
+			home.lock(numerazione);
+			home.update(numerazione, userContext);
+			return cd_corrente;
+		}catch(NumerazioneEsauritaException e) {
+			throw e;
+		} catch(it.cnr.jada.bulk.BusyResourceException e) {
+			throw new it.cnr.jada.bulk.BusyResourceException("Numeratori occupati, riprovare!");
+		} catch (PersistencyException e) {
+			throw new ComponentException(e);
+		} catch (OutdatedResourceException e) {
+			throw new it.cnr.jada.bulk.BusyResourceException("Numeratori occupati, riprovare!");
+		}
+	}
 }
