@@ -90,11 +90,12 @@ public class TransactionalDistintaCassiereComponentSession extends it.cnr.jada.e
         }
     }
 
-    public it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1) throws RemoteException, it.cnr.jada.comp.ComponentException {
+    public it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1, boolean param2) throws RemoteException, it.cnr.jada.comp.ComponentException {
         try {
             return (it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk) invoke("calcolaMinProgressivoManRev", new Object[]{
                     param0,
-                    param1});
+                    param1,
+                    param2});
         } catch (java.rmi.RemoteException e) {
             throw e;
         } catch (java.lang.reflect.InvocationTargetException e) {
