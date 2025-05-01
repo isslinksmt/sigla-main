@@ -964,12 +964,15 @@ public class DistintaCassiereComponent extends
 
         String tesoreria = null;
         String tipoDocumento = null;
+        Integer offset = null;
         if(tesoreriaMandati != null){
             tipoDocumento = "MANDATO";
             tesoreria = tesoreriaMandati.keySet().toArray()[0].toString();
+            offset = tesoreriaMandati.get(tesoreria);
         }else if(tesoreriaReversali != null){
             tipoDocumento = "REVERSALE";
             tesoreria = tesoreriaReversali.keySet().toArray()[0].toString();
+            offset = tesoreriaReversali.get(tesoreria);
         }
         //NON ESEGUIRE SE TUTTO NULL
         //CHECK SE CD_CORRENTE < DEL VALORE PASSATO IN INPUT
@@ -977,7 +980,7 @@ public class DistintaCassiereComponent extends
                 (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
                         it.cnr.jada.util.ejb.EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
                                 it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
-        numerazione.salvaNumerazione(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), Math.toIntExact(distinta.getPg_man_rev_dis()));
+        numerazione.salvaNumerazione(userContext, CNRUserContext.getEsercizio(userContext), tesoreria, tipoDocumento, CNRUserContext.getUser(userContext), Math.toIntExact(distinta.getPg_man_rev_dis()) + offset);
     }
 
     public Distinta_cassiereBulk calcolaMinProgressivoManRev(UserContext userContext,
