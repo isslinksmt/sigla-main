@@ -161,6 +161,12 @@
 				propertyName="selezione_tesoreria"
 				sqlTypeName="VARCHAR"
 				columnSize="40"/>
+		<columnMapping
+				columnName="PG_DISTINTA_TESORERIA"
+				propertyName="pg_distinta_tesoreria"
+				sqlTypeName="DECIMAL"
+				columnSize="10"
+				nullable="true" />
 	</defaultColumnMap>
 	
 	<persistentProperty
@@ -217,4 +223,6 @@
 		name="statoVarSos"/>
 	<persistentProperty
 			name="selezione_tesoreria" />
+	<persistentProperty
+			name="pg_distinta_tesoreria"/>
 </SQLPersistentInfo>

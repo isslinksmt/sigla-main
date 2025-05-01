@@ -5206,7 +5206,8 @@ public class DistintaCassiereComponent extends
                 Reversale.InformazioniVersante infover = objectFactory.createReversaleInformazioniVersante();
                 docContabile = (VDocumentiFlussoBulk) i
                         .next();
-                reversale.setNumeroReversale(docContabile.getPgDocumento().intValue());
+                //reversale.setNumeroReversale(docContabile.getPgDocumento().intValue());
+                reversale.setNumeroReversale(bulk.getPg_distinta_tesoreria().intValue());
                 gcdi.setTime(docContabile.getDtEmissione());
                 XMLGregorianCalendar xgc = DatatypeFactory.newInstance()
                         .newXMLGregorianCalendar(gcdi);
@@ -5602,7 +5603,8 @@ public class DistintaCassiereComponent extends
                         //TODO da sostituire
                         !rif_modalita_pagamentoBulk.getCd_modalita_pag().equals(STIPENDI);
 
-                mandato.setNumeroMandato(docContabile.getPgDocumento().intValue());
+                //mandato.setNumeroMandato(docContabile.getPgDocumento().intValue());
+                mandato.setNumeroMandato(bulk.getPg_distinta_tesoreria().intValue());
                 gcdi.setTime(docContabile.getDtEmissione());
                 XMLGregorianCalendar xgc = DatatypeFactory.newInstance()
                         .newXMLGregorianCalendar(gcdi);
