@@ -166,7 +166,7 @@ public Long creaNuovoProgressivoTemp(UserContext userContext,Integer esercizio,S
 				numerazione.setCd_massimo("99999999");
 				numerazione.setCd_corrente("1");
 				home.insert(numerazione, userContext);
-				return new Long(offset);
+				return new Long(1);
 			}
 			Long cd_corrente = new Long(Long.parseLong(numerazione.getCd_corrente()));
 			if(save){
@@ -179,7 +179,7 @@ public Long creaNuovoProgressivoTemp(UserContext userContext,Integer esercizio,S
 				home.lock(numerazione);
 				home.update(numerazione, userContext);
 			}
-			return cd_corrente;
+			return cd_corrente + offset;
 		}catch(NumerazioneEsauritaException e) {
 			throw e;
 		} catch(it.cnr.jada.bulk.BusyResourceException e) {
