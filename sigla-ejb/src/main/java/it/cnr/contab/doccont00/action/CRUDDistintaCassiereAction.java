@@ -73,6 +73,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.getDistintaCassDet().reset(context);
             bp.setDirty(true);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
@@ -91,6 +92,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             CRUDDistintaCassiereBP bp = (CRUDDistintaCassiereBP) getBusinessProcess(context);
             bp.getDistintaCassDet().removeAll(context);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
@@ -110,6 +112,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.controllaEliminaMandati(context);
             bp.getDistintaCassDet().remove(context);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);

@@ -33,7 +33,9 @@ import it.cnr.jada.persistency.sql.SQLBuilder;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Distinta_cassiereHome extends BulkHome {
@@ -91,6 +93,114 @@ public class Distinta_cassiereHome extends BulkHome {
             }
             ;
         }
+    }
+
+    public Map<String, Integer> findTesoreriaMandati(Distinta_cassiereBulk distinta) throws SQLException{
+        String selezioneTesoreria = "";
+        int countMandati = 0;
+        Map<String, Integer> tesoreriaMandati = new HashMap<>();
+        LoggableStatement ps = new LoggableStatement(getConnection(),
+                "SELECT MAX(A.SELEZIONE_TESORERIA), COUNT(*) FROM " +
+                        it.cnr.jada.util.ejb.EJBCommonServices.getDefaultSchema() +
+                        "MANDATO A, DISTINTA_CASSIERE_DET B " +
+                        "WHERE B.ESERCIZIO = ? AND " +
+                        "B.CD_CDS = ? AND " +
+                        "B.CD_UNITA_ORGANIZZATIVA = ? AND " +
+                        "B.PG_DISTINTA = ? AND " +
+                        "B.PG_MANDATO IS NOT NULL AND " +
+                        "A.DT_ANNULLAMENTO IS NULL AND " +
+                        "A.TI_MANDATO = ? AND " +
+                        "A.CD_CDS = B.CD_CDS_ORIGINE AND " +
+                        "A.ESERCIZIO = B.ESERCIZIO AND " +
+                        "A.PG_MANDATO = B.PG_MANDATO ", true, this.getClass());
+
+        try {
+            ps.setObject(1, distinta.getEsercizio());
+            ps.setString(2, distinta.getCd_cds());
+            ps.setString(3, distinta.getCd_unita_organizzativa());
+            ps.setObject(4, distinta.getPg_distinta());
+            ps.setString(5, MandatoBulk.TIPO_PAGAMENTO);
+
+            ResultSet rs = ps.executeQuery();
+            try {
+                if (rs.next()) {
+                    selezioneTesoreria = rs.getString(1) != null ? rs.getString(1) : "";
+                    countMandati = rs.getInt(2);
+                }
+            } finally {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    // log eventuale
+                }
+            }
+        } finally {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                // log eventuale
+            }
+        }
+        System.out.println("Numero mandati: " + countMandati);
+        if(selezioneTesoreria != null && countMandati > 0){
+            tesoreriaMandati.put(selezioneTesoreria, countMandati);
+            return tesoreriaMandati;
+        }
+        return null;
+
+    }
+
+    public Map<String, Integer> findTesoreriaReversali(Distinta_cassiereBulk distinta) throws SQLException{
+        Map<String, Integer> tesoreriaMandati = new HashMap<>();
+        String selezioneTesoreria = "";
+        int countReversali = 0;
+
+        LoggableStatement ps = new LoggableStatement(getConnection(),
+                "SELECT MAX(A.SELEZIONE_TESORERIA), COUNT(*) FROM " +
+                        it.cnr.jada.util.ejb.EJBCommonServices.getDefaultSchema() +
+                        "REVERSALE A, DISTINTA_CASSIERE_DET B " +
+                        "WHERE B.ESERCIZIO = ? AND " +
+                        "B.CD_CDS = ? AND " +
+                        "B.CD_UNITA_ORGANIZZATIVA = ? AND " +
+                        "B.PG_DISTINTA = ? AND " +
+                        "B.PG_REVERSALE IS NOT NULL AND " +
+                        "A.DT_ANNULLAMENTO IS NULL AND " +
+                        "A.CD_CDS = B.CD_CDS_ORIGINE AND " +
+                        "A.ESERCIZIO = B.ESERCIZIO AND " +
+                        "A.PG_REVERSALE = B.PG_REVERSALE ", true, this.getClass());
+
+        try {
+            ps.setObject(1, distinta.getEsercizio());
+            ps.setString(2, distinta.getCd_cds());
+            ps.setString(3, distinta.getCd_unita_organizzativa());
+            ps.setObject(4, distinta.getPg_distinta());
+
+            ResultSet rs = ps.executeQuery();
+            try {
+                if (rs.next()) {
+                    selezioneTesoreria = rs.getString(1) != null ? rs.getString(1) : "";
+                    countReversali = rs.getInt(2);
+                }
+            } finally {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    // log eventuale
+                }
+            }
+        } finally {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                // log eventuale
+            }
+        }
+
+        if(selezioneTesoreria != null && countReversali > 0){
+            tesoreriaMandati.put(selezioneTesoreria, countReversali);
+            return tesoreriaMandati;
+        }
+        return null;
     }
 
     public BigDecimal calcolaTotMandatiAccreditamento(Distinta_cassiereBulk distinta) throws SQLException {

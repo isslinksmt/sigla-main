@@ -955,6 +955,40 @@ public class DistintaCassiereComponent extends
         }
     }
 
+    public Distinta_cassiereBulk calcolaMinProgressivoManRev(UserContext userContext,
+                                               Distinta_cassiereBulk distinta) throws ComponentException {
+        try {
+            Distinta_cassiereHome distHome = (Distinta_cassiereHome) getHome(
+                    userContext, distinta.getClass());
+
+            Map<String, Integer> tesoreriaMandati = distHome.findTesoreriaMandati(distinta);
+            Map<String, Integer> tesoreriaReversali = distHome.findTesoreriaReversali(distinta);
+
+            String tesoreria = null;
+            String tipoDocumento = null;
+            Integer offset = null;
+            if(tesoreriaMandati != null){
+                tipoDocumento = "MANDATO";
+                tesoreria = tesoreriaMandati.keySet().toArray()[0].toString();
+                offset = tesoreriaMandati.get(tesoreria);
+            }else{
+                tipoDocumento = "REVERSALE";
+                tesoreria = tesoreriaReversali.keySet().toArray()[0].toString();
+                offset = tesoreriaReversali.get(tesoreria);
+            }
+
+            it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession numerazione =
+                    (it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession)
+                            it.cnr.jada.util.ejb.EJBCommonServices.createEJB("CNRCONFIG00_TABNUM_EJB_Numerazione_baseComponentSession",
+                                    it.cnr.contab.config00.tabnum.ejb.Numerazione_baseComponentSession.class);
+            Long pgVar = numerazione.creaNuovoProgressivoOffset(userContext, CNRUserContext.getEsercizio(userContext), tipoDocumento, tesoreria, CNRUserContext.getUser(userContext), offset);
+            distinta.setPg_man_rev_dis(pgVar);
+            return distinta;
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
     /**
      * Calcola i totali storici degli importi dei mandati/reversali trasmesse al
      * cassiere
