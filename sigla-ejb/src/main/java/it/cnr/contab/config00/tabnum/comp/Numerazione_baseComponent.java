@@ -179,7 +179,7 @@ public Long creaNuovoProgressivoTemp(UserContext userContext,Integer esercizio,S
 				home.lock(numerazione);
 				home.update(numerazione, userContext);
 			}
-			return cd_corrente;
+			return cd_corrente + offset;
 		}catch(NumerazioneEsauritaException e) {
 			throw e;
 		} catch(it.cnr.jada.bulk.BusyResourceException e) {
