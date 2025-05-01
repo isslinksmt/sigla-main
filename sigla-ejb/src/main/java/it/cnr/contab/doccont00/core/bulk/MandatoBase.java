@@ -107,6 +107,7 @@ public class MandatoBase extends MandatoKey implements Keyed {
 
 	private java.lang.Integer mese_stipendi_cofi;
 	private String selezione_tesoreria;
+	private Long pg_distinta_tesoreria;
 	public MandatoBase() {
 		super();
 	}
@@ -422,4 +423,12 @@ public class MandatoBase extends MandatoKey implements Keyed {
 	public void setSelezione_tesoreria(String selezione_tesoreria) {
 		this.selezione_tesoreria = selezione_tesoreria;
 	}
+
+    public Long getPg_distinta_tesoreria() {
+        return pg_distinta_tesoreria;
+    }
+
+    public void setPg_distinta_tesoreria(Long pg_distinta_tesoreria) {
+        this.pg_distinta_tesoreria = pg_distinta_tesoreria;
+    }
 }

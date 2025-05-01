@@ -47,7 +47,6 @@ import it.cnr.contab.doccont00.intcass.bulk.*;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaHome;
 import it.cnr.contab.doccont00.service.DocumentiContabiliService;
-import it.cnr.contab.exception.MissingTesoreriaExcpetion;
 import it.cnr.contab.logs.bulk.Batch_log_rigaBulk;
 import it.cnr.contab.logs.bulk.Batch_log_tstaBulk;
 import it.cnr.contab.logs.ejb.BatchControlComponentSession;
@@ -222,6 +221,18 @@ public class DistintaCassiereComponent extends
                     stato_trasmissione);
     }
 
+    protected void aggiornaProgressivoDocContabile(UserContext userContext,
+                                             V_mandato_reversaleBulk docContabile, Long progressivoDocumentoDistinta)
+            throws OutdatedResourceException,
+            PersistencyException, ComponentException,
+            BusyResourceException, EJBException {
+        if (docContabile.isMandato())
+            aggiornaProgressivoDistintaMandato(userContext, docContabile, progressivoDocumentoDistinta);
+        else if (docContabile.isReversale())
+            aggiornaProgressivoDistintaReversale(userContext, docContabile,
+                    progressivoDocumentoDistinta);
+    }
+
     /**
      * Assegna lo stato trasmissione di tutti i mandati/reversali inseriti in
      * distinta
@@ -258,6 +269,58 @@ public class DistintaCassiereComponent extends
         } catch (Exception e) {
             throw handleException(e);
         }
+
+    }
+
+    protected void aggiornaProgressivoDocumenti(UserContext userContext,
+                                             Distinta_cassiereBulk distinta)
+            throws ComponentException {
+        try {
+            SQLBuilder sql = selectDistinta_cassiere_detCollByClause(
+                    userContext, distinta, V_mandato_reversaleBulk.class, null);
+            SQLBroker broker = getHome(userContext,
+                    V_mandato_reversaleBulk.class).createBroker(sql);
+            V_mandato_reversaleBulk docContabile;
+            long progressivoIncrementale = distinta.getPg_man_rev_dis();
+            while (broker.next()) {
+                docContabile = (V_mandato_reversaleBulk) broker
+                        .fetch(V_mandato_reversaleBulk.class);
+                aggiornaProgressivoDocContabile(userContext, docContabile,
+                        progressivoIncrementale);
+                progressivoIncrementale++;
+            }
+            broker.close();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    protected void aggiornaProgressivoDistintaMandato(UserContext userContext,
+                                        V_mandato_reversaleBulk docContabile, Long progressivoDocumentoDistinta)
+            throws OutdatedResourceException,
+            PersistencyException, ComponentException,
+            BusyResourceException, EJBException {
+        MandatoBulk mandato = (MandatoBulk) getHome(userContext,
+                MandatoIBulk.class).findAndLock(
+                new MandatoIBulk(docContabile.getCd_cds(), docContabile
+                        .getEsercizio(), docContabile.getPg_documento_cont()));
+        mandato.setPg_distinta_tesoreria(progressivoDocumentoDistinta);
+        mandato.setUser(userContext.getUser());
+        updateBulk(userContext, mandato);
+    }
+
+    protected void aggiornaProgressivoDistintaReversale(UserContext userContext,
+                                          V_mandato_reversaleBulk docContabile, Long progressivoDocumentoDistinta)
+            throws OutdatedResourceException,
+            PersistencyException, ComponentException,
+            BusyResourceException, EJBException {
+        ReversaleBulk reversale = (ReversaleBulk) getHome(userContext,
+                ReversaleIBulk.class).findAndLock(
+                new ReversaleIBulk(docContabile.getCd_cds(), docContabile
+                        .getEsercizio(), docContabile.getPg_documento_cont()));
+        reversale.setPg_distinta_tesoreria(progressivoDocumentoDistinta);
+        reversale.setUser(userContext.getUser());
+        updateBulk(userContext, reversale);
 
     }
 
@@ -4409,6 +4472,8 @@ public class DistintaCassiereComponent extends
             }
             //NEW: Aggiorno lo stato in ogni caso
             aggiornaStatoDocContabili(userContext, distinta, MandatoBulk.STATO_TRASMISSIONE_TRASMESSO);
+            //TODO AGGIORNA MANDATI/REVERSALI CON ID PROGRESSIVO
+            aggiornaProgressivoDocumenti(userContext, distinta);
             aggiornaStoricoTrasmessi(userContext, distinta);
             distinta.setStato(Distinta_cassiereBulk.Stato.TRASMESSA);
             distinta.setDt_invio(DateServices.getDt_valida(userContext));
