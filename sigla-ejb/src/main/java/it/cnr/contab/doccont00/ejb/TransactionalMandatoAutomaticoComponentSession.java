@@ -712,6 +712,29 @@ public class TransactionalMandatoAutomaticoComponentSession extends it.cnr.jada.
     }
 
     @Override
+    public V_mandato_reversaleBulk getMandatoReversaleBulkByPgDisintaTesoreria(UserContext userContext, String tesoreria, String pgDistintaTesoreria, String esercizio, String tipoDocumento) throws RemoteException, ComponentException {
+        try {
+            return (V_mandato_reversaleBulk)invoke("getMandatoReversaleBulkByPgDisintaTesoreria",new Object[] {
+                    userContext,
+                    tesoreria,
+                    pgDistintaTesoreria,
+                    esercizio,
+                    tipoDocumento
+            });
+        } catch(java.rmi.RemoteException e) {
+            throw e;
+        } catch(java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch(it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch(Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception",ex);
+            }
+        }
+    }
+
+    @Override
     public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException {
         try {
             return (V_doc_passivo_obbligazioneBulk)invoke("getVDocPassiviObbligazione",new Object[] {

@@ -17,6 +17,7 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.comp.Configurazione_cnrComponent;
 import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
@@ -1167,6 +1168,25 @@ public class Configurazione_cnrComponentSessionBean extends it.cnr.jada.ejb.CRUD
         pre_component_invocation(userContext, componentObj);
         try {
             List<TesoreriaDto> result = ((Configurazione_cnrComponent)componentObj).findTesorerie(userContext);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException{
+        pre_component_invocation(userContext, componentObj);
+        try {
+            List<Configurazione_cnrBulk> result = ((Configurazione_cnrComponent)componentObj).findTesorerieConfigurazioneCNR(userContext);
             component_invocation_succes(userContext, componentObj);
             return result;
         } catch (it.cnr.jada.comp.NoRollbackException e) {

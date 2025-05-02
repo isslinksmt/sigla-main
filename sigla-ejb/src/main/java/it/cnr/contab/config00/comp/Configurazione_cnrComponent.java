@@ -1346,6 +1346,15 @@ public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComp
         }
     }
 
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return ((Configurazione_cnrHome)getHome(userContext, Configurazione_cnrBulk.class))
+                    .findTesorerie();
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
+
     public Boolean isLiqIvaAnticipataFattAttiva(UserContext userContext, Timestamp dataFattura) throws ComponentException {
         Date dataInizio;
         Date dataFine;

@@ -17,6 +17,7 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.jada.UserContext;
@@ -1653,6 +1654,23 @@ public class TransactionalConfigurazione_cnrComponentSession extends it.cnr.jada
     public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException, RemoteException {
         try {
             return (List<TesoreriaDto>) invoke("findTesorerie", new Object[]{
+                    userContext});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return (List<Configurazione_cnrBulk>) invoke("findTesorerieConfigurazioneCNR", new Object[]{
                     userContext});
         } catch (java.rmi.RemoteException e) {
             throw e;

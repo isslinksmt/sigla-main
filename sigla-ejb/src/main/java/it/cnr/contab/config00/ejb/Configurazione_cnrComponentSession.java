@@ -17,6 +17,7 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.jada.UserContext;
@@ -153,5 +154,6 @@ public interface Configurazione_cnrComponentSession extends it.cnr.jada.ejb.CRUD
     Boolean isLiqIvaAnticipataFattAttiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException;
 
     Timestamp getFineRegFattPass(UserContext userContext, Integer esercizio) throws ComponentException, RemoteException;
+    List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException;
 
 }
