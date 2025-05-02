@@ -6736,8 +6736,14 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
     }
 
     public V_mandato_reversaleBulk getMandatoReversaleBulkByPgDisintaTesoreria(UserContext usercontext, String tesoreria, String pgDistintaTesoreria, String esercizio, String tipoDocumento) throws ComponentException, PersistencyException {
-        MandatoHome mandatoHome = (MandatoHome) getHome(usercontext, MandatoBulk.class);
-        return mandatoHome.findMandatiReversaliBulkByPgDistintaTesoreria(usercontext, tesoreria, pgDistintaTesoreria, esercizio, tipoDocumento);
+        SQLBuilder sql = getHome(usercontext, V_mandato_reversaleBulk.class)
+                .createSQLBuilder();
+        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
+        sql.addClause("AND", "pg_distinta_tesoreria", SQLBuilder.EQUALS, pgDistintaTesoreria);
+        sql.addClause("AND", "cd_tipo_documento_cont", SQLBuilder.EQUALS, tipoDocumento);
+        sql.addClause("AND", "selezione_tesoreria", SQLBuilder.EQUALS, tesoreria);
+        List result = getHome(usercontext, V_mandato_reversaleBulk.class).fetchAll(sql);
+        return (V_mandato_reversaleBulk) result.get(0);
     }
 
     public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {

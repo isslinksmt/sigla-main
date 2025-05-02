@@ -527,7 +527,7 @@ public abstract class MandatoHome extends BulkHome {
         PersistentHome vMandatoReversaleHome = getHomeCache().getHome(V_mandato_reversaleBulk.class);
         SQLBuilder sql = vMandatoReversaleHome.createSQLBuilder();
         sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
-        sql.addClause("AND", "pg_documento_cont", SQLBuilder.EQUALS, pgDistintaTesoreria);
+        sql.addClause("AND", "pg_distinta_tesoreria", SQLBuilder.EQUALS, pgDistintaTesoreria);
         sql.addClause("AND", "cd_tipo_documento_cont", SQLBuilder.EQUALS, tipoDocumento);
         sql.addClause("AND", "selezione_tesoreria", SQLBuilder.EQUALS, tesoreria);
         List vMandatiReversali = vMandatoReversaleHome.fetchAll(sql);
