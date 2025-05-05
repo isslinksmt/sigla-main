@@ -618,7 +618,7 @@
         <columnFieldProperty
                 name="stato_trasmissione"/>
         <columnFieldProperty
-                name="ti_cc_bi"/>
+                name="pg_distinta_tesoreria"/>
         <columnFieldProperty
                 name="ds_documento_cont"/>
         <columnFieldProperty
