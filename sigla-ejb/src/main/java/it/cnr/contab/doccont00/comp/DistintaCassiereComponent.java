@@ -2370,11 +2370,7 @@ public class DistintaCassiereComponent extends
                 lockUltimaDistinta(userContext, distinta);
                 distinta = calcolaTotali(userContext, distinta);
                 distinta = calcolaTotaliStorici(userContext, distinta);
-                if(distinta.getPg_man_rev_dis() == null){
-                    distinta = calcolaMinProgressivoManRev(userContext, distinta, true);
-                }else{
-                    salvaNumerazione(userContext, distinta);
-                }
+                distinta = calcolaMinProgressivoManRev(userContext, distinta, false);
                 EnteBulk ente = (EnteBulk) getHome(userContext, EnteBulk.class)
                         .findAll().get(0);
                 distinta.setCd_cds_ente(ente.getCd_unita_organizzativa());
@@ -4461,6 +4457,8 @@ public class DistintaCassiereComponent extends
             assegnaProgressivoCassiere(userContext, distinta);
             //TODO AGGIORNA MANDATI/REVERSALI CON ID PROGRESSIVO
             aggiornaProgressivoDocumenti(userContext, distinta);
+            //QUA SALVO LA NUMERAZIONE
+            calcolaMinProgressivoManRev(userContext, distinta, true);
             if (isAttivoSiopeplus(userContext)) {
                 generaFlussoSiopeplus(userContext, distinta);
             } else {
