@@ -618,7 +618,10 @@
         <columnFieldProperty
                 name="stato_trasmissione"/>
         <columnFieldProperty
-                name="pg_distinta_tesoreria"/>
+                name="pg_distinta_tesoreria"
+                property="pg_distinta_tesoreria"
+                inputType="TEXT"
+                label="Progressivo documento per distinta"/>
         <columnFieldProperty
                 name="ds_documento_cont"/>
         <columnFieldProperty
