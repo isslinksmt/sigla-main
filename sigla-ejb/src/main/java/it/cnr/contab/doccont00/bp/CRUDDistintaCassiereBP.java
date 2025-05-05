@@ -2506,7 +2506,7 @@ public class CRUDDistintaCassiereBP extends AllegatiCRUDBP<AllegatoGenericoBulk,
             throws it.cnr.jada.action.BusinessProcessException {
         try {
             Distinta_cassiereBulk distintaSaved = (Distinta_cassiereBulk) getModel();
-            if(!distintaSaved.getStato().equals(Distinta_cassiereBulk.Stato.TRASMESSA.value())){
+            if(distintaSaved.getPg_man_rev_dis() == null){
                 Distinta_cassiereBulk distinta = ((DistintaCassiereComponentSession) createComponentSession())
                         .calcolaMinProgressivoManRev(context.getUserContext(),
                                 (Distinta_cassiereBulk) getModel(), false);

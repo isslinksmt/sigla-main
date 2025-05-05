@@ -2370,7 +2370,9 @@ public class DistintaCassiereComponent extends
                 lockUltimaDistinta(userContext, distinta);
                 distinta = calcolaTotali(userContext, distinta);
                 distinta = calcolaTotaliStorici(userContext, distinta);
-                distinta = calcolaMinProgressivoManRev(userContext, distinta, false);
+                if(distinta.getPg_man_rev_dis() == null){
+                    distinta = calcolaMinProgressivoManRev(userContext, distinta, false);
+                }
                 EnteBulk ente = (EnteBulk) getHome(userContext, EnteBulk.class)
                         .findAll().get(0);
                 distinta.setCd_cds_ente(ente.getCd_unita_organizzativa());
