@@ -102,6 +102,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
@@ -228,7 +229,29 @@ public class CRUDDistintaCassiereBP extends AllegatiCRUDBP<AllegatoGenericoBulk,
             Distinta_cassiereBulk distinta = ((DistintaCassiereComponentSession) createComponentSession())
                     .calcolaTotali(context.getUserContext(),
                             (Distinta_cassiereBulk) getModel());
+            setTempProgressivoDistintaManRev(context);
             setModel(context, distinta);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    public void setTempProgressivoDistintaManRev(ActionContext context)
+            throws it.cnr.jada.action.BusinessProcessException {
+        try {
+            CRUDDistintaCassiereBP bp = (CRUDDistintaCassiereBP) context.getBusinessProcess();
+            Object distintaCassDet = this.getDistintaCassDet();
+            Method metodo = distintaCassDet.getClass().getDeclaredMethod("getDetailsPage");
+            metodo.setAccessible(true);
+            Object pagina = metodo.invoke(distintaCassDet);
+            Distinta_cassiereBulk distinta = (Distinta_cassiereBulk) getModel();
+            Long minProgressive = distinta.getPg_man_rev_dis();
+            for(V_mandato_reversaleBulk bulk : (List<V_mandato_reversaleBulk>) pagina){
+                if(bulk.getPg_distinta_tesoreria() == null){
+                    bulk.setPg_distinta_tesoreria(minProgressive);
+                }
+                minProgressive++;
+            }
         } catch (Exception e) {
             throw handleException(e);
         }
