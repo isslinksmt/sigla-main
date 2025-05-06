@@ -78,16 +78,6 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.setDirty(true);
             bp.calcolaTotali(context);
             bp.calcolaMinProgressivoManRev(context);
-            Object distintaCassDet = bp.getDistintaCassDet();
-            Method metodo = distintaCassDet.getClass().getDeclaredMethod("getDetailsPage");
-            metodo.setAccessible(true);
-            Object pagina = metodo.invoke(distintaCassDet);
-            Distinta_cassiereBulk distinta = (Distinta_cassiereBulk) getBusinessProcess(context).getModel();
-            Long minProgressive = distinta.getPg_man_rev_dis();
-            for(V_mandato_reversaleBulk bulk : (List<V_mandato_reversaleBulk>)pagina){
-                bulk.setPg_distinta_tesoreria(minProgressive);
-                minProgressive++;
-            }
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
