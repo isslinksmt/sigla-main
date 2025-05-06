@@ -52,6 +52,8 @@
 	<tr>
 			<td><% bp.getController().writeFormLabel( out, "pg_mandato"); %></td>
 			<td><% bp.getController().writeFormInput( out, "pg_mandato"); %></td>
+			<td><% bp.getController().writeFormLabel( out, "pg_distinta_tesoreria"); %></td>
+			<td><% bp.getController().writeFormInput( out, "pg_distinta_tesoreria"); %></td>
 			<td><% bp.getController().writeFormLabel( out, "dt_emissione"); %></td>
 			<td><% bp.getController().writeFormInput( out, "dt_emissione"); %></td>
 			<td><% bp.getController().writeFormLabel( out, "stato"); %></td>

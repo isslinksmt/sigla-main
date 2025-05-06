@@ -44,6 +44,16 @@
 			enabledOnEdit="true"
 			caseSensitiveSearch="false" />
 	<fieldProperty
+			name="pg_distinta_tesoreria"
+			property="pg_distinta_tesoreria"
+			inputType="TEXT"
+			label="Progressivo Reversale Distinta"
+			maxLength="10"
+			inputSize="10"
+			enabledOnEdit="false"
+			enabledOnInsert="false"
+			enabledOnSearch="true" />
+	<fieldProperty
 		name="dt_ritrasmissione"
 		property="dt_ritrasmissione"
 		inputType="TEXT"
@@ -413,6 +423,8 @@
 	<formFieldProperty
 		name="pg_reversale" />
 	<formFieldProperty
+			name="pg_distinta_tesoreria" />
+	<formFieldProperty
 		name="ti_competenza_residuo" />
 	<formFieldProperty
 		name="im_reversale" />
@@ -465,6 +477,8 @@
 	<columnFieldProperty
 		name="pg_reversale" />
 	<columnFieldProperty
+			name="pg_distinta_tesoreria" />
+	<columnFieldProperty
 		name="stato" />
 	<columnFieldProperty
 		name="stato_trasmissione" />
@@ -492,6 +506,8 @@
 		name="cd_unita_organizzativa"/>
 	<findFieldProperty
 		name="pg_reversale" />
+	<findFieldProperty
+			name="pg_distinta_tesoreria" />
 	<findFieldProperty
 		name="ds_reversale" />
 	<findFieldProperty

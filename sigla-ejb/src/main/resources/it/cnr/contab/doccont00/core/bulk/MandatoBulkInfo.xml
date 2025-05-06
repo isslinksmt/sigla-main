@@ -34,6 +34,16 @@
 			enabledOnEdit="true"
 			caseSensitiveSearch="false" />
 	<fieldProperty
+			name="pg_distinta_tesoreria"
+			property="pg_distinta_tesoreria"
+			inputType="TEXT"
+			label="Progressivo Mandato Distinta"
+			maxLength="10"
+			inputSize="8"
+			enabledOnEdit="false"
+			enabledOnInsert="false"
+			enabledOnSearch="true"/>
+	<fieldProperty
 		name="im_disp_cassa"
 		property="im_disp_cassa"
 		inputType="ROTEXT"
@@ -406,6 +416,11 @@
 			inputSize="10"
 			inputType="TEXT" />
 		<formFieldProperty
+				name="pg_distinta_tesoreria"
+				maxLength="10"
+				inputSize="10"
+				inputType="TEXT" />
+		<formFieldProperty
 			name="ds_mandato"
 			maxLength="300"
 			inputSize="70"
@@ -449,6 +464,8 @@
 		name="ti_mandato" />
 	<formFieldProperty
 		name="pg_mandato" />
+	<formFieldProperty
+			name="pg_distinta_tesoreria" />
 	<formFieldProperty
 		name="ti_competenza_residuo" />
 	<formFieldProperty
@@ -505,6 +522,8 @@
 	<columnFieldProperty
 		name="pg_mandato" />
 	<columnFieldProperty
+			name="pg_distinta_tesoreria" />
+	<columnFieldProperty
 		name="ti_competenza_residuo" />
 	<columnFieldProperty
 		name="stato" />
@@ -553,6 +572,8 @@
 		name="cd_unita_organizzativa"/>
 	<findFieldProperty
 		name="pg_mandato"/>
+	<findFieldProperty
+			name="pg_distinta_tesoreria"/>
 	<findFieldProperty
 		name="ds_mandato"/>
 	<findFieldProperty
