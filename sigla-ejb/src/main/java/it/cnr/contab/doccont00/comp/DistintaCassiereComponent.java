@@ -2256,6 +2256,9 @@ public class DistintaCassiereComponent extends
             PersistencyException {
         Distinta_cassiereBulk distinta = (Distinta_cassiereBulk) bulk;
         try {
+            if(!distinta.getStato().equals(Distinta_cassiereBulk.Stato.TRASMESSA.value())){
+                distinta.setPg_man_rev_dis(null);
+            }
             makeBulkPersistent(userContext, distinta);
             return distinta;
         } catch (Exception e) {
