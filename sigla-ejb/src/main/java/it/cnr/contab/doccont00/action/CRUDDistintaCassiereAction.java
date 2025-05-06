@@ -21,6 +21,7 @@ import it.cnr.contab.doccont00.bp.CRUDDistintaCassiereBP;
 import it.cnr.contab.doccont00.bp.RicercaMandatoReversaleBP;
 import it.cnr.contab.doccont00.bp.ViewDettaglioTotaliBP;
 import it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk;
+import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.firma.bulk.FirmaOTPBulk;
 import it.cnr.contab.util.Utility;
 import it.cnr.jada.action.ActionContext;
@@ -29,6 +30,9 @@ import it.cnr.jada.action.HookForward;
 import it.cnr.jada.util.action.BulkBP;
 import it.cnr.jada.util.action.CRUDBP;
 import it.cnr.jada.util.action.OptionBP;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDAction {
     public CRUDDistintaCassiereAction() {
@@ -74,6 +78,16 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.setDirty(true);
             bp.calcolaTotali(context);
             bp.calcolaMinProgressivoManRev(context);
+            Object distintaCassDet = bp.getDistintaCassDet();
+            Method metodo = distintaCassDet.getClass().getDeclaredMethod("getDetailsPage");
+            metodo.setAccessible(true);
+            Object pagina = metodo.invoke(distintaCassDet);
+            Distinta_cassiereBulk distinta = (Distinta_cassiereBulk) getBusinessProcess(context).getModel();
+            Long minProgressive = distinta.getPg_man_rev_dis();
+            for(V_mandato_reversaleBulk bulk : (List<V_mandato_reversaleBulk>)pagina){
+                bulk.setPg_distinta_tesoreria(minProgressive);
+                minProgressive++;
+            }
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
