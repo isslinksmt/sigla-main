@@ -1069,7 +1069,7 @@ public class DistintaCassiereComponent extends
                 offset = tesoreriaReversali.get(tesoreria);
                 return getNextProgressivoDistintaCassiereBulk(userContext, distinta, save, tesoreria, tipoDocumento, offset);
             }
-            //NON ESEGUIRE SE TUTTO NULL
+
             return distinta;
         } catch (Exception e) {
             throw handleException(e);

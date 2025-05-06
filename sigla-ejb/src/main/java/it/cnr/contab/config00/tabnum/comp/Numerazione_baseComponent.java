@@ -170,11 +170,11 @@ public Long creaNuovoProgressivoTemp(UserContext userContext,Integer esercizio,S
 			}
 			Long cd_corrente = new Long(Long.parseLong(numerazione.getCd_corrente()));
 			if(save){
-				cd_corrente = cd_corrente + offset;
+				Long new_cd_corrente = cd_corrente + offset;
 				long cd_massimo = Long.parseLong(numerazione.getCd_massimo());
 				if (cd_corrente.longValue() >= cd_massimo)
 					throw new NumerazioneEsauritaException();
-				numerazione.setCd_corrente(cd_corrente.toString());
+				numerazione.setCd_corrente(new_cd_corrente.toString());
 				numerazione.setUser(user);
 				home.lock(numerazione);
 				home.update(numerazione, userContext);
