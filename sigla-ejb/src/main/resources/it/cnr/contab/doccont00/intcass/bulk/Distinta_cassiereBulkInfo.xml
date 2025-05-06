@@ -392,8 +392,8 @@
 			property="pg_man_rev_dis"
 			inputType="TEXT"
 			label="Progressivo di partenza per mandati/reversali"
-			enabledOnInsert="true"
-			enabledOnEdit="true"
+			enabledOnInsert="false"
+			enabledOnEdit="false"
 			enabledOnSearch="false"
 			maxLength="10"
 			inputSize="10"/>
