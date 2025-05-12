@@ -6178,4 +6178,7 @@ IVAS = IVA ACQUISTO SPLIT; GEN = GENERICO; RIC = RICAVO; IVAA = IVA ACQUISTO; CR
     <!-- Autore : FRANCESCO NAPOLITANO - aggiunte colonne e modificate viste e procedure per tesoreria multipla -->
     <include file="bootstrap/add_column_tesoreria.xml"/>
     <include file="bootstrap/update_view_and_procedure_tesoreria.xml"/>
+    <!-- Autore : FRANCESCO NAPOLITANO - aggiunte colonne e modificate viste per progressivo mandato e reversale in distinta -->
+    <include file="bootstrap/add_column_progressivo_distinta.xml"/>
+    <include file="bootstrap/update_view_progressivo_distinta.xml"/>
 </databaseChangeLog>
