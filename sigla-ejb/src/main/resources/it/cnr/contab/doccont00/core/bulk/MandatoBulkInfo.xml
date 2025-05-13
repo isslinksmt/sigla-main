@@ -37,7 +37,7 @@
 			name="pg_distinta_tesoreria"
 			property="pg_distinta_tesoreria"
 			inputType="TEXT"
-			label="Progressivo Mandato Distinta"
+			label="Numero Mandato (BANCA)"
 			maxLength="10"
 			inputSize="8"
 			enabledOnEdit="false"
@@ -207,7 +207,7 @@
 		name="pg_mandato"
 		property="pg_mandato"
 		inputType="TEXT"
-		label="Numero Mandato"
+		label="Numero Mandato (SIGLA)"
 		maxLength="10"
 		inputSize="8"
 		enabledOnEdit="false"
@@ -463,9 +463,9 @@
 	<formFieldProperty
 		name="ti_mandato" />
 	<formFieldProperty
-		name="pg_mandato" />
+		name="pg_mandato"/>
 	<formFieldProperty
-			name="pg_distinta_tesoreria" />
+			name="pg_distinta_tesoreria"/>
 	<formFieldProperty
 		name="ti_competenza_residuo" />
 	<formFieldProperty

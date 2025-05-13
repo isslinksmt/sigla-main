@@ -194,7 +194,7 @@
             inputType="TEXT"
             enabledOnSearch="true"
             enabledOnFreeSearch="true"
-            label="Nr. documento"/>
+            label="Numero documento (SIGLA)"/>
     <fieldProperty
             name="pg_documento_cont_padre"
             property="pg_documento_cont_padre"
@@ -594,7 +594,6 @@
                 property="dt_firma"
                 inputType="TEXT"
                 label="Data di Firma"/>
-
     </columnSet>
 
     <columnSet
@@ -605,6 +604,11 @@
                 name="cd_tipo_documento_cont"/>
         <columnFieldProperty
                 name="pg_documento_cont"/>
+        <columnFieldProperty
+                name="pg_distinta_tesoreria"
+                property="pg_distinta_tesoreria"
+                inputType="TEXT"
+                label="Numero documento (BANCA)"/>
         <columnFieldProperty
                 name="ti_documento_cont"/>
         <columnFieldProperty
@@ -617,11 +621,6 @@
                 name="stato"/>
         <columnFieldProperty
                 name="stato_trasmissione"/>
-        <columnFieldProperty
-                name="pg_distinta_tesoreria"
-                property="pg_distinta_tesoreria"
-                inputType="TEXT"
-                label="Progressivo documento per distinta"/>
         <columnFieldProperty
                 name="ds_documento_cont"/>
         <columnFieldProperty

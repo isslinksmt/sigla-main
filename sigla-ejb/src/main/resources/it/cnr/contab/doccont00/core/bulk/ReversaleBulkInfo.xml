@@ -47,7 +47,7 @@
 			name="pg_distinta_tesoreria"
 			property="pg_distinta_tesoreria"
 			inputType="TEXT"
-			label="Progressivo Reversale Distinta"
+			label="Numero Reversale (BANCA)"
 			maxLength="10"
 			inputSize="10"
 			enabledOnEdit="false"
@@ -224,7 +224,7 @@
 		name="pg_reversale"
 		property="pg_reversale"
 		inputType="TEXT"
-		label="Numero Reversale"
+		label="Numero Reversale (SIGLA)"
 		maxLength="10"
 		inputSize="10"
 		enabledOnEdit="false"
@@ -385,9 +385,9 @@
 
 
 	<formFieldProperty
-		name="dt_trasmissione" />
+		name="dt_trasmissione"/>
 	<formFieldProperty
-		name="dt_ritrasmissione" />
+		name="dt_ritrasmissione"/>
 	<formFieldProperty
 			name="dt_incasso"/>
 	<formFieldProperty
@@ -443,9 +443,9 @@
 	<formFieldProperty
 		name="im_da_associare_siope" />
 	<formFieldProperty
-		name="stato_trasmissione_annullo" />
+		name="stato_trasmissione_annullo"/>
 	<formFieldProperty
-		name="pg_reversale_riemissione" />		
+		name="pg_reversale_riemissione" />
 	<formFieldProperty
 		name="ds_documento_cont" />
 	<formFieldProperty
@@ -459,7 +459,6 @@
 			name="erroreSiopePlus" />
 	<formFieldProperty
 			name="statoVarSos"/>
-
 	<columnFieldProperty
 		name="esercizio" />
 	<columnFieldProperty
@@ -475,9 +474,9 @@
 	<columnFieldProperty
 		name="cd_uo_origine"/>
 	<columnFieldProperty
-		name="pg_reversale" />
+		name="pg_reversale"/>
 	<columnFieldProperty
-			name="pg_distinta_tesoreria" />
+			name="pg_distinta_tesoreria"/>
 	<columnFieldProperty
 		name="stato" />
 	<columnFieldProperty
