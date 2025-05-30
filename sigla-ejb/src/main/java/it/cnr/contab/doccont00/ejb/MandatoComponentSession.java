@@ -64,4 +64,5 @@ V_mandato_reversaleBulk cercaVMandatoReversaleBulk(UserContext userContext, Mand
 V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException, RemoteException;
 MandatoIBulk creaMandatoWs( UserContext userContext, MandatoIBulk mandatoIBulk)throws ComponentException, PersistencyException, RemoteException;
 MandatoIBulk stampaMandato(UserContext userContext, Long pgMandato, int esercizio, String cdCds) throws ComponentException, PersistencyException, RemoteException;
+V_mandato_reversaleBulk getMandatoReversaleBulkByPgDisintaTesoreria(UserContext usercontext, String tesoreria, String pgDistintaTesoreria, String esercizio, String tipoDocumento) throws RemoteException, ComponentException;
 }

@@ -2501,4 +2501,19 @@ public class CRUDDistintaCassiereBP extends AllegatiCRUDBP<AllegatoGenericoBulk,
     public void setTesoreria(String tesoreria) {
         this.tesoreria = tesoreria;
     }
-}
+
+    public void calcolaMinProgressivoManRev(it.cnr.jada.action.ActionContext context)
+            throws it.cnr.jada.action.BusinessProcessException {
+        try {
+            Distinta_cassiereBulk distintaSaved = (Distinta_cassiereBulk) getModel();
+            if(distintaSaved.getPg_man_rev_dis() == null){
+                Distinta_cassiereBulk distinta = ((DistintaCassiereComponentSession) createComponentSession())
+                        .calcolaMinProgressivoManRev(context.getUserContext(),
+                                (Distinta_cassiereBulk) getModel(), false);
+                setModel(context, distinta);
+            }
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }}
+

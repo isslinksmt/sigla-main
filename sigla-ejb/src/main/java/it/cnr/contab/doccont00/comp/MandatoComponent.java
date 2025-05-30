@@ -28,6 +28,7 @@ import it.cnr.contab.compensi00.docs.bulk.CompensoBulk;
 import it.cnr.contab.compensi00.docs.bulk.ConguaglioBulk;
 import it.cnr.contab.compensi00.docs.bulk.ConguaglioHome;
 import it.cnr.contab.config00.bulk.*;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.config00.ejb.Configurazione_cnrComponentSession;
 import it.cnr.contab.config00.esercizio.bulk.EsercizioBulk;
 import it.cnr.contab.config00.pdcfin.bulk.Voce_fBulk;
@@ -3472,6 +3473,14 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
         return result;
     }
 
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               MandatoBulk mandato)
+            throws ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList());
+    }
+
     /**
      * Validazione dell'oggetto in fase di stampa
      */
@@ -5278,9 +5287,15 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
         MandatoHome mh = (MandatoHome) getHome(aUC, mandato.getClass());
 
         // il mandato deve avere almeno un dettaglio
-        if (mandato.getMandato_rigaColl().size() == 0)
+        if (mandato.getMandato_rigaColl().size() == 0){
             throw handleException(new ApplicationException(
                     "E' necessario selezionare almeno un documento passivo"));
+        }
+
+        if(null == mandato.getSelezione_tesoreria()){
+            throw handleException(new ApplicationException(
+                    "E' necessario selezionare la tesoreria"));
+        }
 
         // il mandato a regolamento sospeso deve avere dei sospesi associati
         if (mandato.getTi_mandato().equals(MandatoBulk.TIPO_REGOLAM_SOSPESO)) {
@@ -5323,21 +5338,26 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                                     + java.text.DateFormat.getDateInstance()
                                     .format(lastDayOfTheYear));
 
-                if (mandato.getDt_emissione()
-                        .compareTo(mh.getServerTimestamp()) > 0){
-                    logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
-                    throw new ApplicationException(
-                            "Non è possibile inserire un mandato con data futura");
+                boolean checkData = Optional.ofNullable(
+                        createConfigurazioneCnrComponentSession().getVal01(aUC, 0, null, "CONFIGURAZIONE_FONDO", "CHECK_DATA_DOC_GEN")
+                ).orElse("false").equalsIgnoreCase("true");
+                if(checkData){
+                    if (mandato.getDt_emissione()
+                            .compareTo(mh.getServerTimestamp()) > 0){
+                        logger.info("DATA SERVER TIMESTAMP : {} DATA EMISSIONE MANDATO : {}", mh.getServerTimestamp(), mandato.getDt_emissione());
+                        throw new ApplicationException(
+                                "Non è possibile inserire un mandato con data futura");
+                    }
+                    Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
+                            .getClass())).findDataUltimoMandatoPerCds(mandato);
+                    if (dataUltMandato != null
+                            && dataUltMandato.after(mandato.getDt_emissione()))
+                        throw new ApplicationException(
+                                "Non è possibile inserire un mandato con data anteriore a "
+                                        + java.text.DateFormat
+                                        .getDateTimeInstance().format(
+                                                dataUltMandato));
                 }
-                Timestamp dataUltMandato = ((MandatoHome) getHome(aUC, mandato
-                        .getClass())).findDataUltimoMandatoPerCds(mandato);
-                if (dataUltMandato != null
-                        && dataUltMandato.after(mandato.getDt_emissione()))
-                    throw new ApplicationException(
-                            "Non è possibile inserire un mandato con data anteriore a "
-                                    + java.text.DateFormat
-                                    .getDateTimeInstance().format(
-                                            dataUltMandato));
                 // verifica disponibilità su CC
                 if (!mandato.getTi_mandato().equals(
                         MandatoBulk.TIPO_REGOLARIZZAZIONE))
@@ -5787,13 +5807,21 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                 if (rifModPag.isMandatoRegSospeso() && !mandato.isRegolamentoSospeso())
                     throw new ApplicationException(
                             "Attenzione per la modalità di pagamento indicata il mandato deve essere a regolamento sospeso.");
-                if (rifModPag.getCd_modalita_pag().compareTo("F24EP") == 0 && mandato.getDt_pagamento_richiesta() == null)
+                if (( rifModPag.getCd_modalita_pag().compareTo("F24EP") == 0 || ("F24EP").compareTo(rifModPag.getTipo_pagamento_siope())==0)
+                            && mandato.getDt_pagamento_richiesta() == null)
                     throw new ApplicationException(
                             "Attenzione per la modalità di pagamento indicata il mandato deve avere la data pagamento richiesta.");
-                if (rifModPag.getCd_modalita_pag().compareTo("F24EP") != 0 && mandato.getDt_pagamento_richiesta() != null)
+
+                if (( rifModPag.getCd_modalita_pag().compareTo("F24EP") != 0 && !(("F24EP").compareTo(rifModPag.getTipo_pagamento_siope())==0))
+                        && mandato.getDt_pagamento_richiesta() != null)
                     throw new ApplicationException(
                             "Attenzione per la modalità di pagamento " + rifModPag.getCd_modalita_pag() + " la data pagamento richiesta non deve essere indicata.");
-                if (rifModPag.getCd_modalita_pag().compareTo("F24EP") == 0 && mandato.getDt_pagamento_richiesta() != null &&
+                if (( ("F24EP").compareTo(rifModPag.getTipo_pagamento_siope()) != 0 && !(("F24EP").compareTo(rifModPag.getCd_modalita_pag())==0))
+                        && mandato.getDt_pagamento_richiesta() != null)
+                    throw new ApplicationException(
+                            "Attenzione per la modalità di pagamento " + rifModPag.getCd_modalita_pag() + " la data pagamento richiesta non deve essere indicata.");
+                if (( rifModPag.getCd_modalita_pag().compareTo("F24EP") == 0 || ("F24EP").compareTo(rifModPag.getTipo_pagamento_siope())==0)
+                        && mandato.getDt_pagamento_richiesta() != null &&
                         mandato.getDt_emissione() != null && mandato.getDt_pagamento_richiesta().before(mandato.getDt_emissione()))
                     throw new ApplicationException(
                             "Attenzione per la modalità di pagamento " + rifModPag.getCd_modalita_pag() + " la data pagamento richiesta non può essere inferiore alla data contabilizzazione.");
@@ -6705,6 +6733,17 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
     public V_mandato_reversaleBulk getMandatoReversaleBulk(UserContext userContext, MandatoBulk mandatoBulk) throws ComponentException, PersistencyException {
         MandatoHome mandatoHome = (MandatoHome) getHome(userContext, mandatoBulk.getClass());
         return mandatoHome.findMandatiReversaliBulk(userContext, mandatoBulk);
+    }
+
+    public V_mandato_reversaleBulk getMandatoReversaleBulkByPgDisintaTesoreria(UserContext usercontext, String tesoreria, String pgDistintaTesoreria, String esercizio, String tipoDocumento) throws ComponentException, PersistencyException {
+        SQLBuilder sql = getHome(usercontext, V_mandato_reversaleBulk.class)
+                .createSQLBuilder();
+        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, esercizio);
+        sql.addClause("AND", "pg_distinta_tesoreria", SQLBuilder.EQUALS, pgDistintaTesoreria);
+        sql.addClause("AND", "cd_tipo_documento_cont", SQLBuilder.EQUALS, tipoDocumento);
+        sql.addClause("AND", "selezione_tesoreria", SQLBuilder.EQUALS, tesoreria);
+        List result = getHome(usercontext, V_mandato_reversaleBulk.class).fetchAll(sql);
+        return (V_mandato_reversaleBulk) result.get(0);
     }
 
     public V_doc_passivo_obbligazioneBulk getVDocPassiviObbligazione(UserContext userContext, Long pgDocumentoGen, String cdCds, int esercizio) throws ComponentException, PersistencyException {

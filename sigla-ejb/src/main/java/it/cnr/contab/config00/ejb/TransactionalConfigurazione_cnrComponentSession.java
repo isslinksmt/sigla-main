@@ -17,6 +17,8 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.bulk.OggettoBulk;
@@ -27,6 +29,7 @@ import it.cnr.jada.util.RemoteIterator;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class TransactionalConfigurazione_cnrComponentSession extends it.cnr.jada.ejb.TransactionalCRUDComponentSession implements Configurazione_cnrComponentSession {
     public it.cnr.contab.config00.bulk.Configurazione_cnrBulk getConfigurazione(it.cnr.jada.UserContext userContext, java.lang.Integer param1, java.lang.String param2, java.lang.String param3, java.lang.String param4) throws RemoteException, it.cnr.jada.comp.ComponentException {
@@ -1578,4 +1581,108 @@ public class TransactionalConfigurazione_cnrComponentSession extends it.cnr.jada
             }
         }
     }
+
+    @Override
+    public Boolean isAttivoGestFlIrregistrabile(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return (java.lang.Boolean) invoke("isAttivoGestFlIrregistrabile", new Object[]{
+                    userContext});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    @Override
+    public Boolean isLiqIvaAnticipataFattAttiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException {
+        try {
+            return (Boolean) invoke("isLiqIvaAnticipataFattAttiva", new Object[]{param0,dataFattura});
+        } catch (RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    @Override
+    public Boolean isLiqIvaAnticipataFattPassiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException {
+        try {
+            return (Boolean) invoke("isLiqIvaAnticipataFattPassiva", new Object[]{param0,dataFattura});
+        } catch (RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    public Timestamp getFineRegFattPass(UserContext userContext, Integer esercizio)  throws RemoteException, it.cnr.jada.comp.ComponentException {
+        try {
+            return (Timestamp) invoke("getFineRegFattPass", new Object[]{
+                    userContext, esercizio});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return (List<TesoreriaDto>) invoke("findTesorerie", new Object[]{
+                    userContext});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return (List<Configurazione_cnrBulk>) invoke("findTesorerieConfigurazioneCNR", new Object[]{
+                    userContext});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
 }

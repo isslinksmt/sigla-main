@@ -38,6 +38,10 @@
 	<td><% bp.getController().writeFormLabel( out, "ti_documento_cont"); %></td>
 	<td><% bp.getController().writeFormInput( out, "ti_documento_cont"); %></td>
 	</tr>
+	   <tr>
+		   <td><% bp.getController().writeFormLabel( out, "selezione_tesoreria"); %></td>
+		   <td><% bp.getController().writeFormInput( out,"default", "selezione_tesoreria", false, null,"onchange=\"submitForm('doCambiaTesoreria')\"" ); %></td>
+	   </tr>
 	<tr>
 	<td><% bp.getController().writeFormLabel( out, "pg_documento_cont"); %></td>
 	<td><% bp.getController().writeFormInput( out, "pg_documento_cont"); %></td>

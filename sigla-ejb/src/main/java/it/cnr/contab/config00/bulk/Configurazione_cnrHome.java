@@ -25,6 +25,7 @@ import it.cnr.jada.persistency.PersistencyException;
 import it.cnr.jada.persistency.PersistentCache;
 import it.cnr.jada.persistency.sql.FindClause;
 import it.cnr.jada.persistency.sql.SQLBuilder;
+import it.cnr.jada.util.ejb.EJBCommonServices;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -87,6 +88,13 @@ public class Configurazione_cnrHome extends BulkHome {
         sql.addClause("AND", "cd_unita_funzionale", SQLBuilder.EQUALS, Configurazione_cnrBulk.PK_VAR_STANZ_RES);
         sql.addClause("AND", "cd_chiave_primaria", SQLBuilder.EQUALS, Configurazione_cnrBulk.SK_TIPO_VAR_APPROVA_CNR);
 
+        return fetchAll(sql);
+    }
+
+    public java.util.List findTesorerie() throws PersistencyException {
+        SQLBuilder sql = createSQLBuilder();
+        sql.addClause("AND", "esercizio", SQLBuilder.EQUALS, new Integer(0));
+        sql.addClause("AND", "cd_chiave_primaria", SQLBuilder.EQUALS, Configurazione_cnrBulk.TESORERIA);
         return fetchAll(sql);
     }
 
@@ -514,5 +522,26 @@ public class Configurazione_cnrHome extends BulkHome {
                         Configurazione_cnrBulk.PK_STEP_FINE_ANNO,
                         Configurazione_cnrBulk.StepFineAnno.RIAPERTURA_CONTI.value())
         );
+    }
+
+    public java.sql.Timestamp getFineRegFattPass(UserContext userContext, Integer esercizio) throws PersistencyException {
+        Timestamp serverDate = EJBCommonServices.getServerDate();
+        Optional<Configurazione_cnrBulk> configurazioneCdS = Optional.ofNullable(
+                this.getConfigurazione(esercizio,
+                        CNRUserContext.getCd_cds(userContext),
+                        Configurazione_cnrBulk.PK_STEP_FINE_ANNO,
+                        Configurazione_cnrBulk.StepFineAnno.REGISTRAZIONE_FATT_PASS.value())
+        );
+        if (configurazioneCdS.isPresent()) {
+            return Optional.ofNullable(configurazioneCdS.get().getDt01()).orElse(serverDate);
+        } else {
+            return Optional.ofNullable(
+                    this.getConfigurazione(esercizio,
+                            ASTERISCO,
+                            Configurazione_cnrBulk.PK_STEP_FINE_ANNO,
+                            Configurazione_cnrBulk.StepFineAnno.REGISTRAZIONE_FATT_PASS.value()))
+                    .map(Configurazione_cnrBase::getDt01)
+                    .orElse(serverDate);
+        }
     }
 }

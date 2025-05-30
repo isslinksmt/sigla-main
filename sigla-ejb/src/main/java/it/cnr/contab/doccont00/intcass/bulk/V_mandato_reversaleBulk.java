@@ -45,10 +45,7 @@ import it.cnr.jada.bulk.OggettoBulk;
 import it.cnr.jada.comp.ComponentException;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @StorageType(name="D:doccont:document")
@@ -56,13 +53,13 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	TerzoBulk terzo = new TerzoBulk();
 	Unita_organizzativaBulk uo = new Unita_organizzativaBulk();
 	boolean stato_trasmissioneToBeUpdated = false;
-	
+	private String selezione_tesoreria;
 	// PG_DISTINTA DECIMAL(10,0) NOT NULL (PK)
 	private java.lang.Long pg_distinta;
 	private String documento;
 	private BulkList<AllegatoGenericoBulk> archivioAllegati = new BulkList<AllegatoGenericoBulk>();
 	protected BulkList<Mandato_rigaIBulk> mandato_rigaColl = new BulkList();
-
+	private List selezione_tesoreriaOptions;
 	public final static java.util.Dictionary cd_tipo_documento_contKeys;
 	static 
 	{
@@ -177,7 +174,16 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
 	 */
 	public OggettoBulk initializeForSearch(it.cnr.jada.util.action.CRUDBP bp,it.cnr.jada.action.ActionContext context) 
 	{
-		setEsercizio( ((CNRUserContext)context.getUserContext()).getEsercizio() );
+		Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+				.createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        try {
+            this.setSelezione_tesoreriaOptions(sess.findTesorerie(context.getUserContext()).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList()));
+        } catch (ComponentException e) {
+            throw new RuntimeException(e);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        setEsercizio( ((CNRUserContext)context.getUserContext()).getEsercizio() );
 		
 			try {
 				if (!isUoDistintaTuttaSac(context))
@@ -338,4 +344,20 @@ public class V_mandato_reversaleBulk extends V_mandato_reversaleBase implements 
     public void setMandato_rigaColl(it.cnr.jada.bulk.BulkList<Mandato_rigaIBulk> newMandato_rigaColl) {
         mandato_rigaColl = newMandato_rigaColl;
     }
+
+	public String getSelezione_tesoreria() {
+		return selezione_tesoreria;
+	}
+
+	public void setSelezione_tesoreria(String selezione_tesoreria) {
+		this.selezione_tesoreria = selezione_tesoreria;
+	}
+
+	public List getSelezione_tesoreriaOptions() {
+		return selezione_tesoreriaOptions;
+	}
+
+	public void setSelezione_tesoreriaOptions(List selezione_tesoreriaOptions) {
+		this.selezione_tesoreriaOptions = selezione_tesoreriaOptions;
+	}
 }

@@ -159,6 +159,7 @@ public class Configurazione_cnrBulk extends Configurazione_cnrBase {
     public final static String SK_ORDINE_AUT_ROTTURA_UO_DESTINAZIONE = "ORDINI_AUT_ROTTURA_UO_DEST";
     public final static String SK_ORDINE_IMPEGNO_UO_DESTINAZIONE = "IMPEGNO_ORDINI_UO_DEST";
     public final static String PK_FATTURA_PASSIVA = "FATTURA_PASSIVA";
+    public final static String SK_GEST_IRREGISTABILE = "GEST_IRREGISTABILE";
     public final static String PK_FATTURA_ATTIVA = "FATTURA_ATTIVA";
     public final static String SK_CHECK_IMP_INTRASTAT="CHECK_IMP_INTRASTAT";
     public final static String SK_LIMITE_REG_TARDIVA = "LIMITE_REG_TARDIVA";
@@ -261,6 +262,10 @@ public class Configurazione_cnrBulk extends Configurazione_cnrBase {
 
     public final static String SK_MODALITA_PAGAMENTO = "MODALITA_PAGAMENTO";
 
+    public final static String TESORERIA = "TESORERIA";
+    public final static String CONFIGURAZIONE_TESORERIA = "CONFIGURAZIONE_TESORERIA";
+    public final static String SK_LIQ_IVA_ANTICIPATA = "LIQ_IVA_ANTICIPATA";
+
     public final static Map<String,String> TI_STEP_FINE_ANNO = new HashMap<String, String>() {{
         put("N", "No");
         put("Y", "Si");
@@ -280,7 +285,8 @@ public class Configurazione_cnrBulk extends Configurazione_cnrBase {
         CHIUSURA_PROVVISORIA("090_CHIUSURA_PROVVISORIA"),
         CHIUSURA_DEFINITIVA("100_CHIUSURA_DEFINITIVA"),
         CARICHI_SCARICHI_MAG("110_FINE_MOV_MAG"),
-        RIAPERTURA_CONTI("120_RIAPERTURA_CONTI");
+        RIAPERTURA_CONTI("120_RIAPERTURA_CONTI"),
+        REGISTRAZIONE_FATT_PASS("130_REG_FATT_PAS");
 
         private final String value;
 

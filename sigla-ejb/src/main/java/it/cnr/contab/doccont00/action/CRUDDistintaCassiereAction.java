@@ -21,6 +21,7 @@ import it.cnr.contab.doccont00.bp.CRUDDistintaCassiereBP;
 import it.cnr.contab.doccont00.bp.RicercaMandatoReversaleBP;
 import it.cnr.contab.doccont00.bp.ViewDettaglioTotaliBP;
 import it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk;
+import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.firma.bulk.FirmaOTPBulk;
 import it.cnr.contab.util.Utility;
 import it.cnr.jada.action.ActionContext;
@@ -29,6 +30,9 @@ import it.cnr.jada.action.HookForward;
 import it.cnr.jada.util.action.BulkBP;
 import it.cnr.jada.util.action.CRUDBP;
 import it.cnr.jada.util.action.OptionBP;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDAction {
     public CRUDDistintaCassiereAction() {
@@ -73,6 +77,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.getDistintaCassDet().reset(context);
             bp.setDirty(true);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
@@ -91,6 +96,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             CRUDDistintaCassiereBP bp = (CRUDDistintaCassiereBP) getBusinessProcess(context);
             bp.getDistintaCassDet().removeAll(context);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);
@@ -110,6 +116,7 @@ public class CRUDDistintaCassiereAction extends it.cnr.jada.util.action.CRUDActi
             bp.controllaEliminaMandati(context);
             bp.getDistintaCassDet().remove(context);
             bp.calcolaTotali(context);
+            bp.calcolaMinProgressivoManRev(context);
             return context.findDefaultForward();
         } catch (Exception e) {
             return handleException(context, e);

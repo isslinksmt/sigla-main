@@ -77,6 +77,7 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReversaleComponent extends ScritturaPartitaDoppiaFromDocumentoComponent implements IReversaleMgr, ICRUDMgr, IPrintMgr, Cloneable, Serializable {
     public final static String INSERIMENTO_REVERSALE_ACTION = "I";
@@ -3401,6 +3402,11 @@ REVERSALE
         if (reversale.getReversale_rigaColl().size() == 0)
             throw handleException(new ApplicationException("E' necessario selezionare almeno un documento attivo"));
 
+        if(null == reversale.getSelezione_tesoreria()){
+            throw handleException(new ApplicationException(
+                    "E' necessario selezionare la tesoreria"));
+        }
+
         //le reverali di regoalarizz/incasso non possono avere sospesi associati
         if ((ReversaleBulk.TIPO_REGOLARIZZAZIONE.equals(reversale.getTi_reversale()) ||
                 ReversaleBulk.TIPO_INCASSO.equals(reversale.getTi_reversale())) &&
@@ -3453,12 +3459,17 @@ REVERSALE
                     throw new ApplicationException("La data di registrazione deve essere " +
                             java.text.DateFormat.getDateInstance().format(lastDayOfTheYear));
 
-                if (reversale.getDt_emissione().compareTo(rh.getServerTimestamp()) > 0)
-                    throw new ApplicationException("Non è possibile inserire una reversale con data futura");
-                Timestamp dataUltReversale = ((ReversaleHome) getHome(aUC, reversale.getClass())).findDataUltimaReversalePerCds(reversale);
-                if (dataUltReversale != null && dataUltReversale.after(reversale.getDt_emissione()))
-                    throw new ApplicationException("Non è possibile inserire una reversale con data anteriore a " +
-                            java.text.DateFormat.getDateTimeInstance().format(dataUltReversale));
+                boolean checkData = Optional.ofNullable(
+                        createConfigurazioneCnrComponentSession().getVal01(aUC, 0, null, "CONFIGURAZIONE_FONDO", "CHECK_DATA_DOC_GEN")
+                ).orElse("false").equalsIgnoreCase("true");
+                if(checkData){
+                    if (reversale.getDt_emissione().compareTo(rh.getServerTimestamp()) > 0)
+                        throw new ApplicationException("Non è possibile inserire una reversale con data futura");
+                    Timestamp dataUltReversale = ((ReversaleHome) getHome(aUC, reversale.getClass())).findDataUltimaReversalePerCds(reversale);
+                    if (dataUltReversale != null && dataUltReversale.after(reversale.getDt_emissione()))
+                        throw new ApplicationException("Non è possibile inserire una reversale con data anteriore a " +
+                                java.text.DateFormat.getDateTimeInstance().format(dataUltReversale));
+                }
             }
             verificaModalitaPagamento(aUC, reversale);
         } catch (Exception e) {
@@ -4058,5 +4069,14 @@ REVERSALE
             reversale.setToBeUpdated();
             this.modificaConBulk(userContext, reversale);
         }
+    }
+
+    public List findSelezione_tesoreriaOptions(UserContext userContext,
+                                               ReversaleBulk reversale)
+            throws it.cnr.jada.persistency.PersistencyException,
+            it.cnr.jada.persistency.IntrospectionException, ComponentException, RemoteException {
+        Configurazione_cnrComponentSession sess = (Configurazione_cnrComponentSession) it.cnr.jada.util.ejb.EJBCommonServices
+                .createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession");
+        return sess.findTesorerie(userContext).stream().map(el -> el.getDs_estesa()).collect(Collectors.toList());
     }
 }

@@ -20,6 +20,7 @@ package it.cnr.contab.config00.comp;
 import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.bulk.Configurazione_cnrHome;
 import it.cnr.contab.config00.bulk.Configurazione_cnrKey;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.utente00.ejb.RuoloComponentSession;
 import it.cnr.contab.utenze00.bp.CNRUserContext;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
@@ -36,12 +37,16 @@ import it.cnr.jada.util.ejb.EJBCommonServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComponent implements IConfigurazione_cnrMgr, Cloneable, Serializable {
 
@@ -1306,4 +1311,150 @@ public class Configurazione_cnrComponent extends it.cnr.jada.comp.CRUDDetailComp
         }
     }
 
+    public Boolean isAttivoGestFlIrregistrabile(UserContext userContext) throws ComponentException {
+        try {
+            Configurazione_cnrKey configurazioneCnrKey = new Configurazione_cnrKey(
+                    Configurazione_cnrBulk.PK_FATTURA_PASSIVA,
+                    Configurazione_cnrBulk.SK_GEST_IRREGISTABILE,
+                    ASTERISCO,
+                    CNRUserContext.getEsercizio(userContext));
+            return val01YesNo(userContext, configurazioneCnrKey)
+                    .orElseGet(() -> {
+                        try {
+                            return val01YesNo(userContext, configurazioneCnrKey.esercizio(0))
+                                    .orElse(Boolean.FALSE);
+                        } catch (PersistencyException|ComponentException e) {
+                            throw new PersistencyError(e);
+                        }
+                    });
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
+
+    public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException {
+        try {
+            List<Configurazione_cnrBulk> result = ((Configurazione_cnrHome)getHome(userContext, Configurazione_cnrBulk.class))
+                    .findTesorerie();
+            return result.stream().map(el-> {
+                TesoreriaDto tesoreriaDto = new TesoreriaDto();
+                tesoreriaDto.setDs_estesa(el.getCd_chiave_secondaria());
+                return tesoreriaDto;
+            }).collect(Collectors.toList());
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
+
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException {
+        try {
+            return ((Configurazione_cnrHome)getHome(userContext, Configurazione_cnrBulk.class))
+                    .findTesorerie();
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
+
+    public Boolean isLiqIvaAnticipataFattAttiva(UserContext userContext, Timestamp dataFattura) throws ComponentException {
+        Date dataInizio;
+        Date dataFine;
+        boolean isLiqIvaAnticipata;
+
+        try {
+            // Controllo dello stato "val01" per FATTURA_ATTIVA e LIQ_IVA_ANTICIPATA
+            Configurazione_cnrKey configurazioneCnrKey = new Configurazione_cnrKey(
+                    Configurazione_cnrBulk.PK_FATTURA_ATTIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA,
+                    ASTERISCO,
+                    CNRUserContext.getEsercizio(userContext));
+            isLiqIvaAnticipata = val01YesNo(userContext, configurazioneCnrKey)
+                    .orElseGet(() -> {
+                        try {
+                            return val01YesNo(userContext, configurazioneCnrKey.esercizio(0))
+                                    .orElse(Boolean.FALSE);
+                        } catch (PersistencyException | ComponentException e) {
+                            throw new PersistencyError(e);
+                        }
+                    });
+
+            // Recupero delle date di validità
+            dataInizio = getDt01(
+                    userContext,
+                    CNRUserContext.getEsercizio(userContext),
+                    null,
+                    Configurazione_cnrBulk.PK_FATTURA_ATTIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA
+            );
+            dataFine = getDt02(
+                    userContext,
+                    CNRUserContext.getEsercizio(userContext),
+                    null,
+                    Configurazione_cnrBulk.PK_FATTURA_ATTIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA
+            );
+        } catch (PersistencyException | ComponentException | EJBException e) {
+            throw new it.cnr.jada.comp.ApplicationException(e.getMessage());
+        }
+
+        // Verifica delle date di validità
+        return isLiqIvaAnticipata && dataFattura != null && dataInizio != null && dataFine != null &&
+                (dataFattura.compareTo(dataInizio)>=0 &&  dataFattura.compareTo(dataFine)<=0);
+    }
+
+    public Boolean isLiqIvaAnticipataFattPassiva(UserContext userContext, Timestamp dataFattura) throws ComponentException {
+        Date dataInizio;
+        Date dataFine;
+        boolean isLiqIvaAnticipata;
+
+        try {
+            // Controllo dello stato "val01" per FATTURA_PASSIVA e LIQ_IVA_ANTICIPATA
+            Configurazione_cnrKey configurazioneCnrKey = new Configurazione_cnrKey(
+                    Configurazione_cnrBulk.PK_FATTURA_PASSIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA,
+                    ASTERISCO,
+                    CNRUserContext.getEsercizio(userContext));
+            isLiqIvaAnticipata = val01YesNo(userContext, configurazioneCnrKey)
+                    .orElseGet(() -> {
+                        try {
+                            return val01YesNo(userContext, configurazioneCnrKey.esercizio(0))
+                                    .orElse(Boolean.FALSE);
+                        } catch (PersistencyException | ComponentException e) {
+                            throw new PersistencyError(e);
+                        }
+                    });
+
+            // Recupero delle date di validità
+            dataInizio = getDt01(
+                    userContext,
+                    CNRUserContext.getEsercizio(userContext),
+                    null,
+                    Configurazione_cnrBulk.PK_FATTURA_PASSIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA
+            );
+            dataFine = getDt02(
+                    userContext,
+                    CNRUserContext.getEsercizio(userContext),
+                    null,
+                    Configurazione_cnrBulk.PK_FATTURA_PASSIVA,
+                    Configurazione_cnrBulk.SK_LIQ_IVA_ANTICIPATA
+            );
+        } catch (PersistencyException | ComponentException | EJBException e) {
+            throw new it.cnr.jada.comp.ApplicationException(e.getMessage());
+        }
+
+        // Verifica delle date di validità
+        return isLiqIvaAnticipata && dataFattura != null && dataInizio != null && dataFine != null &&
+                (dataFattura.compareTo(dataInizio)>=0 &&  dataFattura.compareTo(dataFine)<=0);
+    }
+    public Timestamp getFineRegFattPass(UserContext userContext, Integer esercizio) throws ComponentException {
+        try {
+            return Optional.ofNullable(getHome(userContext, Configurazione_cnrBulk.class))
+                    .filter(Configurazione_cnrHome.class::isInstance)
+                    .map(Configurazione_cnrHome.class::cast)
+                    .orElseThrow(() -> new DetailedRuntimeException("Configurazione Home not found"))
+                    .getFineRegFattPass(userContext, esercizio);
+        } catch (PersistencyException e) {
+            throw handleException(e);
+        }
+    }
 }

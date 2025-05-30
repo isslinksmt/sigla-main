@@ -48,6 +48,7 @@ import it.cnr.contab.utenze00.bulk.CNRUserInfo;
 import it.cnr.contab.utenze00.bulk.UtenteBulk;
 import it.cnr.contab.util.Utility;
 import it.cnr.contab.util00.bp.AllegatiCRUDBP;
+import it.cnr.contab.util00.bulk.storage.AllegatoGenericoBulk;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.action.HttpActionContext;
@@ -175,6 +176,8 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
     private boolean attivaInventaria = false;
     private boolean isModificaPCC;
     protected boolean attivoCheckImpIntrastat = false;
+
+    private Boolean isAttivoGestFlIrregistrabile;
 
     public Boolean isAttivoChekcImpIntrastat(){
         return attivoCheckImpIntrastat;
@@ -588,6 +591,7 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
             attivaEconomicaParallela = configurazioneCnrComponentSession.isAttivaEconomicaParallela(context.getUserContext());
             attivaInventaria= configurazioneCnrComponentSession.isAttivoInventariaDocumenti(context.getUserContext());
             attivoCheckImpIntrastat=Utility.createConfigurazioneCnrComponentSession().isCheckImpIntrastatFattPassiva(context.getUserContext());
+            isAttivoGestFlIrregistrabile=Utility.createConfigurazioneCnrComponentSession().isAttivoGestFlIrregistrabile(context.getUserContext());
             isModificaPCC = Optional.ofNullable(
                     configurazioneCnrComponentSession.getConfigurazione(
                     context.getUserContext(),
@@ -659,6 +663,9 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
             bulk = super.initializeModelForEdit(context, bulk);
             if ( this instanceof CRUDFatturaPassivaAmministraBP)
                 ((Fattura_passivaBulk)bulk).setFromAmministra(Boolean.TRUE);
+            Boolean liqIvaAnticipataFattPassiva = Utility.createConfigurazioneCnrComponentSession().
+                    isLiqIvaAnticipataFattPassiva(context.getUserContext(), ((Fattura_passivaBulk)bulk).getDt_registrazione());
+            ((Fattura_passivaBulk)bulk).setFl_bloccoAttivoDtReg(liqIvaAnticipataFattPassiva);
             return bulk;
         } catch (Throwable e) {
             throw new it.cnr.jada.action.BusinessProcessException(e);
@@ -980,15 +987,21 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
      */
 
     public void reset(ActionContext context) throws BusinessProcessException {
-
-        if (it.cnr.contab.utenze00.bp.CNRUserContext.getEsercizio(
-                context.getUserContext()).intValue() != Fattura_passivaBulk
-                .getDateCalendar(null).get(java.util.Calendar.YEAR))
-            resetForSearch(context);
-        else {
-            setCarryingThrough(false);
-            super.reset(context);
-            resetTabs();
+        try {
+            if ((it.cnr.contab.utenze00.bp.CNRUserContext.getEsercizio(
+                    context.getUserContext()).intValue() != Fattura_passivaBulk
+                    .getDateCalendar(null).get(java.util.Calendar.YEAR) || !Utility.createConfigurazioneCnrComponentSession().getFineRegFattPass(context.getUserContext(), CNRUserContext.getEsercizio(context.getUserContext()) - 1)
+                    .before(EJBCommonServices.getServerDate()) )  &&
+                    !Utility.createConfigurazioneCnrComponentSession().getFineRegFattPass(context.getUserContext(), CNRUserContext.getEsercizio(context.getUserContext()))
+                            .after(EJBCommonServices.getServerDate())) {
+                resetForSearch(context);
+            } else {
+                setCarryingThrough(false);
+                super.reset(context);
+                resetTabs();
+            }
+        } catch (RemoteException | ComponentException _ex) {
+            throw handleException(_ex);
         }
     }
 
@@ -1176,6 +1189,18 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
                         fatturaPassivaBulk.setNr_protocollo_liq(null);
                     }
             });
+        Optional.ofNullable(getModel())
+                .filter(Fattura_passivaBulk.class::isInstance)
+                .map(Fattura_passivaBulk.class::cast)
+                .ifPresent(fatturaPassivaBulk -> {
+                    try {
+                        fatturaPassivaBulk.setFl_bloccoAttivoDtReg(Utility.createConfigurazioneCnrComponentSession().isLiqIvaAnticipataFattPassiva(context.getUserContext(), fatturaPassivaBulk.getDt_registrazione()));
+                    } catch (ComponentException e) {
+                        throw new RuntimeException(e);
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         super.save(context);
         setCarryingThrough(false);
     }
@@ -2059,6 +2084,39 @@ public abstract class CRUDFatturaPassivaBP extends AllegatiCRUDBP<AllegatoFattur
             dettaglioIntrastatController.setModelIndex(actioncontext, dettaglioIntrastatController.getDetails().indexOf(rigaDaCompletare));
             resyncChildren(actioncontext);
         }
+    }
+    private boolean isComunicazioneNonRegistabilita(AllegatoGenericoBulk allegato) {
+        return Optional.ofNullable(allegato)
+                .filter(AllegatoFatturaBulk.class::isInstance)
+                .map(AllegatoFatturaBulk.class::cast)
+                .filter(a->a.isComunicazioneNonRegistabilita())
+                .isPresent();
+    }
+
+    @Override
+    protected Boolean isPossibileCancellazione(AllegatoGenericoBulk allegato) {
+        if ( isComunicazioneNonRegistabilita( allegato)&&
+                !isAttivoGestFlIrregistrabile)
+            return Boolean.FALSE;
+        if (isComunicazioneNonRegistabilita(allegato) &&
+                Optional.ofNullable(getModel())
+                        .filter(DocumentoEleTestataBulk.class::isInstance)
+                        .map(DocumentoEleTestataBulk.class::cast)
+                        .map(DocumentoEleTestataBulk::getFlIrregistrabile)
+                        .map(s -> s.equalsIgnoreCase("S"))
+                        .orElse(Boolean.TRUE)
+        ) {
+            return Boolean.FALSE;
+        }
+        return super.isPossibileCancellazione(allegato);
+    }
+
+    @Override
+    protected Boolean isPossibileModifica(AllegatoGenericoBulk allegato) {
+        if (isComunicazioneNonRegistabilita(allegato)) {
+            return false;
+        }
+        return super.isPossibileModifica(allegato);
     }
 
 }

@@ -22,14 +22,19 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
+import it.cnr.contab.config00.ejb.Configurazione_cnrComponentSession;
 import it.cnr.contab.doccont00.dto.MandatiReversaliParsedDto;
 import it.cnr.contab.doccont00.ejb.DistintaCassiereComponentSession;
+import it.cnr.contab.doccont00.ejb.MandatoComponentSession;
 import it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk;
+import it.cnr.contab.doccont00.intcass.bulk.V_mandato_reversaleBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.FlussoGiornaleDiCassaBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.InformazioniContoEvidenzaBulk;
 import it.cnr.contab.doccont00.intcass.giornaliera.MovimentoContoEvidenzaBulk;
 import it.cnr.contab.utenze00.bp.WSUserContext;
 import it.cnr.jada.DetailedRuntimeException;
+import it.cnr.jada.UserContext;
 import it.cnr.jada.action.ActionContext;
 import it.cnr.jada.action.BusinessProcessException;
 import it.cnr.jada.action.Config;
@@ -51,17 +56,15 @@ import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class CaricaFileReversaleBP extends BulkBP {
     private static final long serialVersionUID = 1L;
     public static final String DATE_FORMAT = "dd/MM/yyyy";
     private DistintaCassiereComponentSession distintaCassiereComponentSession;
-
+    private MandatoComponentSession mandatoComponentSession;
     public CaricaFileReversaleBP() {
         super();
     }
@@ -92,6 +95,10 @@ public class CaricaFileReversaleBP extends BulkBP {
                 .filter(DistintaCassiereComponentSession.class::isInstance)
                 .map(DistintaCassiereComponentSession.class::cast)
                 .orElseThrow(() -> new DetailedRuntimeException("cannot find ejb CNRDOCCONT00_EJB_DistintaCassiereComponentSession"));
+        this.mandatoComponentSession = Optional.ofNullable(EJBCommonServices.createEJB("CNRDOCCONT00_EJB_MandatoComponentSession"))
+                .filter(MandatoComponentSession.class::isInstance)
+                .map(MandatoComponentSession.class::cast)
+                .orElseThrow(() -> new DetailedRuntimeException("cannot find ejb CNRDOCCONT00_EJB_MandatoComponentSession"));
     }
 
     public void caricaFileReversale(ActionContext actioncontext, File file) throws BusinessProcessException, ComponentException{
@@ -106,7 +113,7 @@ public class CaricaFileReversaleBP extends BulkBP {
                         .build())
                 .build()) {
             List<String[]> records = csvReader.readAll();
-            List<MandatiReversaliParsedDto> parsedRecords = parseRecords(records);
+            List<MandatiReversaliParsedDto> parsedRecords = parseRecords(records, actioncontext.getUserContext());
             FlussoGiornaleDiCassaBulk flusso = initFlusso(parsedRecords.get(0), actioncontext.getUserContext().getUser(), identificativoFlusso);
             InformazioniContoEvidenzaBulk info = initInformazioniContoEvidenza(flusso, parsedRecords.get(0));
             for (int i = 0; i < parsedRecords.size(); i++) {
@@ -205,15 +212,35 @@ public class CaricaFileReversaleBP extends BulkBP {
         }
     }
 
-    private List<MandatiReversaliParsedDto> parseRecords(List<String[]> records) {
+    private List<MandatiReversaliParsedDto> parseRecords(List<String[]> records, UserContext userContext) throws ComponentException, RemoteException {
+        List<Configurazione_cnrBulk> listaTesorerie = ((Configurazione_cnrComponentSession)
+                EJBCommonServices.createEJB("CNRCONFIG00_EJB_Configurazione_cnrComponentSession"))
+                .findTesorerieConfigurazioneCNR(userContext);
+
+        Map<String, String> configurazioneTesoreriaCodiceEnte = Optional.ofNullable(listaTesorerie)
+                .orElseThrow(() -> new RuntimeException("Tesoreria non configurata."))
+                .stream()
+                .collect(Collectors.toMap(
+                        t -> t.getIm01().toPlainString().replaceAll("\\D", ""),
+                        Configurazione_cnrBulk::getCd_chiave_secondaria
+                ));
         records = records.subList(1, records.size());
         List<MandatiReversaliParsedDto> result = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         for (String[] record : records) {
+            String codiceEnte = parseString(record[0]);
+            Integer esercizio = parseInteger(record[1]);
+            Integer pgDistintaTesoreria = parseInteger(record[2]);
             MandatiReversaliParsedDto dto = new MandatiReversaliParsedDto();
-            dto.setCodiceEnte(parseString(record[0]));
-            dto.setEsercizio(parseInteger(record[1]));
-            dto.setNumeroDocumento(parseInteger(record[2]));
+            V_mandato_reversaleBulk mandatoReversaleBulk = null;
+            try {
+                mandatoReversaleBulk = mandatoComponentSession.getMandatoReversaleBulkByPgDisintaTesoreria(userContext,configurazioneTesoreriaCodiceEnte.get(codiceEnte), pgDistintaTesoreria.toString(), esercizio.toString(), "REV");
+            } catch (RemoteException | ComponentException e) {
+                throw new RuntimeException(e);
+            }
+            dto.setCodiceEnte(codiceEnte);
+            dto.setEsercizio(esercizio);
+            dto.setNumeroDocumento(Math.toIntExact(mandatoReversaleBulk.getPg_documento_cont()));
             dto.setNumeroBeneficiario(parseInteger(record[3]));
             dto.setDataCarico(parseDate(record[4], dateFormat));
             dto.setDataPagamento(parseDate(record[5], dateFormat));

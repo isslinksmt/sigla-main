@@ -21,6 +21,7 @@ import it.cnr.contab.anagraf00.core.bulk.TerzoBulk;
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
 import it.cnr.contab.coepcoan00.core.bulk.Scrittura_partita_doppiaBulk;
 import it.cnr.contab.compensi00.docs.bulk.CompensoBulk;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.docamm00.docs.bulk.Numerazione_doc_ammBulk;
 import it.cnr.contab.docamm00.docs.bulk.TipoDocumentoEnum;
 import it.cnr.contab.pdg00.cdip.bulk.Stipendi_cofiBulk;
@@ -126,9 +127,9 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
     private java.util.Dictionary tipoDocumentoPerRicercaKeys;
     private java.math.BigDecimal im_disp_cassa_cds;
     private java.math.BigDecimal im_disp_cassa_CNR;
-
+    private List selezione_tesoreriaOptions;
     private Scrittura_partita_doppiaBulk scrittura_partita_doppia;
-
+    private String selezione_tesoreria;
     private Stipendi_cofiBulk stipendiCofiBulk;
 
     public MandatoBulk() {
@@ -626,6 +627,14 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
         unita_organizzativaOptions = newUnita_organizzativaOptions;
     }
 
+    public List getSelezione_tesoreriaOptions() {
+        return selezione_tesoreriaOptions;
+    }
+
+    public void setSelezione_tesoreriaOptions(List selezione_tesoreriaOptions) {
+        this.selezione_tesoreriaOptions = selezione_tesoreriaOptions;
+    }
+
     /**
      * Inizializza l'Oggetto Bulk per la ricerca libera.
      *
@@ -751,6 +760,10 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
      */
     public boolean isROTi_mandato() {
         return !this.mandato_rigaColl.isEmpty();
+    }
+
+    public boolean isROSelezionaTesoreria() {
+        return false;
     }
 
     /**
@@ -1234,4 +1247,11 @@ public class MandatoBulk extends MandatoBase implements IManRevBulk, IDefferUpda
         this.stipendiCofiBulk = stipendiCofiBulk;
     }
 
+    public String getSelezione_tesoreria() {
+        return selezione_tesoreria;
+    }
+
+    public void setSelezione_tesoreria(String selezione_tesoreria) {
+        this.selezione_tesoreria = selezione_tesoreria;
+    }
 }

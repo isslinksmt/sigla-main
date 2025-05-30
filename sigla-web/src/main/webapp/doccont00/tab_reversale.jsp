@@ -54,6 +54,8 @@
 	<tr>
 			<td><% bp.getController().writeFormLabel( out, "pg_reversale"); %></td>
 			<td><% bp.getController().writeFormInput( out, "pg_reversale"); %></td>
+			<td><% bp.getController().writeFormLabel( out, "pg_distinta_tesoreria"); %></td>
+			<td><% bp.getController().writeFormInput( out, "pg_distinta_tesoreria"); %></td>
 			<td><% bp.getController().writeFormLabel( out, "dt_emissione"); %></td>
 			<td><% bp.getController().writeFormInput( out, "dt_emissione"); %></td>
 			<td><% bp.getController().writeFormLabel( out, "stato"); %></td>
@@ -103,6 +105,19 @@
 	
   </table>
   </div>
+<div class="Group">
+	<fieldset class="fieldset">
+		<legend class="GroupLabel text-primary ml-2 h2">Tesoreria</legend>
+		<div class="card p-2 w-100">
+			<table border="0" cellspacing="0" cellpadding="2" class="w-100 h-100">
+				<tr>
+					<td><% bp.getController().writeFormLabel( out, "selezione_tesoreria"); %></td>
+					<td><% bp.getController().writeFormInput( out,"default", "selezione_tesoreria", false, null,"onchange=\"submitForm('doCambiaTesoreria')\"" ); %></td>
+				</tr>
+			</table>
+		</div>
+	</fieldset>
+</div>
 <% if (!bp.isSearching() && bp.isSiope_attiva() && reversale.isRequiredSiope()) {%>
   <div class="Group">
 	<fieldset class="fieldset">

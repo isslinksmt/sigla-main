@@ -45,6 +45,15 @@ function doScaricaFirmato() {
 		</tr>
 	</table>	
    </div>
+    <div class="Group">
+        <b class="text-info h3 d-flex justify-content-center mt-2">PROGRESSIVO MANDATI/REVERSALI</b>
+        <table class="Panel card border-info p-2 mt-2">
+            <tr>
+                <td><% bp.getController().writeFormLabel( out, "pg_man_rev_dis"); %></td>
+                <td><% bp.getController().writeFormInput( out, "pg_man_rev_dis"); %></td>
+            </tr>
+        </table>
+    </div>
    <% if (bp.isAttivoSiopeplus()) { %>
    <div class="Group">
    	<b class="text-info h3 d-flex justify-content-center mt-2">SIOPE+</b>

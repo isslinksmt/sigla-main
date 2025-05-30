@@ -17,11 +17,14 @@
 
 package it.cnr.contab.config00.ejb;
 
+import it.cnr.contab.config00.bulk.Configurazione_cnrBulk;
 import it.cnr.contab.config00.comp.Configurazione_cnrComponent;
+import it.cnr.contab.config00.dto.TesoreriaDto;
 import it.cnr.contab.util.enumeration.TipoRapportoTesoreriaEnum;
 import it.cnr.jada.UserContext;
 import it.cnr.jada.action.AdminUserContext;
 import it.cnr.jada.comp.ComponentException;
+import it.cnr.jada.comp.NoRollbackException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,7 @@ import javax.ejb.Remove;
 import javax.ejb.Stateless;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Stateless(name = "CNRCONFIG00_EJB_Configurazione_cnrComponentSession")
@@ -1078,5 +1082,124 @@ public class Configurazione_cnrComponentSessionBean extends it.cnr.jada.ejb.CRUD
         }
     }
 
+    @Override
+    public Boolean isAttivoGestFlIrregistrabile(UserContext userContext) throws ComponentException, RemoteException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            Boolean result = ((Configurazione_cnrComponent)componentObj).isAttivoGestFlIrregistrabile(userContext);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+
+    @Override
+    public Boolean isLiqIvaAnticipataFattAttiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException {
+        pre_component_invocation(param0, componentObj);
+        try {
+            Boolean result = ((Configurazione_cnrComponent)componentObj).isLiqIvaAnticipataFattAttiva(param0,dataFattura);
+            component_invocation_succes(param0, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(param0, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(param0, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(param0, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(param0, componentObj, e);
+        }
+    }
+
+    @Override
+    public Boolean isLiqIvaAnticipataFattPassiva(UserContext param0, Timestamp dataFattura) throws ComponentException, RemoteException {
+        pre_component_invocation(param0, componentObj);
+        try {
+            Boolean result = ((Configurazione_cnrComponent)componentObj).isLiqIvaAnticipataFattPassiva(param0,dataFattura);
+            component_invocation_succes(param0, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(param0, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(param0, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(param0, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(param0, componentObj, e);
+        }
+    }
+
+
+
+    public Timestamp getFineRegFattPass(UserContext userContext, Integer esercizio) throws it.cnr.jada.comp.ComponentException, javax.ejb.EJBException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            Timestamp result = ((Configurazione_cnrComponent)componentObj).getFineRegFattPass(userContext, esercizio);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (it.cnr.jada.comp.ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+    public List<TesoreriaDto> findTesorerie(UserContext userContext) throws ComponentException {
+        pre_component_invocation(userContext, componentObj);
+        try {
+            List<TesoreriaDto> result = ((Configurazione_cnrComponent)componentObj).findTesorerie(userContext);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
+
+    public List<Configurazione_cnrBulk> findTesorerieConfigurazioneCNR(UserContext userContext) throws ComponentException, RemoteException{
+        pre_component_invocation(userContext, componentObj);
+        try {
+            List<Configurazione_cnrBulk> result = ((Configurazione_cnrComponent)componentObj).findTesorerieConfigurazioneCNR(userContext);
+            component_invocation_succes(userContext, componentObj);
+            return result;
+        } catch (it.cnr.jada.comp.NoRollbackException e) {
+            component_invocation_succes(userContext, componentObj);
+            throw e;
+        } catch (ComponentException e) {
+            component_invocation_failure(userContext, componentObj);
+            throw e;
+        } catch (RuntimeException e) {
+            throw uncaughtRuntimeException(userContext, componentObj, e);
+        } catch (Error e) {
+            throw uncaughtError(userContext, componentObj, e);
+        }
+    }
 
 }

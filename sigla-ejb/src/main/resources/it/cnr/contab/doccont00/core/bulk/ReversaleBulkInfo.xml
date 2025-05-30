@@ -31,6 +31,29 @@
 		enabledOnInsert="false"
 		enabledOnSearch="true" />
 	<fieldProperty
+			name="selezione_tesoreria"
+			property="selezione_tesoreria"
+			inputType="SELECT"
+			optionsProperty="selezione_tesoreriaOptions"
+			readonlyProperty="ROSelezionaTesoreria"
+			nullable="false"
+			inputSize="40"
+			label="Tesoreria"
+			enabledOnSearch="true"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			caseSensitiveSearch="false" />
+	<fieldProperty
+			name="pg_distinta_tesoreria"
+			property="pg_distinta_tesoreria"
+			inputType="TEXT"
+			label="Numero Reversale (BANCA)"
+			maxLength="10"
+			inputSize="10"
+			enabledOnEdit="false"
+			enabledOnInsert="false"
+			enabledOnSearch="true" />
+	<fieldProperty
 		name="dt_ritrasmissione"
 		property="dt_ritrasmissione"
 		inputType="TEXT"
@@ -201,7 +224,7 @@
 		name="pg_reversale"
 		property="pg_reversale"
 		inputType="TEXT"
-		label="Numero Reversale"
+		label="Numero Reversale (SIGLA)"
 		maxLength="10"
 		inputSize="10"
 		enabledOnEdit="false"
@@ -362,9 +385,9 @@
 
 
 	<formFieldProperty
-		name="dt_trasmissione" />
+		name="dt_trasmissione"/>
 	<formFieldProperty
-		name="dt_ritrasmissione" />
+		name="dt_ritrasmissione"/>
 	<formFieldProperty
 			name="dt_incasso"/>
 	<formFieldProperty
@@ -373,6 +396,8 @@
 		name="ds_cds" />
 	<formFieldProperty
 		name="unita_organizzativa" />
+	<formFieldProperty
+			name="selezione_tesoreria" />
 	<formFieldProperty
 		name="cd_unita_organizzativa" />
 	<formFieldProperty
@@ -398,6 +423,8 @@
 	<formFieldProperty
 		name="pg_reversale" />
 	<formFieldProperty
+			name="pg_distinta_tesoreria" />
+	<formFieldProperty
 		name="ti_competenza_residuo" />
 	<formFieldProperty
 		name="im_reversale" />
@@ -416,9 +443,9 @@
 	<formFieldProperty
 		name="im_da_associare_siope" />
 	<formFieldProperty
-		name="stato_trasmissione_annullo" />
+		name="stato_trasmissione_annullo"/>
 	<formFieldProperty
-		name="pg_reversale_riemissione" />		
+		name="pg_reversale_riemissione" />
 	<formFieldProperty
 		name="ds_documento_cont" />
 	<formFieldProperty
@@ -432,9 +459,10 @@
 			name="erroreSiopePlus" />
 	<formFieldProperty
 			name="statoVarSos"/>
-
 	<columnFieldProperty
 		name="esercizio" />
+	<columnFieldProperty
+			name="selezione_tesoreria"/>
 	<columnFieldProperty
 		name="cd_cds"
 		inputType="TEXT"/>
@@ -446,7 +474,9 @@
 	<columnFieldProperty
 		name="cd_uo_origine"/>
 	<columnFieldProperty
-		name="pg_reversale" />
+		name="pg_reversale"/>
+	<columnFieldProperty
+			name="pg_distinta_tesoreria"/>
 	<columnFieldProperty
 		name="stato" />
 	<columnFieldProperty
@@ -475,6 +505,8 @@
 		name="cd_unita_organizzativa"/>
 	<findFieldProperty
 		name="pg_reversale" />
+	<findFieldProperty
+			name="pg_distinta_tesoreria" />
 	<findFieldProperty
 		name="ds_reversale" />
 	<findFieldProperty
@@ -519,5 +551,6 @@
 			name="erroreSiopePlus" />
 	<findFieldProperty
 			name="statoVarSos" />
-
+	<findFieldProperty
+			name="selezione_tesoreria" />
 </bulkInfo>

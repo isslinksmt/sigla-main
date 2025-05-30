@@ -110,6 +110,7 @@ public class ReversaleResource implements ReversaleLocal {
         reversaleIBulk.setStato_trasmissione(ReversaleIBulk.STATO_TRASMISSIONE_NON_INSERITO);
         reversaleIBulk.setStato_coge("N");
         reversaleIBulk.setCd_cds(reversaleRequest.getCds());
+        reversaleIBulk.setSelezione_tesoreria(reversaleRequest.getTesoreria());
         return reversaleIBulk;
     }
 
@@ -120,6 +121,7 @@ public class ReversaleResource implements ReversaleLocal {
         reversaleDto.setUnitaOrganizzativa(reversaleIBulk.getCd_unita_organizzativa());
         reversaleDto.setImportoReversale(reversaleIBulk.getIm_reversale());
         reversaleDto.setDescrizioneReversale(reversaleIBulk.getDs_reversale());
+        reversaleDto.setTesoreria(reversaleIBulk.getSelezione_tesoreria());
         return reversaleDto;
     }
 }

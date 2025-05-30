@@ -194,7 +194,7 @@
             inputType="TEXT"
             enabledOnSearch="true"
             enabledOnFreeSearch="true"
-            label="Nr. documento"/>
+            label="Numero documento (SIGLA)"/>
     <fieldProperty
             name="pg_documento_cont_padre"
             property="pg_documento_cont_padre"
@@ -209,6 +209,16 @@
             inputType="SELECT"
             keysProperty="cd_tipo_documento_contKeys"
             label="Mandato / Reversale"
+            enabledOnSearch="true"
+            caseSensitiveSearch="false"/>
+    <fieldProperty
+            name="selezione_tesoreria"
+            property="selezione_tesoreria"
+            maxLength="40"
+            inputSize="40"
+            inputType="SELECT"
+            optionsProperty="selezione_tesoreriaOptions"
+            label="Tesoreria"
             enabledOnSearch="true"
             caseSensitiveSearch="false"/>
     <fieldProperty
@@ -294,6 +304,8 @@
 
     <formFieldProperty
             name="dt_trasmissione"/>
+    <formFieldProperty
+            name="selezione_tesoreria"/>
     <formFieldProperty
             name="cd_cds"/>
     <formFieldProperty
@@ -582,7 +594,6 @@
                 property="dt_firma"
                 inputType="TEXT"
                 label="Data di Firma"/>
-
     </columnSet>
 
     <columnSet
@@ -593,6 +604,11 @@
                 name="cd_tipo_documento_cont"/>
         <columnFieldProperty
                 name="pg_documento_cont"/>
+        <columnFieldProperty
+                name="pg_distinta_tesoreria"
+                property="pg_distinta_tesoreria"
+                inputType="TEXT"
+                label="Numero documento (BANCA)"/>
         <columnFieldProperty
                 name="ti_documento_cont"/>
         <columnFieldProperty
@@ -605,8 +621,6 @@
                 name="stato"/>
         <columnFieldProperty
                 name="stato_trasmissione"/>
-        <columnFieldProperty
-                name="ti_cc_bi"/>
         <columnFieldProperty
                 name="ds_documento_cont"/>
         <columnFieldProperty
@@ -683,6 +697,8 @@
             name="stato"/>
     <findFieldProperty
             name="stato_trasmissione"/>
+    <findFieldProperty
+            name="selezione_tesoreria"/>
     <findFieldProperty
             name="esercizio"/>
     <findFieldProperty

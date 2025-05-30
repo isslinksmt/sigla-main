@@ -28,6 +28,7 @@ public class MandatoDto implements Serializable {
     private BigDecimal importoRitenute;
     private LocalDate dataRitrasmissione;
     private LocalDate dataFirma;
+    private String tesoreria;
 
     public String getCdCds() {
         return cdCds;
@@ -203,5 +204,13 @@ public class MandatoDto implements Serializable {
 
     public void setDataFirma(LocalDate dataFirma) {
         this.dataFirma = dataFirma;
+    }
+
+    public String getTesoreria() {
+        return tesoreria;
+    }
+
+    public void setTesoreria(String tesoreria) {
+        this.tesoreria = tesoreria;
     }
 }

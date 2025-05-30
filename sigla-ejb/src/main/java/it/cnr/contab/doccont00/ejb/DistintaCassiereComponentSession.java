@@ -48,6 +48,8 @@ public interface DistintaCassiereComponentSession extends it.cnr.jada.ejb.CRUDDe
 
     it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaTotali(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;
 
+    it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1, boolean param2) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;
+
     it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk caricaLogs(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk param1) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;
 
     it.cnr.jada.util.RemoteIterator cercaFile_Cassiere(it.cnr.jada.UserContext param0, it.cnr.jada.persistency.sql.CompoundFindClause param1) throws it.cnr.jada.comp.ComponentException, java.rmi.RemoteException;

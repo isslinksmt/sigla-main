@@ -90,6 +90,25 @@ public class TransactionalDistintaCassiereComponentSession extends it.cnr.jada.e
         }
     }
 
+    public it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk calcolaMinProgressivoManRev(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk param1, boolean param2) throws RemoteException, it.cnr.jada.comp.ComponentException {
+        try {
+            return (it.cnr.contab.doccont00.intcass.bulk.Distinta_cassiereBulk) invoke("calcolaMinProgressivoManRev", new Object[]{
+                    param0,
+                    param1,
+                    param2});
+        } catch (java.rmi.RemoteException e) {
+            throw e;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            try {
+                throw e.getTargetException();
+            } catch (it.cnr.jada.comp.ComponentException ex) {
+                throw ex;
+            } catch (Throwable ex) {
+                throw new java.rmi.RemoteException("Uncaugth exception", ex);
+            }
+        }
+    }
+
     public it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk caricaLogs(it.cnr.jada.UserContext param0, it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk param1) throws RemoteException, it.cnr.jada.comp.ComponentException {
         try {
             return (it.cnr.contab.doccont00.intcass.bulk.V_ext_cassiere00Bulk) invoke("caricaLogs", new Object[]{

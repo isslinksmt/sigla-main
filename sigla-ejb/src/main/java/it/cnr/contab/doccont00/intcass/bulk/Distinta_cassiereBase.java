@@ -63,7 +63,7 @@ public class Distinta_cassiereBase extends Distinta_cassiereKey implements Keyed
 	private String stato;
 
 	private String cd_tesoreria;
-
+	private Long pg_man_rev_dis;
 	public Distinta_cassiereBase() {
 		super();
 	}
@@ -243,5 +243,11 @@ public class Distinta_cassiereBase extends Distinta_cassiereKey implements Keyed
 	public void setCd_tesoreria(String cd_tesoreria) {
 		this.cd_tesoreria = cd_tesoreria;
 	}
+	public Long getPg_man_rev_dis() {
+		return pg_man_rev_dis;
+	}
 
+	public void setPg_man_rev_dis(Long pg_man_rev_dis) {
+		this.pg_man_rev_dis = pg_man_rev_dis;
+	}
 }

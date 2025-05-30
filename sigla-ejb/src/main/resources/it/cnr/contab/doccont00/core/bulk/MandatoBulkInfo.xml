@@ -21,6 +21,29 @@
 		xmlns="https://contab.cnr.it/schema/SIGLA" 
 		xsi:schemaLocation="https://contab.cnr.it/schema/SIGLA https://contab.cnr.it/schema/SIGLA/BulkInfo_1_5.xsd">
 	<fieldProperty
+			name="selezione_tesoreria"
+			property="selezione_tesoreria"
+			inputType="SELECT"
+			optionsProperty="selezione_tesoreriaOptions"
+			readonlyProperty="ROSelezionaTesoreria"
+			nullable="false"
+			inputSize="40"
+			label="Tesoreria"
+			enabledOnSearch="true"
+			enabledOnInsert="true"
+			enabledOnEdit="true"
+			caseSensitiveSearch="false" />
+	<fieldProperty
+			name="pg_distinta_tesoreria"
+			property="pg_distinta_tesoreria"
+			inputType="TEXT"
+			label="Numero Mandato (BANCA)"
+			maxLength="10"
+			inputSize="8"
+			enabledOnEdit="false"
+			enabledOnInsert="false"
+			enabledOnSearch="true"/>
+	<fieldProperty
 		name="im_disp_cassa"
 		property="im_disp_cassa"
 		inputType="ROTEXT"
@@ -184,7 +207,7 @@
 		name="pg_mandato"
 		property="pg_mandato"
 		inputType="TEXT"
-		label="Numero Mandato"
+		label="Numero Mandato (SIGLA)"
 		maxLength="10"
 		inputSize="8"
 		enabledOnEdit="false"
@@ -393,6 +416,11 @@
 			inputSize="10"
 			inputType="TEXT" />
 		<formFieldProperty
+				name="pg_distinta_tesoreria"
+				maxLength="10"
+				inputSize="10"
+				inputType="TEXT" />
+		<formFieldProperty
 			name="ds_mandato"
 			maxLength="300"
 			inputSize="70"
@@ -412,6 +440,8 @@
 		name="ds_cds"/>
 	<formFieldProperty
 		name="unita_organizzativa" />
+	<formFieldProperty
+			name="selezione_tesoreria" />
 	<formFieldProperty
 		name="cd_unita_organizzativa" />
 	<formFieldProperty
@@ -433,7 +463,9 @@
 	<formFieldProperty
 		name="ti_mandato" />
 	<formFieldProperty
-		name="pg_mandato" />
+		name="pg_mandato"/>
+	<formFieldProperty
+			name="pg_distinta_tesoreria"/>
 	<formFieldProperty
 		name="ti_competenza_residuo" />
 	<formFieldProperty
@@ -476,7 +508,8 @@
 	<formFieldProperty
 		name="statoVarSos" />
 
-
+	<columnFieldProperty
+			name="selezione_tesoreria"/>
 	<columnFieldProperty
 		name="esercizio"/>
 	<columnFieldProperty
@@ -488,6 +521,8 @@
 		name="cd_uo_origine"/>
 	<columnFieldProperty
 		name="pg_mandato" />
+	<columnFieldProperty
+			name="pg_distinta_tesoreria" />
 	<columnFieldProperty
 		name="ti_competenza_residuo" />
 	<columnFieldProperty
@@ -538,6 +573,8 @@
 	<findFieldProperty
 		name="pg_mandato"/>
 	<findFieldProperty
+			name="pg_distinta_tesoreria"/>
+	<findFieldProperty
 		name="ds_mandato"/>
 	<findFieldProperty
 		name="stato" />
@@ -581,4 +618,6 @@
 			name="erroreSiopePlus" />
 	<findFieldProperty
 			name="statoVarSos" />
+	<findFieldProperty
+			name="selezione_tesoreria" />
 </bulkInfo>
