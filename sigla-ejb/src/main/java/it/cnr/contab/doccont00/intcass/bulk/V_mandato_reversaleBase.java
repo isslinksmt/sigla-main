@@ -102,6 +102,9 @@ public class V_mandato_reversaleBase extends V_mandato_reversaleKey implements P
 	// STATO_VAR_SOS VARCHAR2(30)
 	private java.lang.String statoVarSos;
 
+	// SELEZIONE_TESORERIA VARCHAR(40)
+	private java.lang.String selezione_tesoreria;
+
 	public V_mandato_reversaleBase() {
 		super();
 	}
@@ -412,4 +415,12 @@ public class V_mandato_reversaleBase extends V_mandato_reversaleKey implements P
     public void setPg_distinta_tesoreria(Long pg_distinta_tesoreria) {
         this.pg_distinta_tesoreria = pg_distinta_tesoreria;
     }
+
+	public java.lang.String getSelezione_tesoreria() {
+		return selezione_tesoreria;
+	}
+
+	public void setSelezione_tesoreria(java.lang.String selezione_tesoreria) {
+		this.selezione_tesoreria = selezione_tesoreria;
+	}
 }
