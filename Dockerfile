@@ -11,4 +11,4 @@ ENV ESERCIZIO=2024
 
 EXPOSE 8080
 
-CMD java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Dliquibase.bootstrap.esercizio=$ESERCIZIO -Djava.security.egd=file:/dev/./urandom -jar /opt/sigla-thorntail.jar
+CMD java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Djavax.xml.accessExternalSchema=all -Djavax.xml.accessExternalDTD=all -Dliquibase.bootstrap.esercizio=$ESERCIZIO -Djava.security.egd=file:/dev/./urandom -jar /opt/sigla-thorntail.jar
