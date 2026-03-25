@@ -73,7 +73,7 @@
                 </executions>
                 <configuration>
                     <hollow>false</hollow>
-                    <bundleDependencies>false</bundleDependencies>
+                    <bundleDependencies>true</bundleDependencies>
                     <properties>
                         <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
                     </properties>
