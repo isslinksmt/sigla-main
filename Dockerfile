@@ -1,7 +1,7 @@
-FROM eclipse-temurin:8-jdk-alpine
+FROM amazoncorretto:8-alpine
 LABEL MAINTAINER Gabriele Arena <gabriele.arena@linksmt.it>
 
-RUN apk update && apk add tzdata python3
+RUN apk update && apk add --no-cache tzdata python3
 
 COPY sigla-web/target/sigla-thorntail.jar /opt/sigla-thorntail.jar
 COPY patch_xsd.py /opt/patch_xsd.py
