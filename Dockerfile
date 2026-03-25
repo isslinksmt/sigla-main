@@ -1,4 +1,4 @@
-FROM amazoncorretto:8-alpine
+FROM amazoncorretto:8u212-alpine
 LABEL MAINTAINER Gabriele Arena <gabriele.arena@linksmt.it>
 
 RUN apk update && apk add --no-cache tzdata python3
