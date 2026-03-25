@@ -32,6 +32,8 @@ EXPOSE 8080
 
 CMD java \
     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 \
+    -Djavax.net.ssl.trustStore=/usr/lib/jvm/java-8-amazon-corretto/lib/security/cacerts \
+    -Djavax.net.ssl.trustStorePassword=changeit \
     -Djavax.xml.accessExternalSchema=all \
     -Djavax.xml.accessExternalDTD=all \
     -Dliquibase.bootstrap.esercizio=$ESERCIZIO \
