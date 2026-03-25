@@ -1,22 +1,16 @@
 FROM amazoncorretto:8-alpine
 LABEL MAINTAINER Gabriele Arena <gabriele.arena@linksmt.it>
 
-RUN apk update && apk add --no-cache tzdata python3 openssl
+RUN apk update && apk add --no-cache tzdata python3
 
-# Scarica e importa il certificato del server Keycloak nel truststore Java
-RUN openssl s_client \
-    -connect devops-roma-k8s-dev-net.linksmt.it:443 \
-    -showcerts \
-    </dev/null 2>/dev/null \
-    | openssl x509 -outform PEM > /tmp/keycloak.crt \
-    && keytool -import \
-    -noprompt \
-    -trustcacerts \
+COPY keycloak.crt /tmp/keycloak.crt
+RUN CACERTS=$(find /usr/lib/jvm -name "cacerts" 2>/dev/null | head -1) && \
+    keytool -import -noprompt -trustcacerts \
     -alias keycloak-linksmt \
     -file /tmp/keycloak.crt \
-    -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
-    -storepass changeit \
-    && rm /tmp/keycloak.crt
+    -keystore "$CACERTS" \
+    -storepass changeit && \
+    rm /tmp/keycloak.crt
 
 COPY sigla-web/target/sigla-thorntail.jar /opt/sigla-thorntail.jar
 COPY patch_xsd.py /opt/patch_xsd.py
