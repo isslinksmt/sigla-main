@@ -1,6 +1,6 @@
 # DOCKER-VERSION 17.10.0-ce
-FROM openjdk:8-jdk-alpine
-MAINTAINER Marco Spasiano <marco.spasiano@cnr.it>
+FROM eclipse-temurin:8-jdk-alpine
+LABEL MAINTAINER Gabriele Arena <gabriele.arena@linksmt.it>
 
 RUN apk update
 RUN apk add tzdata
