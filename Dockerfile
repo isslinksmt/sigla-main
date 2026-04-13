@@ -2,7 +2,7 @@ FROM azul/zulu-openjdk-alpine:8u192
 LABEL maintainer="Gabriele Arena <gabriele.arena@linksmt.it>"
 
 RUN apk update && apk add tzdata python3
-
+ 
 COPY sigla-web/target/sigla-thorntail.jar /opt/sigla-thorntail.jar
 COPY patch_xsd.py /opt/patch_xsd.py
 
