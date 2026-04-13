@@ -1,5 +1,5 @@
-FROM eclipse-temurin:8-jdk-alpine
-LABEL MAINTAINER Gabriele Arena <gabriele.arena@linksmt.it>
+FROM azul/zulu-openjdk-alpine:8u192
+LABEL maintainer="Gabriele Arena <gabriele.arena@linksmt.it>"
 
 RUN apk update && apk add tzdata python3
 
