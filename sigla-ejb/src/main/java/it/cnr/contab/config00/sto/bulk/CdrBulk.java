@@ -152,7 +152,7 @@ public class CdrBulk extends CdrBase {
     @JsonIgnore
     public boolean isCdrSAC() {
         return
-                Integer.parseInt(getCd_proprio_cdr()) == 0 &&
+                getCd_proprio_cdr()!=null && Integer.parseInt(getCd_proprio_cdr()) == 0 &&
                         Tipo_unita_organizzativaHome.TIPO_UO_SAC.equals(getUnita_padre().getCd_tipo_unita());
     }
 
