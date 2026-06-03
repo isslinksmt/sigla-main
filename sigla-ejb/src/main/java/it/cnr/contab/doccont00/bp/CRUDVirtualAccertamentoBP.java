@@ -242,7 +242,7 @@ public abstract class CRUDVirtualAccertamentoBP
 					EsercizioBulk es = session.verificaStatoEsercizio(context.getUserContext(), cds, esercizioScrivania);
 					EsercizioBulk esSucc = session.verificaStatoEsercizio(context.getUserContext(), cds, new Integer(esercizioScrivania.intValue()+1));
 					setSelectedAnnoPrec(es.getSt_apertura_chiusura().equals(es.STATO_APERTO) &&
-							esSucc.getSt_apertura_chiusura().equals(es.STATO_APERTO));
+							(esSucc!=null && esSucc.getSt_apertura_chiusura().equals(es.STATO_APERTO)));
 					if ( es.getSt_apertura_chiusura().equals(es.STATO_APERTO) &&
 							(esSucc!=null && esSucc.getSt_apertura_chiusura().equals(es.STATO_APERTO)) &&
 							isRibaltato()&&
