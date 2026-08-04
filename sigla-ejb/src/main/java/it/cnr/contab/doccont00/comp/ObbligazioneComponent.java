@@ -6395,20 +6395,20 @@ public void verificaTestataObbligazione (UserContext aUC,ObbligazioneBulk obblig
 			throw new ApplicationException("Non ci sono linee di Attività Valide");
 		}
 
-		logger.info("ValidaLineeAttivitaObbligazione -> Linee trovate: {}", lineeAttivitaValide.stream()
-						.map(as -> as.getEsercizio() + "/" + as.getCd_linea_attivita()
-								+ " CDR=" + as.getCd_centro_responsabilita())
-						.collect(Collectors.joining(", "))
-				);
-
-
 		if ( Optional.ofNullable(obbligazione.getObbligazione_scadenzarioColl()).isPresent()){
 				for ( Obbligazione_scadenzarioBulk scadenza:obbligazione.getObbligazione_scadenzarioColl()){
 						for( Obbligazione_scad_voceBulk scadVoce:scadenza.getObbligazione_scad_voceColl()){
 							if ( !(lineeAttivitaValide.stream().
 									filter(e->e.getCd_linea_attivita().equalsIgnoreCase(scadVoce.getCd_linea_attivita())).
 									filter(e->e.getCd_centro_responsabilita().equalsIgnoreCase(scadVoce.getCd_centro_responsabilita())).findFirst().isPresent())){
-								throw new ApplicationException("Il GAE" + scadVoce.getCd_centro_responsabilita()+"/"+scadVoce.getCd_linea_attivita()+" non è Utilizzabile");
+								throw new ApplicationException("Il GAE" + scadVoce.getCd_centro_responsabilita()+"/"+scadVoce.getCd_linea_attivita()+" non è Utilizzabile; le linee trovate sono: " +
+
+										lineeAttivitaValide.stream()
+												.map(as -> as.getEsercizio() + "/" + as.getCd_linea_attivita()
+														+ " CDR=" + as.getCd_centro_responsabilita())
+												.collect(Collectors.joining(", ", "[", "]"))
+
+										);
 							}
 						}
 				}
