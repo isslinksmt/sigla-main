@@ -65,6 +65,8 @@ import it.cnr.jada.persistency.PersistencyException;
 import it.cnr.jada.persistency.sql.*;
 import it.cnr.jada.util.DateUtils;
 import it.cnr.jada.util.ejb.EJBCommonServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJBException;
 import java.io.Serializable;
@@ -86,6 +88,9 @@ import java.util.stream.Stream;
 
 public class ObbligazioneComponent extends it.cnr.jada.comp.CRUDComponent implements IDocumentoContabileMgr,IObbligazioneMgr, ICRUDMgr, IPrintMgr, Cloneable,Serializable
 {
+
+	private transient static final Logger logger = LoggerFactory.getLogger(Utility.class);
+
 	private final static int INSERIMENTO = 1;
 	private final static int MODIFICA    = 2;
 	private final static int CANCELLAZIONE    = 3;
@@ -6384,7 +6389,18 @@ public void verificaTestataObbligazione (UserContext aUC,ObbligazioneBulk obblig
 		} catch (PersistencyException e) {
 			throw new RuntimeException(e);
 		}
-		Optional.ofNullable(lineeAttivitaValide).orElseThrow(() -> new ApplicationException("Non ci sono linee di Attività Valide"));
+		//Optional.ofNullable(lineeAttivitaValide).orElseThrow(() -> new ApplicationException("Non ci sono linee di Attività Valide"));
+
+		if (lineeAttivitaValide == null || lineeAttivitaValide.isEmpty()) {
+			throw new ApplicationException("Non ci sono linee di Attività Valide");
+		}
+
+		logger.info("ValidaLineeAttivitaObbligazione -> Linee trovate: {}", lineeAttivitaValide.stream()
+						.map(as -> as.getEsercizio() + "/" + as.getCd_linea_attivita()
+								+ " CDR=" + as.getCd_centro_responsabilita())
+						.collect(Collectors.joining(", "))
+				);
+
 
 		if ( Optional.ofNullable(obbligazione.getObbligazione_scadenzarioColl()).isPresent()){
 				for ( Obbligazione_scadenzarioBulk scadenza:obbligazione.getObbligazione_scadenzarioColl()){
