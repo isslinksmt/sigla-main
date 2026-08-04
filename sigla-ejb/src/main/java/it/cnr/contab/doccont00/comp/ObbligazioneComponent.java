@@ -6401,7 +6401,7 @@ public void verificaTestataObbligazione (UserContext aUC,ObbligazioneBulk obblig
 							if ( !(lineeAttivitaValide.stream().
 									filter(e->e.getCd_linea_attivita().equalsIgnoreCase(scadVoce.getCd_linea_attivita())).
 									filter(e->e.getCd_centro_responsabilita().equalsIgnoreCase(scadVoce.getCd_centro_responsabilita())).findFirst().isPresent())){
-								throw new ApplicationException("Il GAE" + scadVoce.getCd_centro_responsabilita()+"/"+scadVoce.getCd_linea_attivita()+" non è Utilizzabile; le linee trovate sono: " +
+								throw new ApplicationException("La GAE " + scadVoce.getCd_centro_responsabilita()+"/"+scadVoce.getCd_linea_attivita()+"/voce:" + obbligazione.getCd_elemento_voce() + " non è utilizzabile; le linee trovate sono: " +
 
 										lineeAttivitaValide.stream()
 												.map(as -> as.getEsercizio() + "/" + as.getCd_linea_attivita()
