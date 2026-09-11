@@ -327,7 +327,12 @@ public class AccertamentoResource implements AccertamentoLocal {
     }
 
     protected AccertamentoBulk creaAccertamentoSigla( AccertamentoBulk accertamentoBulk, CNRUserContext userContext) throws ComponentException, RemoteException, PersistencyException {
+        // inizializzaBulkPerInserimento reimposta dt_registrazione con DateServices.getDt_valida,
+        // sovrascrivendo la data ricevuta dal chiamante: la si conserva e la si riapplica dopo,
+        // come fa MandatoResource che valorizza dt_emissione a valle dell'inizializzazione.
+        Timestamp dtRegistrazioneRichiesta = accertamentoBulk.getDt_registrazione();
         accertamentoBulk = (AccertamentoBulk)  accertamentoComponentSession.inizializzaBulkPerInserimento(userContext,accertamentoBulk);
+        Optional.ofNullable(dtRegistrazioneRichiesta).ifPresent(accertamentoBulk::setDt_registrazione);
         accertamentoBulk.setToBeCreated();
        return ( AccertamentoBulk) accertamentoComponentSession.creaAccertamentoWs(userContext,accertamentoBulk);
 

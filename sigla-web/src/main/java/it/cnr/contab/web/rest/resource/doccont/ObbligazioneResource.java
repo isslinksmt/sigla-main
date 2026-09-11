@@ -316,7 +316,12 @@ public class ObbligazioneResource implements ObbligazioneLocal {
     }
 
     protected ObbligazioneBulk creaObbligazioneSigla( ObbligazioneBulk obbligazioneBulk, CNRUserContext userContext) throws ComponentException, RemoteException, PersistencyException {
+        // inizializzaBulkPerInserimento reimposta dt_registrazione con DateServices.getDt_valida,
+        // sovrascrivendo la data ricevuta dal chiamante: la si conserva e la si riapplica dopo,
+        // come fa MandatoResource che valorizza dt_emissione a valle dell'inizializzazione.
+        Timestamp dtRegistrazioneRichiesta = obbligazioneBulk.getDt_registrazione();
         obbligazioneBulk = (ObbligazioneBulk)  obbligazioneComponentSession.inizializzaBulkPerInserimento(userContext,obbligazioneBulk);
+        Optional.ofNullable(dtRegistrazioneRichiesta).ifPresent(obbligazioneBulk::setDt_registrazione);
         obbligazioneBulk.setToBeCreated();
         return ( ObbligazioneBulk) obbligazioneComponentSession.creaObbligazioneWs(userContext,obbligazioneBulk);
     }
