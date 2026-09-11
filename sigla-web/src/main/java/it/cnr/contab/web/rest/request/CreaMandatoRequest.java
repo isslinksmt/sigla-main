@@ -1,6 +1,7 @@
 package it.cnr.contab.web.rest.request;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class CreaMandatoRequest implements Serializable {
@@ -10,6 +11,7 @@ public class CreaMandatoRequest implements Serializable {
     private String descrizioneMandato;
     private List<Long> pgDocumentiPassivi;
     private String tesoreria;
+    private Timestamp dtEmissione;
     public String getUnitaOrganizzativa() {
         return unitaOrganizzativa;
     }
@@ -56,5 +58,13 @@ public class CreaMandatoRequest implements Serializable {
 
     public void setTesoreria(String tesoreria) {
         this.tesoreria = tesoreria;
+    }
+
+    public Timestamp getDtEmissione() {
+        return dtEmissione;
+    }
+
+    public void setDtEmissione(Timestamp dtEmissione) {
+        this.dtEmissione = dtEmissione;
     }
 }

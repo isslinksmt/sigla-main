@@ -172,7 +172,7 @@ public class ObbligazioneResource implements ObbligazioneLocal {
         obbligazioneBulk.setEsercizio_originale(obbligazioneDto.getEsercizio_originale());
         obbligazioneBulk.setCds(( CdsBulk) crudComponentSession.findByPrimaryKey( userContext,new CdsBulk(obbligazioneDto.getCdsKey().getCd_unita_organizzativa())));
         obbligazioneBulk.setUnita_organizzativa(( Unita_organizzativaBulk) crudComponentSession.findByPrimaryKey(userContext,new Unita_organizzativaBulk(obbligazioneDto.getUnitaOrganizzativaKey().getCd_unita_organizzativa())));
-        obbligazioneBulk.setDt_registrazione(it.cnr.jada.util.ejb.EJBCommonServices.getServerDate());
+        obbligazioneBulk.setDt_registrazione(Optional.ofNullable(obbligazioneDto.getDt_registrazione()).orElse(it.cnr.jada.util.ejb.EJBCommonServices.getServerDate()));
 
         obbligazioneBulk.setDs_obbligazione(obbligazioneDto.getDs_obbligazione());
 
@@ -300,6 +300,7 @@ public class ObbligazioneResource implements ObbligazioneLocal {
         obbligazioneDto.setStatoObbligazione(EnumStatoObbligazione.getValueFrom(obbligazioneBulk.getStato_obbligazione()));
         obbligazioneDto.setUnitaOrganizzativaKey(new Unita_organizzativaKey(obbligazioneBulk.getUnita_organizzativa().getCd_unita_organizzativa()));
         obbligazioneDto.setFl_gara_in_corso(obbligazioneBulk.getFl_gara_in_corso());
+        obbligazioneDto.setDt_registrazione(obbligazioneBulk.getDt_registrazione());
         Optional.ofNullable(obbligazioneBulk.getContratto()).ifPresent(e-> {
             obbligazioneDto.setContrattoKey(new ContrattoKey(e.getEsercizio(),e.getStato(),e.getPg_contratto()));
         });

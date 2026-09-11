@@ -7,6 +7,7 @@ import it.cnr.contab.config00.sto.bulk.CdsKey;
 import it.cnr.contab.config00.sto.bulk.Unita_organizzativaKey;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class AccertamentoDto extends AccertamentoKeyDto {
@@ -19,6 +20,7 @@ public class AccertamentoDto extends AccertamentoKeyDto {
     private BigDecimal im_accertamento;
     private CdsKey cdsOrgineKey;
     private CdsKey unitaOrganizzativaOrigineKey;
+    private Timestamp dt_registrazione;
 
     //private LineaAttivitaDto accertamentoLineaAttivitaDto;
     private List<AccertamentoScadenzarioDto> scadenze;
@@ -93,5 +95,13 @@ public class AccertamentoDto extends AccertamentoKeyDto {
 
     public void setUnitaOrganizzativaOrigineKey(CdsKey unitaOrganizzativaOrigineKey) {
         this.unitaOrganizzativaOrigineKey = unitaOrganizzativaOrigineKey;
+    }
+
+    public Timestamp getDt_registrazione() {
+        return dt_registrazione;
+    }
+
+    public void setDt_registrazione(Timestamp dt_registrazione) {
+        this.dt_registrazione = dt_registrazione;
     }
 }

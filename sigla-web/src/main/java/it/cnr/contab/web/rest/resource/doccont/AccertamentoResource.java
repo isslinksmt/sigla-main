@@ -170,7 +170,7 @@ public class AccertamentoResource implements AccertamentoLocal {
         accertamentoBulk.setEsercizio_originale(accertamentoDto.getEsercizio_originale());
         accertamentoBulk.setCds((CdsBulk) crudComponentSession.findByPrimaryKey( userContext,new CdsBulk(accertamentoDto.getCdsKey().getCd_unita_organizzativa())));
         accertamentoBulk.setUnita_organizzativa((Unita_organizzativaBulk) crudComponentSession.findByPrimaryKey(userContext,new Unita_organizzativaBulk(accertamentoDto.getUnitaOrganizzativaKey().getCd_unita_organizzativa())));
-        accertamentoBulk.setDt_registrazione(it.cnr.jada.util.ejb.EJBCommonServices.getServerDate());
+        accertamentoBulk.setDt_registrazione(Optional.ofNullable(accertamentoDto.getDt_registrazione()).orElse(it.cnr.jada.util.ejb.EJBCommonServices.getServerDate()));
         accertamentoBulk.setCd_cds_origine(accertamentoDto.getCdsOrgineKey().getCd_unita_organizzativa());
         accertamentoBulk.setCd_uo_origine(accertamentoDto.getUnitaOrganizzativaOrigineKey().getCd_unita_organizzativa());
 
@@ -308,6 +308,7 @@ public class AccertamentoResource implements AccertamentoLocal {
         accertamentoDto.setIm_accertamento(accertamentoBulk.getIm_accertamento());
         accertamentoDto.setCdsOrgineKey(new CdsKey(accertamentoBulk.getCd_cds_origine()));
         accertamentoDto.setUnitaOrganizzativaOrigineKey(new CdsKey(accertamentoBulk.getCd_uo_origine()));
+        accertamentoDto.setDt_registrazione(accertamentoBulk.getDt_registrazione());
 
         accertamentoDto.setUnitaOrganizzativaKey(new Unita_organizzativaKey(accertamentoBulk.getUnita_organizzativa().getCd_unita_organizzativa()));
 

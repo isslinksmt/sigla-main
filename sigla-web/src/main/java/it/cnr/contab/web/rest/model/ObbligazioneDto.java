@@ -6,6 +6,7 @@ import it.cnr.contab.config00.pdcfin.bulk.Elemento_voceKey;
 import it.cnr.contab.config00.sto.bulk.Unita_organizzativaKey;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class ObbligazioneDto extends ObbligazioneKeyDto {
@@ -18,6 +19,7 @@ public class ObbligazioneDto extends ObbligazioneKeyDto {
     private String ds_obbligazione;
     private BigDecimal im_obbligazione;
     private EnumStatoObbligazione statoObbligazione;
+    private Timestamp dt_registrazione;
 
    //private ScadenzarioVoceLineaAttivitaDto obbligazioneLineaAttivitaDto;
     private List<ObbligazioneScadenzarioDto> scadenze;
@@ -103,5 +105,13 @@ public class ObbligazioneDto extends ObbligazioneKeyDto {
 
     public void setScadenze(List<ObbligazioneScadenzarioDto> scadenze) {
         this.scadenze = scadenze;
+    }
+
+    public Timestamp getDt_registrazione() {
+        return dt_registrazione;
+    }
+
+    public void setDt_registrazione(Timestamp dt_registrazione) {
+        this.dt_registrazione = dt_registrazione;
     }
 }
