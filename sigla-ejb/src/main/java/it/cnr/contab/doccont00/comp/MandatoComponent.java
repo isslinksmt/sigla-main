@@ -20,7 +20,6 @@ package it.cnr.contab.doccont00.comp;
 import it.cnr.contab.anagraf00.core.bulk.*;
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBase;
 import it.cnr.contab.anagraf00.tabrif.bulk.Rif_modalita_pagamentoBulk;
-import it.cnr.contab.anagraf00.tabter.bulk.ComuneBulk;
 import it.cnr.contab.anagraf00.tabter.bulk.NazioneBulk;
 import it.cnr.contab.anagraf00.tabter.bulk.NazioneHome;
 import it.cnr.contab.coepcoan00.comp.ScritturaPartitaDoppiaFromDocumentoComponent;
@@ -820,23 +819,21 @@ public class MandatoComponent extends ScritturaPartitaDoppiaFromDocumentoCompone
                     throw new ApplicationException("E' possibile selezionare solo doc passivi dello stesso tipo COMPETENZA/RESIDUO.");
                 // creo mandato_riga
                 riga = creaMandatoRiga(aUC, mandato, docPassivo, terzoModalitaPagamento);
-                //controllo cap /swift
+                //controllo swift
+                //Il controllo sul CAP del terzo e' stato rimosso: per il bonifico SEPA
+                //(IBAN italiano) il CAP non viene mai inserito nel flusso OPI/SIOPE+,
+                //perche' il SEPA Credit Transfer non rientra in obb_dati_beneficiario
+                //(DistintaCassiereComponent.creaMandatoFlussoSiopeplus). Il controllo
+                //bloccava quindi proprio i casi in cui il dato non serve, mentre per
+                //cassa/assegno/compensazione - dove il CAP e' davvero obbligatorio nel
+                //flusso - non esisteva alcun controllo in emissione.
                 if (riga.getBanca() != null &&
                         ((Rif_modalita_pagamentoBulk.BANCARIO.equals(riga.getBanca().getTi_pagamento())
                                 || (Rif_modalita_pagamentoBulk.IBAN.equals(riga.getBanca().getTi_pagamento()))))) {
 
                     BancaBulk banca = (BancaBulk) getHome(aUC,BancaBulk.class).findByPrimaryKey(new BancaBulk(riga.getCd_terzo(), riga.getPg_banca()));
 
-                    if (banca != null && banca.getCodice_iban() != null && riga.getBanca().getAbi() != null && banca.getCodice_iban().startsWith("IT")) {
-                        if (riga.getCd_terzo() != null) {
-                            TerzoBulk terzo = (TerzoBulk) getHome(aUC,TerzoBulk.class).findByPrimaryKey(new TerzoBulk(riga.getCd_terzo()));
-                            if (terzo.getPg_comune_sede() != null) {
-                                ComuneBulk comune = (ComuneBulk) getHome(aUC,ComuneBulk.class).findByPrimaryKey(new ComuneBulk(terzo.getPg_comune_sede()));
-                                if (comune.getTi_italiano_estero().equals(NazioneBulk.ITALIA) && terzo.getCap_comune_sede() == null)
-                                    throw new ApplicationException("Attenzione per la modalità di pagamento presente sul documento è necessario indicare il cap sul terzo.");
-                            }
-                        }
-                    } else if (banca != null && banca.getCodice_iban() != null && riga.getBanca().getAbi() == null) {
+                    if (banca != null && banca.getCodice_iban() != null && riga.getBanca().getAbi() == null) {
                         NazioneHome nazioneHome = (NazioneHome) getHome(aUC,NazioneBulk.class);
                         SQLBuilder sqlExists = nazioneHome.createSQLBuilder();
                         sqlExists.addSQLClause(FindClause.AND, "NAZIONE.CD_ISO", SQLBuilder.EQUALS, banca.getCodice_iban().substring(0, 2));
