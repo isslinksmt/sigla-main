@@ -7260,7 +7260,11 @@ public java.util.Collection findModalita(UserContext aUC,Fattura_passiva_rigaBul
 
         try {
             Fattura_passivaHome fattpasHome = (Fattura_passivaHome) getHome(aUC, Fattura_passivaBulk.class);
-            if (!fatturaPassiva.isRiportataInScrivania() && !fatturaPassiva.isFromAmministra()) {
+            // Controllo di cronologia disattivato: la data di registrazione non deve piu'
+            // crescere insieme al progressivo. Serve per il caricamento dei dati pregressi,
+            // dove i protocolli vengono assegnati in ordine diverso da quello delle date.
+            // Da riattivare a caricamento concluso.
+            if (false && !fatturaPassiva.isRiportataInScrivania() && !fatturaPassiva.isFromAmministra()) { //NOSONAR
                 Timestamp dtMin = fattpasHome.findDataRegFatturaPrecedente(fatturaPassiva);
                 if (!(dtMin == null) && fatturaPassiva.getDt_registrazione().before(dtMin)) {
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
