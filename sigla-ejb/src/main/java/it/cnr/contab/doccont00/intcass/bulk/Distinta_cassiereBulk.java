@@ -33,6 +33,8 @@ import it.cnr.contab.service.SpringUtil;
 import it.cnr.contab.spring.service.StorePath;
 import it.cnr.jada.bulk.OggettoBulk;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Optional;
@@ -703,31 +705,34 @@ public class Distinta_cassiereBulk extends Distinta_cassiereBase implements Alle
 		return suffix;
 	}
 
+	/**
+	 * Identificativo flusso nel formato utilizzato dalla Banca Tesoriera:
+	 * <code>Ordinativi_&lt;yyyy-MM-dd&gt;_Distinta_&lt;pg_distinta_def&gt;</code>
+	 */
+	public static final String IDENTIFICATIVO_FLUSSO_PREFISSO = "Ordinativi_";
+	public static final String IDENTIFICATIVO_FLUSSO_SEPARATORE = "_Distinta_";
+	private static final DateTimeFormatter IDENTIFICATIVO_FLUSSO_DATA = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+	/**
+	 * Parte stabile dell'identificativo flusso (non dipende dalla data): serve a ritrovare
+	 * il flusso sul documentale anche se e' stato rigenerato in un giorno diverso.
+	 */
 	public String getBaseIdentificativoFlusso() {
-		return Arrays.asList(
-				Optional.ofNullable(getEsercizio())
-						.map(esercizio -> String.valueOf(esercizio))
-						.orElse("0"),
-				getCd_unita_organizzativa(),
+		return IDENTIFICATIVO_FLUSSO_SEPARATORE.concat(
 				Optional.ofNullable(getPg_distinta_def())
 						.map(pgDistintaDef -> String.valueOf(pgDistintaDef))
 						.orElse("0")
-		).stream().collect(
-				Collectors.joining("-")
 		);
-
 	}
+
 	public String getIdentificativoFlusso() {
-		return Arrays.asList(
-				getBaseIdentificativoFlusso(),
-				Optional.ofNullable(getStato())
-						.filter(s -> s.equals(Stato.RIFIUTATO_SIOPEPLUS.value()))
-						.map(s -> "R")
-						.orElse("I"),
-				String.valueOf(getPg_ver_rec())
-		).stream().collect(
-				Collectors.joining("-")
-		);
+		return IDENTIFICATIVO_FLUSSO_PREFISSO
+				.concat(IDENTIFICATIVO_FLUSSO_DATA.format(
+						Optional.ofNullable(getDt_invio())
+								.map(dtInvio -> dtInvio.toLocalDateTime().toLocalDate())
+								.orElseGet(LocalDate::now)
+				))
+				.concat(getBaseIdentificativoFlusso());
 	}
 
 	public String getFileNameXML() {
@@ -736,13 +741,26 @@ public class Distinta_cassiereBulk extends Distinta_cassiereBase implements Alle
 
 	public static Distinta_cassiereBulk fromIdentificativoFlusso(String identificativoFlusso) {
 		try {
+			if (identificativoFlusso != null && identificativoFlusso.startsWith(IDENTIFICATIVO_FLUSSO_PREFISSO)) {
+				final int posSeparatore = identificativoFlusso.indexOf(IDENTIFICATIVO_FLUSSO_SEPARATORE);
+				if (posSeparatore == -1)
+					return null;
+				final String data = identificativoFlusso.substring(IDENTIFICATIVO_FLUSSO_PREFISSO.length(), posSeparatore);
+				Distinta_cassiereBulk distinta = new Distinta_cassiereBulk();
+				distinta.setEsercizio(Integer.valueOf(data.substring(0, 4)));
+				distinta.setPg_distinta_def(Long.valueOf(
+						identificativoFlusso.substring(posSeparatore + IDENTIFICATIVO_FLUSSO_SEPARATORE.length()).trim()
+				));
+				return distinta;
+			}
+			/* formato storico: <esercizio>-<uo>-<pg_distinta_def>-<I|R>-<pg_ver_rec> */
 			final String[] split = identificativoFlusso.split("-");
 			Distinta_cassiereBulk distinta = new Distinta_cassiereBulk();
 			distinta.setEsercizio(Integer.valueOf(split[0]));
 			distinta.setCd_unita_organizzativa(split[1]);
 			distinta.setPg_distinta_def(Long.valueOf(split[2]));
 			return distinta;
-		} catch (NumberFormatException _ex) {
+		} catch (NumberFormatException | IndexOutOfBoundsException _ex) {
 			return null;
 		}
 	}

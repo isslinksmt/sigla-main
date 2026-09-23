@@ -4890,11 +4890,47 @@ public class DistintaCassiereComponent extends
         }
         throw new ApplicationException("Configurazione mancante per flusso Ordinativo [CODICE_ENTE]");
     }
+
+    /**
+     * Prologo dei flussi ordinativi nella forma prodotta dalla Banca Tesoriera: BOM UTF-8,
+     * dichiarazione senza <code>standalone</code> e riferimento al foglio di stile ORDINATIVI 3.02.
+     */
+    private static final String PROLOGO_FLUSSO_ORDINATIVI =
+            "﻿<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<?xml-stylesheet href=\"./ORDINATIVI_3.02.XSLT\" type=\"text/xsl\"?>\n";
+
+    /**
+     * La causale viene ricavata dalla descrizione del documento, che puo' contenere ritorni a capo
+     * e tabulazioni: nel flusso vanno resi come spazio singolo.
+     */
+    private static String normalizzaCausaleFlusso(String causale) {
+        return Optional.ofNullable(causale)
+                .map(s -> s.replaceAll("[\\r\\n\\t]+", " ").replaceAll(" {2,}", " ").trim())
+                .orElse(null);
+    }
+
+    /**
+     * Le persone giuridiche hanno in anagrafica la partita IVA (11 cifre) al posto del codice
+     * fiscale: nel flusso va valorizzato l'elemento corretto.
+     */
+    private static void assegnaCodiceFiscaleOPartitaIva(Beneficiario beneficiario, String codiceAnagrafico) {
+        if (beneficiario == null)
+            return;
+        String codice = Optional.ofNullable(codiceAnagrafico).map(String::trim).filter(s -> !s.isEmpty()).orElse(null);
+        if (codice != null && codice.length() == 11 && codice.chars().allMatch(Character::isDigit)) {
+            beneficiario.setPartitaIvaBeneficiario(codice);
+            beneficiario.setCodiceFiscaleBeneficiario(null);
+        } else {
+            beneficiario.setCodiceFiscaleBeneficiario(codice);
+        }
+    }
+
     public StorageObject generaFlussoSiopeplus(UserContext userContext, Distinta_cassiereBulk distinta) throws ComponentException,
             RemoteException {
         try {
             final DocumentiContabiliService documentiContabiliService = SpringUtil.getBean("documentiContabiliService", DocumentiContabiliService.class);
-            DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            /* XXX serve l'offset di fuso orario (es. 2026-07-17T12:18:38+02:00) come nei flussi della Banca Tesoriera */
+            DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
             JAXBContext jc = JAXBContext.newInstance("it.siopeplus");
             // creo i file del flusso
             // Testata
@@ -4933,7 +4969,7 @@ public class DistintaCassiereComponent extends
             testataFlusso.setIdentificativoFlusso(distinta.getIdentificativoFlusso());
             testataFlusso.setDataOraCreazioneFlusso(DatatypeFactory.newInstance().newXMLGregorianCalendar(
                     formatterTime.format(EJBCommonServices
-                            .getServerTimestamp().toLocalDateTime()))
+                            .getServerTimestamp().toLocalDateTime().atZone(ZoneId.systemDefault())))
             );
             testataFlusso.setCodiceEnte(codiceEnte);
             testataFlusso.setCodiceEnteBT(codiceEnteBT);
@@ -4980,6 +5016,7 @@ public class DistintaCassiereComponent extends
                         versanti.get(0).setTipoEntrata(null);
                         versanti.get(0).setDestinazione(null);
                         versanti.get(0).getClassificazione().clear();
+                        versanti.get(0).setCausale(normalizzaCausaleFlusso(versanti.get(0).getCausale()));
                     }
                 }
                 currentFlusso.getContent().add(objectFactory.createReversale(reversale));
@@ -4999,7 +5036,9 @@ public class DistintaCassiereComponent extends
                         beneficiari.get(0).setDestinazione(null);
                         beneficiari.get(0).getClassificazione().clear();
                         beneficiari.get(0).setSpese(null);
-                        beneficiari.get(0).getBeneficiario().setCodiceFiscaleBeneficiario(bulk.getTerzo().getCodice_fiscale_anagrafico());
+                        assegnaCodiceFiscaleOPartitaIva(beneficiari.get(0).getBeneficiario(),
+                                bulk.getTerzo().getCodice_fiscale_anagrafico());
+                        beneficiari.get(0).setCausale(normalizzaCausaleFlusso(beneficiari.get(0).getCausale()));
                         beneficiari.get(0).getSepaCreditTransfer().setIdentificativoEndToEnd(null);
                     }
                 }
@@ -5042,7 +5081,10 @@ public class DistintaCassiereComponent extends
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Marshaller jaxbMarshaller = jc.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            /* il prologo lo scriviamo noi: senza standalone e con il riferimento al foglio di stile */
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             jaxbMarshaller.marshal(currentFlusso, byteArrayOutputStream);
 
             //FIX per firma xml
@@ -5053,11 +5095,15 @@ public class DistintaCassiereComponent extends
             ).orElse("true").equalsIgnoreCase("true");
 
             if(!isTestataPresent){
-                out = out.replace("<testata_flusso>", "")
-                        .replace("</testata_flusso>", "");
+                out = out.replaceAll("(?m)^[ \\t]*</?testata_flusso>[ \\t]*\\r?\\n", "");
             }
 
-            out = out.replace("</flusso_ordinativi>", "\n</flusso_ordinativi>");
+            /* JAXB dichiara sul nodo radice il namespace della firma xmldsig anche quando non e' utilizzato */
+            out = out.replaceFirst("\\s+xmlns:ns\\d+=\"http://www\\.w3\\.org/2000/09/xmldsig#\"", "");
+
+            out = PROLOGO_FLUSSO_ORDINATIVI.concat(out);
+            if (!out.endsWith("\n"))
+                out = out.concat("\n");
 
             StorageFile storageFile = new StorageFile(out.getBytes(StandardCharsets.UTF_8), MimeTypes.XML.mimetype(), distinta.getFileNameXML());
             final StorageObject storageObject = documentiContabiliService.getStorageObjectBykey(

@@ -2382,8 +2382,9 @@ public class CRUDDistintaCassiereBP extends AllegatiCRUDBP<AllegatoGenericoBulk,
         if (!optStorageObject.isPresent()) {
             optStorageObject = documentiContabiliService.getChildren(documentiContabiliService.getStorageObjectByPath(storePath).getKey())
                     .stream()
+                    /* l'identificativo flusso contiene la data di generazione: cerco sulla sola parte stabile */
                     .filter(storageObject1 -> storageObject1.<String>getPropertyValue(StoragePropertyNames.NAME.value())
-                            .startsWith(baseIdentificativoFlusso))
+                            .contains(baseIdentificativoFlusso.concat(".")))
                     .max(Comparator.comparing(storageObject1 -> storageObject1.getPropertyValue("cmis:lastModificationDate")));
         }
         StorageObject storageObject = optStorageObject.orElseThrow(() -> new ApplicationException("Flusso ordinativi siope+ non trovato!"));
