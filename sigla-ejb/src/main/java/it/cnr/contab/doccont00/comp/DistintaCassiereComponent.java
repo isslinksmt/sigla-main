@@ -4892,12 +4892,16 @@ public class DistintaCassiereComponent extends
     }
 
     /**
-     * Prologo dei flussi ordinativi nella forma prodotta dalla Banca Tesoriera: BOM UTF-8,
-     * dichiarazione senza <code>standalone</code> e riferimento al foglio di stile ORDINATIVI 3.02.
+     * Prologo dei flussi ordinativi nella forma prodotta dalla Banca Tesoriera: BOM UTF-8 e
+     * dichiarazione senza <code>standalone</code>.
+     * <p>
+     * NON va aggiunto il riferimento al foglio di stile (<code>&lt;?xml-stylesheet
+     * href="./ORDINATIVI_3.02.XSLT" type="text/xsl"?&gt;</code>) presente nei file della Banca
+     * Tesoriera: l'allegato viene servito inline da scaricaAllegatoGenerico e il browser, non
+     * trovando l'XSLT accanto al file, fallisce la trasformazione e mostra una pagina bianca.
      */
     private static final String PROLOGO_FLUSSO_ORDINATIVI =
-            "﻿<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<?xml-stylesheet href=\"./ORDINATIVI_3.02.XSLT\" type=\"text/xsl\"?>\n";
+            "﻿<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
     /**
      * La causale viene ricavata dalla descrizione del documento, che puo' contenere ritorni a capo
